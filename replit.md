@@ -4,6 +4,8 @@
 
 pnpm workspace monorepo using TypeScript. Each package manages its own dependencies.
 
+The workspace now includes **MediQuick**, a React web app for medicine reminders and nearby pharmacy discovery. The app uses the shared Express API server and Replit PostgreSQL database for reminder persistence, with a keyless Google Maps search URL flow for pharmacy directions/search in the MVP.
+
 ## Stack
 
 - **Monorepo tool**: pnpm workspaces
@@ -15,6 +17,28 @@ pnpm workspace monorepo using TypeScript. Each package manages its own dependenc
 - **Validation**: Zod (`zod/v4`), `drizzle-zod`
 - **API codegen**: Orval (from OpenAPI spec)
 - **Build**: esbuild (CJS bundle)
+- **Web app**: React + Vite + Tailwind CSS
+
+## Artifacts
+
+- `artifacts/mediquick-app` — MediQuick web app at `/`
+- `artifacts/api-server` — shared API server at `/api`
+- `artifacts/mockup-sandbox` — canvas/mockup preview server at `/__mockup`
+
+## MediQuick API Surface
+
+- `GET /api/reminders` — list all reminders
+- `POST /api/reminders` — create a reminder with `medicineName` and `time`
+- `GET /api/reminders/today` — list today's reminders
+- `GET /api/reminders/summary` — summary totals and next reminder
+- `PATCH /api/reminders/:id/taken` — mark a reminder taken/not taken
+- `DELETE /api/reminders/:id` — delete a reminder
+- `GET /api/pharmacies/search?medicine=...` — search nearby pharmacy seed data and return a Google Maps search URL
+
+## Database Schema
+
+- `reminders` table in `lib/db/src/schema/reminders.ts`
+  - `id`, `medicine_name`, `time`, `taken`, `created_at`, `updated_at`
 
 ## Key Commands
 

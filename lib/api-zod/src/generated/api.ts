@@ -14,3 +14,140 @@ import * as zod from "zod";
 export const HealthCheckResponse = zod.object({
   status: zod.string(),
 });
+
+/**
+ * @summary List medicine reminders
+ */
+export const listRemindersResponseTimeRegExp = new RegExp(
+  "^([01]\\d|2[0-3]):[0-5]\\d$",
+);
+
+export const ListRemindersResponseItem = zod.object({
+  id: zod.number(),
+  medicineName: zod.string(),
+  time: zod.string().regex(listRemindersResponseTimeRegExp),
+  taken: zod.boolean(),
+  createdAt: zod.coerce.date(),
+  updatedAt: zod.coerce.date(),
+});
+export const ListRemindersResponse = zod.array(ListRemindersResponseItem);
+
+/**
+ * @summary Create a medicine reminder
+ */
+
+export const createReminderBodyTimeRegExp = new RegExp(
+  "^([01]\\d|2[0-3]):[0-5]\\d$",
+);
+
+export const CreateReminderBody = zod.object({
+  medicineName: zod.string().min(1),
+  time: zod.string().regex(createReminderBodyTimeRegExp),
+});
+
+/**
+ * @summary List today's reminders
+ */
+export const listTodayRemindersResponseTimeRegExp = new RegExp(
+  "^([01]\\d|2[0-3]):[0-5]\\d$",
+);
+
+export const ListTodayRemindersResponseItem = zod.object({
+  id: zod.number(),
+  medicineName: zod.string(),
+  time: zod.string().regex(listTodayRemindersResponseTimeRegExp),
+  taken: zod.boolean(),
+  createdAt: zod.coerce.date(),
+  updatedAt: zod.coerce.date(),
+});
+export const ListTodayRemindersResponse = zod.array(
+  ListTodayRemindersResponseItem,
+);
+
+/**
+ * @summary Reminder dashboard summary
+ */
+export const getReminderSummaryResponseNextReminderOneTimeRegExp = new RegExp(
+  "^([01]\\d|2[0-3]):[0-5]\\d$",
+);
+
+export const GetReminderSummaryResponse = zod.object({
+  total: zod.number(),
+  dueToday: zod.number(),
+  takenToday: zod.number(),
+  nextReminder: zod.union([
+    zod.object({
+      id: zod.number(),
+      medicineName: zod.string(),
+      time: zod
+        .string()
+        .regex(getReminderSummaryResponseNextReminderOneTimeRegExp),
+      taken: zod.boolean(),
+      createdAt: zod.coerce.date(),
+      updatedAt: zod.coerce.date(),
+    }),
+    zod.null(),
+  ]),
+});
+
+/**
+ * @summary Mark a reminder as taken or not taken
+ */
+export const MarkReminderTakenParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const MarkReminderTakenBody = zod.object({
+  taken: zod.boolean(),
+});
+
+export const markReminderTakenResponseTimeRegExp = new RegExp(
+  "^([01]\\d|2[0-3]):[0-5]\\d$",
+);
+
+export const MarkReminderTakenResponse = zod.object({
+  id: zod.number(),
+  medicineName: zod.string(),
+  time: zod.string().regex(markReminderTakenResponseTimeRegExp),
+  taken: zod.boolean(),
+  createdAt: zod.coerce.date(),
+  updatedAt: zod.coerce.date(),
+});
+
+/**
+ * @summary Delete a medicine reminder
+ */
+export const DeleteReminderParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+/**
+ * @summary Search nearby pharmacies by medicine
+ */
+export const SearchPharmaciesQueryParams = zod.object({
+  medicine: zod.coerce.string(),
+  lat: zod.coerce.number().optional(),
+  lng: zod.coerce.number().optional(),
+});
+
+export const SearchPharmaciesResponse = zod.object({
+  medicine: zod.string(),
+  center: zod.object({
+    lat: zod.number(),
+    lng: zod.number(),
+  }),
+  pharmacies: zod.array(
+    zod.object({
+      id: zod.string(),
+      name: zod.string(),
+      address: zod.string(),
+      phone: zod.string(),
+      lat: zod.number(),
+      lng: zod.number(),
+      distanceKm: zod.number(),
+      openNow: zod.boolean(),
+      medicines: zod.array(zod.string()),
+    }),
+  ),
+  mapUrl: zod.string(),
+});

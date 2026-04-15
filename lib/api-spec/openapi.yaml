@@ -10,6 +10,10 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: reminders
+    description: Medicine reminder operations
+  - name: pharmacies
+    description: Local medicine locator operations
 paths:
   /healthz:
     get:
@@ -24,6 +28,165 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /reminders:
+    get:
+      operationId: listReminders
+      tags: [reminders]
+      summary: List medicine reminders
+      responses:
+        "200":
+          description: Reminder list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Reminder"
+    post:
+      operationId: createReminder
+      tags: [reminders]
+      summary: Create a medicine reminder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateReminderInput"
+      responses:
+        "201":
+          description: Created reminder
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Reminder"
+        "400":
+          description: Invalid reminder input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /reminders/today:
+    get:
+      operationId: listTodayReminders
+      tags: [reminders]
+      summary: List today's reminders
+      responses:
+        "200":
+          description: Today's reminders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Reminder"
+  /reminders/summary:
+    get:
+      operationId: getReminderSummary
+      tags: [reminders]
+      summary: Reminder dashboard summary
+      responses:
+        "200":
+          description: Reminder summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReminderSummary"
+  /reminders/{id}/taken:
+    patch:
+      operationId: markReminderTaken
+      tags: [reminders]
+      summary: Mark a reminder as taken or not taken
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MarkReminderTakenInput"
+      responses:
+        "200":
+          description: Updated reminder
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Reminder"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Reminder not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /reminders/{id}:
+    delete:
+      operationId: deleteReminder
+      tags: [reminders]
+      summary: Delete a medicine reminder
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Reminder deleted
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Reminder not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /pharmacies/search:
+    get:
+      operationId: searchPharmacies
+      tags: [pharmacies]
+      summary: Search nearby pharmacies by medicine
+      parameters:
+        - name: medicine
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: lat
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: lng
+          in: query
+          required: false
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Pharmacy search result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PharmacySearchResult"
+        "400":
+          description: Invalid search
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 components:
   schemas:
     HealthStatus:
@@ -33,4 +196,131 @@ components:
           type: string
       required:
         - status
-
+    Reminder:
+      type: object
+      properties:
+        id:
+          type: integer
+        medicineName:
+          type: string
+        time:
+          type: string
+          pattern: "^([01]\\d|2[0-3]):[0-5]\\d$"
+        taken:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - medicineName
+        - time
+        - taken
+        - createdAt
+        - updatedAt
+    CreateReminderInput:
+      type: object
+      properties:
+        medicineName:
+          type: string
+          minLength: 1
+        time:
+          type: string
+          pattern: "^([01]\\d|2[0-3]):[0-5]\\d$"
+      required:
+        - medicineName
+        - time
+    MarkReminderTakenInput:
+      type: object
+      properties:
+        taken:
+          type: boolean
+      required:
+        - taken
+    ReminderSummary:
+      type: object
+      properties:
+        total:
+          type: integer
+        dueToday:
+          type: integer
+        takenToday:
+          type: integer
+        nextReminder:
+          anyOf:
+            - $ref: "#/components/schemas/Reminder"
+            - type: "null"
+      required:
+        - total
+        - dueToday
+        - takenToday
+        - nextReminder
+    Pharmacy:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        address:
+          type: string
+        phone:
+          type: string
+        lat:
+          type: number
+        lng:
+          type: number
+        distanceKm:
+          type: number
+        openNow:
+          type: boolean
+        medicines:
+          type: array
+          items:
+            type: string
+      required:
+        - id
+        - name
+        - address
+        - phone
+        - lat
+        - lng
+        - distanceKm
+        - openNow
+        - medicines
+    PharmacySearchResult:
+      type: object
+      properties:
+        medicine:
+          type: string
+        center:
+          type: object
+          properties:
+            lat:
+              type: number
+            lng:
+              type: number
+          required:
+            - lat
+            - lng
+        pharmacies:
+          type: array
+          items:
+            $ref: "#/components/schemas/Pharmacy"
+        mapUrl:
+          type: string
+      required:
+        - medicine
+        - center
+        - pharmacies
+        - mapUrl
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error

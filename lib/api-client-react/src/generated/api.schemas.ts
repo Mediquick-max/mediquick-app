@@ -8,3 +8,65 @@
 export interface HealthStatus {
   status: string;
 }
+
+export interface Reminder {
+  id: number;
+  medicineName: string;
+  /** @pattern ^([01]\d|2[0-3]):[0-5]\d$ */
+  time: string;
+  taken: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateReminderInput {
+  /** @minLength 1 */
+  medicineName: string;
+  /** @pattern ^([01]\d|2[0-3]):[0-5]\d$ */
+  time: string;
+}
+
+export interface MarkReminderTakenInput {
+  taken: boolean;
+}
+
+export interface ReminderSummary {
+  total: number;
+  dueToday: number;
+  takenToday: number;
+  nextReminder: Reminder | null;
+}
+
+export interface Pharmacy {
+  id: string;
+  name: string;
+  address: string;
+  phone: string;
+  lat: number;
+  lng: number;
+  distanceKm: number;
+  openNow: boolean;
+  medicines: string[];
+}
+
+export type PharmacySearchResultCenter = {
+  lat: number;
+  lng: number;
+};
+
+export interface PharmacySearchResult {
+  medicine: string;
+  center: PharmacySearchResultCenter;
+  pharmacies: Pharmacy[];
+  mapUrl: string;
+}
+
+export interface ErrorResponse {
+  error: string;
+}
+
+export type SearchPharmaciesParams = {
+  medicine: string;
+  lat?: number;
+  lng?: number;
+};
