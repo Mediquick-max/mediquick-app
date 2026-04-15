@@ -33,12 +33,18 @@ The workspace now includes **MediQuick**, a React web app for medicine reminders
 - `GET /api/reminders/summary` — summary totals and next reminder
 - `PATCH /api/reminders/:id/taken` — mark a reminder taken/not taken
 - `DELETE /api/reminders/:id` — delete a reminder
-- `GET /api/pharmacies/search?medicine=...` — search nearby pharmacy seed data and return a Google Maps search URL
+- `GET /api/pharmacies/search?medicine=...&lat=...&lng=...` — search nearby pharmacy seed data, rank by medicine availability and distance, and return a Google Maps search URL
 
 ## Database Schema
 
 - `reminders` table in `lib/db/src/schema/reminders.ts`
   - `id`, `medicine_name`, `time`, `taken`, `created_at`, `updated_at`
+
+## MediQuick MVP Notes
+
+- Pharmacy locator uses curated pharmacy seed data plus optional browser geolocation for nearby ranking.
+- The frontend includes quick medicine search chips, an embedded map preview, map/directions links, and phone call links.
+- Reminder notifications use browser notifications when allowed, with an alert fallback.
 
 ## Key Commands
 

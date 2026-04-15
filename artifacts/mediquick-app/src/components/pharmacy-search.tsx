@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useSearchPharmacies, getSearchPharmaciesQueryKey } from "@workspace/api-client-react";
-import { Search, MapPin, Navigation, Phone, Clock, Pill } from "lucide-react";
+import { Search, MapPin, Navigation, Phone, LocateFixed, Loader2, Pill } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -10,10 +10,21 @@ import { Badge } from "@/components/ui/badge";
 export function PharmacySearch() {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeSearch, setActiveSearch] = useState("");
+  const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [locating, setLocating] = useState(false);
+  const [locationMessage, setLocationMessage] = useState("Using default Delhi location. Tap location for nearby results.");
+
+  const searchParams = useMemo(
+    () => ({
+      medicine: activeSearch,
+      ...(location ? { lat: location.lat, lng: location.lng } : {}),
+    }),
+    [activeSearch, location],
+  );
 
   const { data: searchResult, isLoading, error } = useSearchPharmacies(
-    { medicine: activeSearch },
-    { query: { enabled: !!activeSearch, queryKey: getSearchPharmaciesQueryKey({ medicine: activeSearch }) } }
+    searchParams,
+    { query: { enabled: !!activeSearch, queryKey: getSearchPharmaciesQueryKey(searchParams) } }
   );
 
   const handleSearch = (e: React.FormEvent) => {
@@ -23,26 +34,84 @@ export function PharmacySearch() {
     }
   };
 
+  const useCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      setLocationMessage("Location is not supported in this browser.");
+      return;
+    }
+
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setLocation({
+          lat: Number(position.coords.latitude.toFixed(5)),
+          lng: Number(position.coords.longitude.toFixed(5)),
+        });
+        setLocationMessage("Using your current location for nearby pharmacy results.");
+        setLocating(false);
+      },
+      () => {
+        setLocationMessage("Could not access your location. Default Delhi location is still active.");
+        setLocating(false);
+      },
+      { enableHighAccuracy: true, timeout: 8000 },
+    );
+  };
+
+  const quickMedicines = ["Paracetamol", "Metformin", "Insulin", "Cetirizine"];
+  const embedMapUrl = searchResult
+    ? `https://maps.google.com/maps?q=${encodeURIComponent(`${searchResult.medicine} pharmacy near me`)}&ll=${searchResult.center.lat},${searchResult.center.lng}&z=13&output=embed`
+    : null;
+
   return (
     <div className="space-y-6" data-testid="section-pharmacy-search">
-      <form onSubmit={handleSearch} className="relative">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-        <Input
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Search for a medicine in nearby pharmacies..."
-          className="h-14 pl-12 pr-24 rounded-full bg-card shadow-sm border-transparent focus-visible:ring-primary focus-visible:border-transparent text-base"
-          data-testid="input-pharmacy-search"
-        />
-        <Button 
-          type="submit" 
-          className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-full h-11 px-6 shadow-sm"
-          disabled={!searchTerm.trim()}
-          data-testid="button-pharmacy-search"
-        >
-          Find
-        </Button>
-      </form>
+      <div className="rounded-[2rem] bg-card p-4 shadow-sm border border-border/50 space-y-4">
+        <form onSubmit={handleSearch} className="relative">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+          <Input
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search medicine..."
+            className="h-14 pl-12 pr-24 rounded-full bg-secondary/50 shadow-none border-transparent focus-visible:ring-primary focus-visible:border-transparent text-base"
+            data-testid="input-pharmacy-search"
+          />
+          <Button 
+            type="submit" 
+            className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-full h-11 px-6 shadow-sm"
+            disabled={!searchTerm.trim() || isLoading}
+            data-testid="button-pharmacy-search"
+          >
+            {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Find"}
+          </Button>
+        </form>
+
+        <div className="flex flex-wrap gap-2">
+          {quickMedicines.map((medicine) => (
+            <Button
+              key={medicine}
+              type="button"
+              variant="secondary"
+              size="sm"
+              className="rounded-full"
+              onClick={() => {
+                setSearchTerm(medicine);
+                setActiveSearch(medicine);
+              }}
+            >
+              <Pill className="w-3.5 h-3.5 mr-1.5" />
+              {medicine}
+            </Button>
+          ))}
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between text-sm text-muted-foreground">
+          <p>{locationMessage}</p>
+          <Button type="button" variant="outline" size="sm" className="rounded-full gap-2 shrink-0" onClick={useCurrentLocation} disabled={locating}>
+            {locating ? <Loader2 className="w-4 h-4 animate-spin" /> : <LocateFixed className="w-4 h-4" />}
+            Use my location
+          </Button>
+        </div>
+      </div>
 
       {isLoading && (
         <div className="space-y-4">
@@ -82,6 +151,18 @@ export function PharmacySearch() {
               </Button>
             )}
           </div>
+
+          {embedMapUrl && (
+            <Card className="overflow-hidden rounded-3xl border-transparent shadow-sm">
+              <iframe
+                title={`Map for ${searchResult.medicine}`}
+                src={embedMapUrl}
+                className="h-72 w-full border-0"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+              />
+            </Card>
+          )}
           
           {searchResult.pharmacies.length === 0 ? (
             <Card className="p-8 text-center text-muted-foreground rounded-3xl border-dashed">

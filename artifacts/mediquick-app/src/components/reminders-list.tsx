@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 
 export function RemindersList() {
   const { data: reminders, isLoading } = useListTodayReminders();
+  const [notifiedIds, setNotifiedIds] = useState<number[]>([]);
   const queryClient = useQueryClient();
   const { toast } = useToast();
   
@@ -58,7 +59,7 @@ export function RemindersList() {
 
   // Browser notifications
   useEffect(() => {
-    if (!reminders || !window.Notification) return;
+    if (!reminders || !("Notification" in window)) return;
     
     if (Notification.permission !== "granted" && Notification.permission !== "denied") {
       Notification.requestPermission();
@@ -69,19 +70,22 @@ export function RemindersList() {
       const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
       
       reminders.forEach(reminder => {
-        if (!reminder.taken && reminder.time === currentTime) {
+        if (!reminder.taken && reminder.time === currentTime && !notifiedIds.includes(reminder.id)) {
           if (Notification.permission === "granted") {
             new Notification("Medicine Reminder", {
               body: `It's time to take your ${reminder.medicineName}`,
               icon: "/favicon.svg"
             });
+          } else {
+            window.alert(`Time to take ${reminder.medicineName}`);
           }
+          setNotifiedIds((ids) => [...ids, reminder.id]);
         }
       });
     }, 60000); // Check every minute
 
     return () => clearInterval(interval);
-  }, [reminders]);
+  }, [reminders, notifiedIds]);
 
   if (isLoading) {
     return (
@@ -152,7 +156,7 @@ export function RemindersList() {
             <Button
               variant="ghost"
               size="icon"
-              className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full flex-shrink-0"
+              className="opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full flex-shrink-0"
               onClick={() => deleteReminder.mutate({ id: reminder.id })}
               disabled={deleteReminder.isPending}
               data-testid={`button-delete-reminder-${reminder.id}`}

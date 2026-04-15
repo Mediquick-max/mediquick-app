@@ -5,6 +5,19 @@ const router: IRouter = Router();
 
 const defaultCenter = { lat: 28.6139, lng: 77.209 };
 
+function distanceKm(from: { lat: number; lng: number }, to: { lat: number; lng: number }) {
+  const earthRadiusKm = 6371;
+  const dLat = ((to.lat - from.lat) * Math.PI) / 180;
+  const dLng = ((to.lng - from.lng) * Math.PI) / 180;
+  const lat1 = (from.lat * Math.PI) / 180;
+  const lat2 = (to.lat * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.sin(dLng / 2) * Math.sin(dLng / 2) * Math.cos(lat1) * Math.cos(lat2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return Number((earthRadiusKm * c).toFixed(1));
+}
+
 const pharmacies = [
   {
     id: "apollo-connaught",
@@ -39,6 +52,28 @@ const pharmacies = [
     openNow: false,
     medicines: ["Insulin", "Metformin", "Losartan", "Cetirizine", "ORS"],
   },
+  {
+    id: "careplus-karol-bagh",
+    name: "CarePlus Pharmacy Karol Bagh",
+    address: "Ajmal Khan Road, Karol Bagh, New Delhi",
+    phone: "+91 11 4506 1190",
+    lat: 28.6507,
+    lng: 77.1907,
+    distanceKm: 4.6,
+    openNow: true,
+    medicines: ["Paracetamol", "Amoxicillin", "Pantoprazole", "Dolo 650", "Cough Syrup"],
+  },
+  {
+    id: "citymed-lajpat",
+    name: "CityMed Lajpat Nagar",
+    address: "Central Market, Lajpat Nagar II, New Delhi",
+    phone: "+91 11 2983 5520",
+    lat: 28.5677,
+    lng: 77.2433,
+    distanceKm: 6.2,
+    openNow: true,
+    medicines: ["Insulin", "Thyroxine", "Vitamin B12", "Azithromycin", "ORS"],
+  },
 ];
 
 router.get("/pharmacies/search", (req, res): void => {
@@ -59,10 +94,19 @@ router.get("/pharmacies/search", (req, res): void => {
     lng: parsed.data.lng ?? defaultCenter.lng,
   };
   const normalized = medicine.toLowerCase();
-  const exactMatches = pharmacies.filter((pharmacy) =>
-    pharmacy.medicines.some((item) => item.toLowerCase().includes(normalized)),
-  );
-  const results = exactMatches.length > 0 ? exactMatches : pharmacies;
+  const ranked = pharmacies
+    .map((pharmacy) => ({
+      ...pharmacy,
+      distanceKm: distanceKm(center, pharmacy),
+      hasMedicine: pharmacy.medicines.some((item) => item.toLowerCase().includes(normalized)),
+    }))
+    .sort((a, b) => {
+      if (a.hasMedicine !== b.hasMedicine) {
+        return a.hasMedicine ? -1 : 1;
+      }
+      return a.distanceKm - b.distanceKm;
+    });
+  const results = ranked.map(({ hasMedicine: _hasMedicine, ...pharmacy }) => pharmacy);
   const mapUrl = `https://www.google.com/maps/search/${encodeURIComponent(`${medicine} pharmacy near me`)}/@${center.lat},${center.lng},14z`;
 
   res.json(
