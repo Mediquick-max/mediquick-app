@@ -1,0 +1,210 @@
+import { Router, type IRouter } from "express";
+import { desc, eq } from "drizzle-orm";
+import { db, careRequestsTable } from "@workspace/db";
+import {
+  CreateConsultationBody,
+  CreateLabBookingBody,
+  CreateMedicineOrderBody,
+  GetCareActivityResponse,
+  GetCareOptionsResponse,
+} from "@workspace/api-zod";
+
+const router: IRouter = Router();
+
+const doctors = [
+  {
+    id: "doc-general-asha",
+    name: "Dr. Asha Mehta",
+    speciality: "General Physician",
+    experienceYears: 12,
+    rating: 4.8,
+    fee: 399,
+    nextSlot: "Today, 7:30 PM",
+    mode: "video",
+  },
+  {
+    id: "doc-cardio-rahul",
+    name: "Dr. Rahul Nair",
+    speciality: "Cardiologist",
+    experienceYears: 16,
+    rating: 4.9,
+    fee: 699,
+    nextSlot: "Tomorrow, 10:00 AM",
+    mode: "clinic",
+  },
+  {
+    id: "doc-derma-neha",
+    name: "Dr. Neha Kapoor",
+    speciality: "Dermatologist",
+    experienceYears: 9,
+    rating: 4.7,
+    fee: 499,
+    nextSlot: "Today, 9:00 PM",
+    mode: "video",
+  },
+];
+
+const labTests = [
+  {
+    id: "lab-full-body",
+    name: "Full Body Checkup",
+    includes: "CBC, liver, kidney, thyroid, sugar, lipid profile",
+    price: 899,
+    reportTime: "24 hours",
+  },
+  {
+    id: "lab-diabetes",
+    name: "Diabetes Care Package",
+    includes: "HbA1c, fasting sugar, kidney markers",
+    price: 499,
+    reportTime: "12 hours",
+  },
+  {
+    id: "lab-fever",
+    name: "Fever & Infection Panel",
+    includes: "CBC, CRP, malaria antigen, dengue screen",
+    price: 699,
+    reportTime: "Same day",
+  },
+];
+
+const medicines = [
+  {
+    id: "med-dolo",
+    name: "Dolo 650",
+    price: 34,
+    deliveryEta: "45-60 min",
+    prescriptionRequired: false,
+  },
+  {
+    id: "med-cetirizine",
+    name: "Cetirizine 10mg",
+    price: 22,
+    deliveryEta: "45-60 min",
+    prescriptionRequired: false,
+  },
+  {
+    id: "med-metformin",
+    name: "Metformin 500mg",
+    price: 68,
+    deliveryEta: "Today",
+    prescriptionRequired: true,
+  },
+];
+
+router.get("/care/options", (_req, res): void => {
+  res.json(GetCareOptionsResponse.parse({ doctors, labTests, medicines }));
+});
+
+router.get("/care/activity", async (_req, res): Promise<void> => {
+  const rows = await db
+    .select()
+    .from(careRequestsTable)
+    .orderBy(desc(careRequestsTable.createdAt));
+
+  res.json(
+    GetCareActivityResponse.parse({
+      consultations: rows.filter((row) => row.type === "consultation"),
+      labBookings: rows.filter((row) => row.type === "lab"),
+      medicineOrders: rows.filter((row) => row.type === "medicine"),
+    }),
+  );
+});
+
+router.post("/care/consultations", async (req, res): Promise<void> => {
+  const parsed = CreateConsultationBody.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.message });
+    return;
+  }
+
+  const doctor = doctors.find((item) => item.id === parsed.data.doctorId);
+  if (!doctor) {
+    res.status(400).json({ error: "Doctor not found" });
+    return;
+  }
+
+  const [created] = await db
+    .insert(careRequestsTable)
+    .values({
+      type: "consultation",
+      itemId: doctor.id,
+      title: `${doctor.speciality} with ${doctor.name}`,
+      patientName: parsed.data.patientName.trim(),
+      phone: parsed.data.phone.trim(),
+      notes: parsed.data.concern.trim(),
+      mode: parsed.data.mode,
+      dateSlot: parsed.data.dateSlot.trim(),
+      status: parsed.data.mode === "video" ? "Video consult booked" : "Clinic visit booked",
+      amount: doctor.fee,
+    })
+    .returning();
+
+  res.status(201).json(created);
+});
+
+router.post("/care/lab-bookings", async (req, res): Promise<void> => {
+  const parsed = CreateLabBookingBody.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.message });
+    return;
+  }
+
+  const test = labTests.find((item) => item.id === parsed.data.testId);
+  if (!test) {
+    res.status(400).json({ error: "Lab test not found" });
+    return;
+  }
+
+  const [created] = await db
+    .insert(careRequestsTable)
+    .values({
+      type: "lab",
+      itemId: test.id,
+      title: test.name,
+      patientName: parsed.data.patientName.trim(),
+      phone: parsed.data.phone.trim(),
+      address: parsed.data.address.trim(),
+      dateSlot: parsed.data.dateSlot.trim(),
+      status: "Home sample collection booked",
+      amount: test.price,
+      notes: `Reports in ${test.reportTime}`,
+    })
+    .returning();
+
+  res.status(201).json(created);
+});
+
+router.post("/care/medicine-orders", async (req, res): Promise<void> => {
+  const parsed = CreateMedicineOrderBody.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.message });
+    return;
+  }
+
+  const medicine = medicines.find((item) => item.id === parsed.data.medicineId);
+  if (!medicine) {
+    res.status(400).json({ error: "Medicine not found" });
+    return;
+  }
+
+  const [created] = await db
+    .insert(careRequestsTable)
+    .values({
+      type: "medicine",
+      itemId: medicine.id,
+      title: `${medicine.name} x ${parsed.data.quantity}`,
+      patientName: parsed.data.patientName.trim(),
+      phone: parsed.data.phone.trim(),
+      address: parsed.data.address.trim(),
+      dateSlot: medicine.deliveryEta,
+      status: medicine.prescriptionRequired ? "Prescription verification needed" : "Order confirmed",
+      amount: medicine.price * parsed.data.quantity,
+      notes: medicine.prescriptionRequired ? "Prescription required before dispatch" : "No prescription required",
+    })
+    .returning();
+
+  res.status(201).json(created);
+});
+
+export default router;

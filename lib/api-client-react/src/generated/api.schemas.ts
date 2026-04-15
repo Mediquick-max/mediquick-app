@@ -61,6 +61,118 @@ export interface PharmacySearchResult {
   mapUrl: string;
 }
 
+export interface Doctor {
+  id: string;
+  name: string;
+  speciality: string;
+  experienceYears: number;
+  rating: number;
+  fee: number;
+  nextSlot: string;
+  mode: string;
+}
+
+export interface LabTest {
+  id: string;
+  name: string;
+  includes: string;
+  price: number;
+  reportTime: string;
+}
+
+export interface MedicineItem {
+  id: string;
+  name: string;
+  price: number;
+  deliveryEta: string;
+  prescriptionRequired: boolean;
+}
+
+export interface CareOptions {
+  doctors: Doctor[];
+  labTests: LabTest[];
+  medicines: MedicineItem[];
+}
+
+export type CareRequestType =
+  (typeof CareRequestType)[keyof typeof CareRequestType];
+
+export const CareRequestType = {
+  consultation: "consultation",
+  lab: "lab",
+  medicine: "medicine",
+} as const;
+
+export interface CareRequest {
+  id: number;
+  type: CareRequestType;
+  itemId: string;
+  title: string;
+  patientName: string;
+  phone: string;
+  notes: string;
+  address: string;
+  mode: string;
+  dateSlot: string;
+  status: string;
+  amount: number;
+  createdAt: string;
+}
+
+export interface CareActivity {
+  consultations: CareRequest[];
+  labBookings: CareRequest[];
+  medicineOrders: CareRequest[];
+}
+
+export type CreateConsultationInputMode =
+  (typeof CreateConsultationInputMode)[keyof typeof CreateConsultationInputMode];
+
+export const CreateConsultationInputMode = {
+  video: "video",
+  clinic: "clinic",
+} as const;
+
+export interface CreateConsultationInput {
+  /** @minLength 1 */
+  doctorId: string;
+  /** @minLength 1 */
+  patientName: string;
+  /** @minLength 10 */
+  phone: string;
+  /** @minLength 1 */
+  concern: string;
+  mode: CreateConsultationInputMode;
+  /** @minLength 1 */
+  dateSlot: string;
+}
+
+export interface CreateLabBookingInput {
+  /** @minLength 1 */
+  testId: string;
+  /** @minLength 1 */
+  patientName: string;
+  /** @minLength 10 */
+  phone: string;
+  /** @minLength 1 */
+  address: string;
+  /** @minLength 1 */
+  dateSlot: string;
+}
+
+export interface CreateMedicineOrderInput {
+  /** @minLength 1 */
+  medicineId: string;
+  /** @minLength 1 */
+  patientName: string;
+  /** @minLength 10 */
+  phone: string;
+  /** @minLength 1 */
+  address: string;
+  /** @minimum 1 */
+  quantity: number;
+}
+
 export interface ErrorResponse {
   error: string;
 }

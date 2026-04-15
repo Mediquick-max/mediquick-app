@@ -6,10 +6,21 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from "./careActivity";
+export * from "./careOptions";
+export * from "./careRequest";
+export * from "./careRequestType";
+export * from "./createConsultationInput";
+export * from "./createConsultationInputMode";
+export * from "./createLabBookingInput";
+export * from "./createMedicineOrderInput";
 export * from "./createReminderInput";
+export * from "./doctor";
 export * from "./errorResponse";
 export * from "./healthStatus";
+export * from "./labTest";
 export * from "./markReminderTakenInput";
+export * from "./medicineItem";
 export * from "./pharmacy";
 export * from "./pharmacySearchResult";
 export * from "./pharmacySearchResultCenter";

@@ -151,3 +151,139 @@ export const SearchPharmaciesResponse = zod.object({
   ),
   mapUrl: zod.string(),
 });
+
+/**
+ * @summary Get doctors, lab tests, and medicine catalog
+ */
+export const GetCareOptionsResponse = zod.object({
+  doctors: zod.array(
+    zod.object({
+      id: zod.string(),
+      name: zod.string(),
+      speciality: zod.string(),
+      experienceYears: zod.number(),
+      rating: zod.number(),
+      fee: zod.number(),
+      nextSlot: zod.string(),
+      mode: zod.string(),
+    }),
+  ),
+  labTests: zod.array(
+    zod.object({
+      id: zod.string(),
+      name: zod.string(),
+      includes: zod.string(),
+      price: zod.number(),
+      reportTime: zod.string(),
+    }),
+  ),
+  medicines: zod.array(
+    zod.object({
+      id: zod.string(),
+      name: zod.string(),
+      price: zod.number(),
+      deliveryEta: zod.string(),
+      prescriptionRequired: zod.boolean(),
+    }),
+  ),
+});
+
+/**
+ * @summary Get booked consultations, labs, and orders
+ */
+export const GetCareActivityResponse = zod.object({
+  consultations: zod.array(
+    zod.object({
+      id: zod.number(),
+      type: zod.enum(["consultation", "lab", "medicine"]),
+      itemId: zod.string(),
+      title: zod.string(),
+      patientName: zod.string(),
+      phone: zod.string(),
+      notes: zod.string(),
+      address: zod.string(),
+      mode: zod.string(),
+      dateSlot: zod.string(),
+      status: zod.string(),
+      amount: zod.number(),
+      createdAt: zod.coerce.date(),
+    }),
+  ),
+  labBookings: zod.array(
+    zod.object({
+      id: zod.number(),
+      type: zod.enum(["consultation", "lab", "medicine"]),
+      itemId: zod.string(),
+      title: zod.string(),
+      patientName: zod.string(),
+      phone: zod.string(),
+      notes: zod.string(),
+      address: zod.string(),
+      mode: zod.string(),
+      dateSlot: zod.string(),
+      status: zod.string(),
+      amount: zod.number(),
+      createdAt: zod.coerce.date(),
+    }),
+  ),
+  medicineOrders: zod.array(
+    zod.object({
+      id: zod.number(),
+      type: zod.enum(["consultation", "lab", "medicine"]),
+      itemId: zod.string(),
+      title: zod.string(),
+      patientName: zod.string(),
+      phone: zod.string(),
+      notes: zod.string(),
+      address: zod.string(),
+      mode: zod.string(),
+      dateSlot: zod.string(),
+      status: zod.string(),
+      amount: zod.number(),
+      createdAt: zod.coerce.date(),
+    }),
+  ),
+});
+
+/**
+ * @summary Book a doctor consultation
+ */
+
+export const createConsultationBodyPhoneMin = 10;
+
+export const CreateConsultationBody = zod.object({
+  doctorId: zod.string().min(1),
+  patientName: zod.string().min(1),
+  phone: zod.string().min(createConsultationBodyPhoneMin),
+  concern: zod.string().min(1),
+  mode: zod.enum(["video", "clinic"]),
+  dateSlot: zod.string().min(1),
+});
+
+/**
+ * @summary Book a lab test
+ */
+
+export const createLabBookingBodyPhoneMin = 10;
+
+export const CreateLabBookingBody = zod.object({
+  testId: zod.string().min(1),
+  patientName: zod.string().min(1),
+  phone: zod.string().min(createLabBookingBodyPhoneMin),
+  address: zod.string().min(1),
+  dateSlot: zod.string().min(1),
+});
+
+/**
+ * @summary Create a medicine delivery request
+ */
+
+export const createMedicineOrderBodyPhoneMin = 10;
+
+export const CreateMedicineOrderBody = zod.object({
+  medicineId: zod.string().min(1),
+  patientName: zod.string().min(1),
+  phone: zod.string().min(createMedicineOrderBodyPhoneMin),
+  address: zod.string().min(1),
+  quantity: zod.number().min(1),
+});

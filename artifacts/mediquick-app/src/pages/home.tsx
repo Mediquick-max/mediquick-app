@@ -3,7 +3,8 @@ import { Layout } from "@/components/layout";
 import { RemindersList } from "@/components/reminders-list";
 import { CreateReminderDialog } from "@/components/create-reminder-dialog";
 import { PharmacySearch } from "@/components/pharmacy-search";
-import { CheckCircle2, Clock } from "lucide-react";
+import { CareServices } from "@/components/care-services";
+import { CheckCircle2, HeartPulse, ShieldCheck } from "lucide-react";
 
 export default function Home() {
   const { data: summary } = useGetReminderSummary();
@@ -15,17 +16,19 @@ export default function Home() {
   return (
     <Layout>
       <div className="space-y-10 pb-12">
-        {/* Header Section */}
         <section className="space-y-2 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <h1 className="text-4xl font-bold tracking-tight text-foreground">
-            Good day.
+          <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary mb-2">
+            <ShieldCheck className="w-4 h-4" />
+            One app for daily healthcare
+          </div>
+          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-foreground">
+            Book doctors, tests, medicines and reminders.
           </h1>
           <p className="text-xl text-muted-foreground font-medium">
-            Here is your medicine schedule for today.
+            MediQuick helps you manage care quickly from one simple dashboard.
           </p>
         </section>
 
-        {/* Summary Card */}
         {summary && summary.dueToday > 0 && (
           <section className="animate-in fade-in slide-in-from-bottom-6 duration-700">
             <div className="bg-primary/5 rounded-3xl p-6 border border-primary/10">
@@ -50,7 +53,19 @@ export default function Home() {
           </section>
         )}
 
-        {/* Reminders Section */}
+        <section className="space-y-6">
+          <div>
+            <h2 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+              <HeartPulse className="w-6 h-6 text-primary" />
+              Healthcare Services
+            </h2>
+            <p className="text-muted-foreground font-medium mt-1">Book doctor consults, lab tests, and medicine delivery requests.</p>
+          </div>
+          <CareServices />
+        </section>
+
+        <hr className="border-border/60" />
+
         <section className="space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold tracking-tight">Your Schedule</h2>
@@ -61,7 +76,6 @@ export default function Home() {
 
         <hr className="border-border/60" />
 
-        {/* Pharmacy Search Section */}
         <section className="space-y-6">
           <div>
             <h2 className="text-2xl font-bold tracking-tight mb-2">Find Medicine Nearby</h2>
