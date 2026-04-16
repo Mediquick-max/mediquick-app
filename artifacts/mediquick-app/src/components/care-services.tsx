@@ -163,7 +163,7 @@ export function CareServices() {
         <div className="grid lg:grid-cols-[1.1fr_0.9fr]">
           <div className="p-5 sm:p-6 space-y-5 bg-card">
             <div>
-              <p className="text-sm font-semibold text-primary uppercase tracking-wide">MediQuick Care</p>
+              <p className="text-sm font-semibold text-primary uppercase tracking-wide">Medi Quick Care</p>
               <h3 className="text-2xl font-bold mt-1">
                 {mode === "doctor" && "Book trusted doctors"}
                 {mode === "lab" && "Book home lab tests"}

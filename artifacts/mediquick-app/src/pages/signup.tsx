@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { HeartPulse, Eye, EyeOff, Loader2, ArrowLeft, CheckCircle2 } from "lucide-react";
+import { Eye, EyeOff, Loader2, ArrowLeft, CheckCircle2 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
+import { MediQuickLogo } from "@/components/logo";
 
 export default function SignupPage() {
   const { signup } = useAuth();
@@ -53,10 +54,8 @@ export default function SignupPage() {
             <span className="text-sm">Back</span>
           </Link>
           <div className="flex items-center gap-2 ml-2">
-            <div className="bg-primary text-primary-foreground p-1.5 rounded-xl">
-              <HeartPulse className="w-4 h-4" />
-            </div>
-            <span className="font-bold text-foreground">MediQuick</span>
+            <MediQuickLogo className="w-8 h-8" />
+            <span className="font-bold text-foreground">Medi Quick</span>
           </div>
         </div>
       </header>
@@ -65,7 +64,7 @@ export default function SignupPage() {
         <div className="grid md:grid-cols-2 gap-10 items-start">
           {/* Left: Benefits */}
           <div className="hidden md:block">
-            <h1 className="text-3xl font-bold text-foreground mb-2">Join MediQuick</h1>
+            <h1 className="text-3xl font-bold text-foreground mb-2">Join Medi Quick</h1>
             <p className="text-muted-foreground mb-8">Your complete healthcare companion. Free to get started.</p>
             <ul className="space-y-4">
               {benefits.map(b => (
@@ -81,7 +80,7 @@ export default function SignupPage() {
           <div>
             <div className="text-center mb-6 md:hidden">
               <h1 className="text-3xl font-bold text-foreground">Create account</h1>
-              <p className="text-muted-foreground mt-2">Join MediQuick — free to get started</p>
+              <p className="text-muted-foreground mt-2">Join Medi Quick — free to get started</p>
             </div>
             <div className="hidden md:block mb-6">
               <h2 className="text-xl font-bold text-foreground">Create your account</h2>

@@ -26,7 +26,7 @@ export default function Home() {
             Book doctors, tests, medicines and reminders.
           </h1>
           <p className="text-xl text-muted-foreground font-medium">
-            MediQuick helps you manage care quickly from one simple dashboard.
+            Medi Quick helps you manage care quickly from one simple dashboard.
           </p>
         </section>
 
