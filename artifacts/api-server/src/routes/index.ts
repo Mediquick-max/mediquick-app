@@ -5,6 +5,7 @@ import careRouter from "./care";
 import pharmaciesRouter from "./pharmacies";
 import remindersRouter from "./reminders";
 import adminRouter from "./admin";
+import authRouter from "./auth";
 
 const router: IRouter = Router();
 
@@ -14,5 +15,6 @@ router.use(remindersRouter);
 router.use(pharmaciesRouter);
 router.use(careRouter);
 router.use("/admin", adminRouter);
+router.use("/auth", authRouter);
 
 export default router;

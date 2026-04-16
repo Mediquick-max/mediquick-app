@@ -10,6 +10,7 @@ export const appUsersTable = pgTable("app_users", {
   status: text("status").notNull().default("active"),
   city: text("city").notNull().default(""),
   deviceType: text("device_type").notNull().default("web"),
+  passwordHash: text("password_hash").notNull().default(""),
   joinedAt: timestamp("joined_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
