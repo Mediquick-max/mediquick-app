@@ -25,12 +25,16 @@ import type {
   CreateMedicineOrderInput,
   CreateReminderInput,
   ErrorResponse,
+  HealthAiAnswer,
+  HealthAiQuestionInput,
+  HealthSpeechInput,
   HealthStatus,
   MarkReminderTakenInput,
   PharmacySearchResult,
   Reminder,
   ReminderSummary,
   SearchPharmaciesParams,
+  SymptomCheckInput,
 } from "./api.schemas";
 
 import { customFetch } from "../custom-fetch";
@@ -1104,4 +1108,262 @@ export const useCreateMedicineOrder = <
   TContext
 > => {
   return useMutation(getCreateMedicineOrderMutationOptions(options));
+};
+
+/**
+ * @summary Ask the AI medical assistant a general health question
+ */
+export const getAskHealthAiUrl = () => {
+  return `/api/ai/health-chat`;
+};
+
+export const askHealthAi = async (
+  healthAiQuestionInput: HealthAiQuestionInput,
+  options?: RequestInit,
+): Promise<HealthAiAnswer> => {
+  return customFetch<HealthAiAnswer>(getAskHealthAiUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(healthAiQuestionInput),
+  });
+};
+
+export const getAskHealthAiMutationOptions = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof askHealthAi>>,
+    TError,
+    { data: BodyType<HealthAiQuestionInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof askHealthAi>>,
+  TError,
+  { data: BodyType<HealthAiQuestionInput> },
+  TContext
+> => {
+  const mutationKey = ["askHealthAi"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof askHealthAi>>,
+    { data: BodyType<HealthAiQuestionInput> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return askHealthAi(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type AskHealthAiMutationResult = NonNullable<
+  Awaited<ReturnType<typeof askHealthAi>>
+>;
+export type AskHealthAiMutationBody = BodyType<HealthAiQuestionInput>;
+export type AskHealthAiMutationError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Ask the AI medical assistant a general health question
+ */
+export const useAskHealthAi = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof askHealthAi>>,
+    TError,
+    { data: BodyType<HealthAiQuestionInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof askHealthAi>>,
+  TError,
+  { data: BodyType<HealthAiQuestionInput> },
+  TContext
+> => {
+  return useMutation(getAskHealthAiMutationOptions(options));
+};
+
+/**
+ * @summary Check selected symptoms with basic AI guidance
+ */
+export const getCheckSymptomsUrl = () => {
+  return `/api/ai/symptom-check`;
+};
+
+export const checkSymptoms = async (
+  symptomCheckInput: SymptomCheckInput,
+  options?: RequestInit,
+): Promise<HealthAiAnswer> => {
+  return customFetch<HealthAiAnswer>(getCheckSymptomsUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(symptomCheckInput),
+  });
+};
+
+export const getCheckSymptomsMutationOptions = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof checkSymptoms>>,
+    TError,
+    { data: BodyType<SymptomCheckInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof checkSymptoms>>,
+  TError,
+  { data: BodyType<SymptomCheckInput> },
+  TContext
+> => {
+  const mutationKey = ["checkSymptoms"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof checkSymptoms>>,
+    { data: BodyType<SymptomCheckInput> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return checkSymptoms(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CheckSymptomsMutationResult = NonNullable<
+  Awaited<ReturnType<typeof checkSymptoms>>
+>;
+export type CheckSymptomsMutationBody = BodyType<SymptomCheckInput>;
+export type CheckSymptomsMutationError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Check selected symptoms with basic AI guidance
+ */
+export const useCheckSymptoms = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof checkSymptoms>>,
+    TError,
+    { data: BodyType<SymptomCheckInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof checkSymptoms>>,
+  TError,
+  { data: BodyType<SymptomCheckInput> },
+  TContext
+> => {
+  return useMutation(getCheckSymptomsMutationOptions(options));
+};
+
+/**
+ * @summary Convert AI medical assistant answer to spoken audio
+ */
+export const getSpeakHealthAiAnswerUrl = () => {
+  return `/api/ai/health-speech`;
+};
+
+export const speakHealthAiAnswer = async (
+  healthSpeechInput: HealthSpeechInput,
+  options?: RequestInit,
+): Promise<Blob> => {
+  return customFetch<Blob>(getSpeakHealthAiAnswerUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(healthSpeechInput),
+  });
+};
+
+export const getSpeakHealthAiAnswerMutationOptions = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof speakHealthAiAnswer>>,
+    TError,
+    { data: BodyType<HealthSpeechInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof speakHealthAiAnswer>>,
+  TError,
+  { data: BodyType<HealthSpeechInput> },
+  TContext
+> => {
+  const mutationKey = ["speakHealthAiAnswer"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof speakHealthAiAnswer>>,
+    { data: BodyType<HealthSpeechInput> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return speakHealthAiAnswer(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type SpeakHealthAiAnswerMutationResult = NonNullable<
+  Awaited<ReturnType<typeof speakHealthAiAnswer>>
+>;
+export type SpeakHealthAiAnswerMutationBody = BodyType<HealthSpeechInput>;
+export type SpeakHealthAiAnswerMutationError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Convert AI medical assistant answer to spoken audio
+ */
+export const useSpeakHealthAiAnswer = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof speakHealthAiAnswer>>,
+    TError,
+    { data: BodyType<HealthSpeechInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof speakHealthAiAnswer>>,
+  TError,
+  { data: BodyType<HealthSpeechInput> },
+  TContext
+> => {
+  return useMutation(getSpeakHealthAiAnswerMutationOptions(options));
 };

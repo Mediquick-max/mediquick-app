@@ -173,6 +173,29 @@ export interface CreateMedicineOrderInput {
   quantity: number;
 }
 
+export interface HealthAiQuestionInput {
+  /** @minLength 1 */
+  question: string;
+}
+
+export interface SymptomCheckInput {
+  /** @minItems 1 */
+  symptoms: string[];
+  notes?: string;
+}
+
+export interface HealthAiAnswer {
+  answer: string;
+  emergency: boolean;
+  safetyNote: string;
+  recommendedActions: string[];
+}
+
+export interface HealthSpeechInput {
+  /** @minLength 1 */
+  text: string;
+}
+
 export interface ErrorResponse {
   error: string;
 }

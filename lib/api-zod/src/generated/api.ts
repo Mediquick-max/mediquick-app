@@ -287,3 +287,42 @@ export const CreateMedicineOrderBody = zod.object({
   address: zod.string().min(1),
   quantity: zod.number().min(1),
 });
+
+/**
+ * @summary Ask the AI medical assistant a general health question
+ */
+
+export const AskHealthAiBody = zod.object({
+  question: zod.string().min(1),
+});
+
+export const AskHealthAiResponse = zod.object({
+  answer: zod.string(),
+  emergency: zod.boolean(),
+  safetyNote: zod.string(),
+  recommendedActions: zod.array(zod.string()),
+});
+
+/**
+ * @summary Check selected symptoms with basic AI guidance
+ */
+
+export const CheckSymptomsBody = zod.object({
+  symptoms: zod.array(zod.string()).min(1),
+  notes: zod.string().optional(),
+});
+
+export const CheckSymptomsResponse = zod.object({
+  answer: zod.string(),
+  emergency: zod.boolean(),
+  safetyNote: zod.string(),
+  recommendedActions: zod.array(zod.string()),
+});
+
+/**
+ * @summary Convert AI medical assistant answer to spoken audio
+ */
+
+export const SpeakHealthAiAnswerBody = zod.object({
+  text: zod.string().min(1),
+});

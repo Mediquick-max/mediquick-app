@@ -16,6 +16,8 @@ tags:
     description: Local medicine locator operations
   - name: care
     description: Healthcare service operations
+  - name: ai
+    description: AI medical assistant operations
 paths:
   /healthz:
     get:
@@ -281,6 +283,79 @@ paths:
                 $ref: "#/components/schemas/CareRequest"
         "400":
           description: Invalid medicine order input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /ai/health-chat:
+    post:
+      operationId: askHealthAi
+      tags: [ai]
+      summary: Ask the AI medical assistant a general health question
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/HealthAiQuestionInput"
+      responses:
+        "200":
+          description: AI medical assistant answer
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthAiAnswer"
+        "400":
+          description: Invalid question
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /ai/symptom-check:
+    post:
+      operationId: checkSymptoms
+      tags: [ai]
+      summary: Check selected symptoms with basic AI guidance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SymptomCheckInput"
+      responses:
+        "200":
+          description: Symptom guidance
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthAiAnswer"
+        "400":
+          description: Invalid symptoms
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /ai/health-speech:
+    post:
+      operationId: speakHealthAiAnswer
+      tags: [ai]
+      summary: Convert AI medical assistant answer to spoken audio
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/HealthSpeechInput"
+      responses:
+        "200":
+          description: MP3 audio response
+          content:
+            audio/mpeg:
+              schema:
+                type: string
+                format: binary
+        "400":
+          description: Invalid text
           content:
             application/json:
               schema:
@@ -587,6 +662,45 @@ components:
           type: integer
           minimum: 1
       required: [medicineId, patientName, phone, address, quantity]
+    HealthAiQuestionInput:
+      type: object
+      properties:
+        question:
+          type: string
+          minLength: 1
+      required: [question]
+    SymptomCheckInput:
+      type: object
+      properties:
+        symptoms:
+          type: array
+          minItems: 1
+          items:
+            type: string
+        notes:
+          type: string
+      required: [symptoms]
+    HealthAiAnswer:
+      type: object
+      properties:
+        answer:
+          type: string
+        emergency:
+          type: boolean
+        safetyNote:
+          type: string
+        recommendedActions:
+          type: array
+          items:
+            type: string
+      required: [answer, emergency, safetyNote, recommendedActions]
+    HealthSpeechInput:
+      type: object
+      properties:
+        text:
+          type: string
+          minLength: 1
+      required: [text]
     ErrorResponse:
       type: object
       properties:

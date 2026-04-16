@@ -4,7 +4,8 @@ import { RemindersList } from "@/components/reminders-list";
 import { CreateReminderDialog } from "@/components/create-reminder-dialog";
 import { PharmacySearch } from "@/components/pharmacy-search";
 import { CareServices } from "@/components/care-services";
-import { CheckCircle2, HeartPulse, ShieldCheck } from "lucide-react";
+import { MedicalAiAssistant } from "@/components/medical-ai-assistant";
+import { Bot, CheckCircle2, HeartPulse, ShieldCheck } from "lucide-react";
 
 export default function Home() {
   const { data: summary } = useGetReminderSummary();
@@ -56,6 +57,20 @@ export default function Home() {
         <section className="space-y-6">
           <div>
             <h2 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+              <Bot className="w-6 h-6 text-primary" />
+              AI Health Chat
+            </h2>
+            <p className="text-muted-foreground font-medium mt-1">Ask health questions, check symptoms, and get emergency guidance.</p>
+          </div>
+          <MedicalAiAssistant />
+        </section>
+
+        <hr className="border-border/60" />
+
+        <section className="space-y-6">
+          <div id="care-services" />
+          <div>
+            <h2 className="text-2xl font-bold tracking-tight flex items-center gap-2">
               <HeartPulse className="w-6 h-6 text-primary" />
               Healthcare Services
             </h2>
@@ -66,7 +81,7 @@ export default function Home() {
 
         <hr className="border-border/60" />
 
-        <section className="space-y-6">
+        <section id="schedule" className="space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold tracking-tight">Your Schedule</h2>
             <CreateReminderDialog />
