@@ -200,6 +200,93 @@ export interface ErrorResponse {
   error: string;
 }
 
+export interface AdminLoginInput {
+  /** @minLength 1 */
+  password: string;
+}
+
+export interface AdminLoginResult {
+  success: boolean;
+  token: string;
+}
+
+export interface AdminStats {
+  totalUsers: number;
+  activeUsers: number;
+  premiumUsers: number;
+  freeUsers: number;
+  totalRevenue: number;
+  monthlyRevenue: number;
+  totalPayments: number;
+  successfulPayments: number;
+  activeSubscriptions: number;
+  totalConsultations: number;
+  totalLabBookings: number;
+  totalMedicineOrders: number;
+  newUsersThisMonth: number;
+}
+
+export interface AdminUser {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  plan: string;
+  status: string;
+  city: string;
+  deviceType: string;
+  joinedAt: string;
+}
+
+export interface UpdateAdminUserInput {
+  plan?: string;
+  status?: string;
+  name?: string;
+  phone?: string;
+  city?: string;
+}
+
+export interface AdminSubscription {
+  id: number;
+  userId: number;
+  plan: string;
+  status: string;
+  amount: number;
+  billingCycle: string;
+  startedAt: string;
+  expiresAt: string | null;
+}
+
+export interface AdminPayment {
+  id: number;
+  userId: number;
+  userName: string;
+  description: string;
+  amount: number;
+  currency: string;
+  status: string;
+  gateway: string;
+  transactionId: string;
+  createdAt: string;
+}
+
+export interface ApiConfigItem {
+  id: number;
+  provider: string;
+  label: string;
+  keyValue: string;
+  isActive: string;
+  notes: string;
+  updatedAt: string;
+}
+
+export interface UpdateApiConfigInput {
+  keyValue?: string;
+  isActive?: string;
+  notes?: string;
+  label?: string;
+}
+
 export type SearchPharmaciesParams = {
   medicine: string;
   lat?: number;

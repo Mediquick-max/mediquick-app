@@ -320,6 +320,219 @@ export const CheckSymptomsResponse = zod.object({
 });
 
 /**
+ * @summary Admin login with password
+ */
+
+export const AdminLoginBody = zod.object({
+  password: zod.string().min(1),
+});
+
+export const AdminLoginResponse = zod.object({
+  success: zod.boolean(),
+  token: zod.string(),
+});
+
+/**
+ * @summary Get dashboard stats
+ */
+export const GetAdminStatsResponse = zod.object({
+  totalUsers: zod.number(),
+  activeUsers: zod.number(),
+  premiumUsers: zod.number(),
+  freeUsers: zod.number(),
+  totalRevenue: zod.number(),
+  monthlyRevenue: zod.number(),
+  totalPayments: zod.number(),
+  successfulPayments: zod.number(),
+  activeSubscriptions: zod.number(),
+  totalConsultations: zod.number(),
+  totalLabBookings: zod.number(),
+  totalMedicineOrders: zod.number(),
+  newUsersThisMonth: zod.number(),
+});
+
+/**
+ * @summary List all app users
+ */
+export const ListAdminUsersResponseItem = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  email: zod.string(),
+  phone: zod.string(),
+  plan: zod.string(),
+  status: zod.string(),
+  city: zod.string(),
+  deviceType: zod.string(),
+  joinedAt: zod.coerce.date(),
+});
+export const ListAdminUsersResponse = zod.array(ListAdminUsersResponseItem);
+
+/**
+ * @summary Update a user's plan or status
+ */
+export const UpdateAdminUserParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const UpdateAdminUserBody = zod.object({
+  plan: zod.string().optional(),
+  status: zod.string().optional(),
+  name: zod.string().optional(),
+  phone: zod.string().optional(),
+  city: zod.string().optional(),
+});
+
+export const UpdateAdminUserResponse = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  email: zod.string(),
+  phone: zod.string(),
+  plan: zod.string(),
+  status: zod.string(),
+  city: zod.string(),
+  deviceType: zod.string(),
+  joinedAt: zod.coerce.date(),
+});
+
+/**
+ * @summary Delete a user
+ */
+export const DeleteAdminUserParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+/**
+ * @summary List all subscriptions
+ */
+export const ListAdminSubscriptionsResponseItem = zod.object({
+  id: zod.number(),
+  userId: zod.number(),
+  plan: zod.string(),
+  status: zod.string(),
+  amount: zod.number(),
+  billingCycle: zod.string(),
+  startedAt: zod.coerce.date(),
+  expiresAt: zod.union([zod.coerce.date(), zod.null()]),
+});
+export const ListAdminSubscriptionsResponse = zod.array(
+  ListAdminSubscriptionsResponseItem,
+);
+
+/**
+ * @summary List all payments
+ */
+export const ListAdminPaymentsResponseItem = zod.object({
+  id: zod.number(),
+  userId: zod.number(),
+  userName: zod.string(),
+  description: zod.string(),
+  amount: zod.number(),
+  currency: zod.string(),
+  status: zod.string(),
+  gateway: zod.string(),
+  transactionId: zod.string(),
+  createdAt: zod.coerce.date(),
+});
+export const ListAdminPaymentsResponse = zod.array(
+  ListAdminPaymentsResponseItem,
+);
+
+/**
+ * @summary List API provider configurations
+ */
+export const ListApiConfigResponseItem = zod.object({
+  id: zod.number(),
+  provider: zod.string(),
+  label: zod.string(),
+  keyValue: zod.string(),
+  isActive: zod.string(),
+  notes: zod.string(),
+  updatedAt: zod.coerce.date(),
+});
+export const ListApiConfigResponse = zod.array(ListApiConfigResponseItem);
+
+/**
+ * @summary Update an API provider configuration
+ */
+export const UpdateApiConfigParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const UpdateApiConfigBody = zod.object({
+  keyValue: zod.string().optional(),
+  isActive: zod.string().optional(),
+  notes: zod.string().optional(),
+  label: zod.string().optional(),
+});
+
+export const UpdateApiConfigResponse = zod.object({
+  id: zod.number(),
+  provider: zod.string(),
+  label: zod.string(),
+  keyValue: zod.string(),
+  isActive: zod.string(),
+  notes: zod.string(),
+  updatedAt: zod.coerce.date(),
+});
+
+/**
+ * @summary Get all care activity (consultations, labs, orders)
+ */
+export const GetAdminCareActivityResponse = zod.object({
+  consultations: zod.array(
+    zod.object({
+      id: zod.number(),
+      type: zod.enum(["consultation", "lab", "medicine"]),
+      itemId: zod.string(),
+      title: zod.string(),
+      patientName: zod.string(),
+      phone: zod.string(),
+      notes: zod.string(),
+      address: zod.string(),
+      mode: zod.string(),
+      dateSlot: zod.string(),
+      status: zod.string(),
+      amount: zod.number(),
+      createdAt: zod.coerce.date(),
+    }),
+  ),
+  labBookings: zod.array(
+    zod.object({
+      id: zod.number(),
+      type: zod.enum(["consultation", "lab", "medicine"]),
+      itemId: zod.string(),
+      title: zod.string(),
+      patientName: zod.string(),
+      phone: zod.string(),
+      notes: zod.string(),
+      address: zod.string(),
+      mode: zod.string(),
+      dateSlot: zod.string(),
+      status: zod.string(),
+      amount: zod.number(),
+      createdAt: zod.coerce.date(),
+    }),
+  ),
+  medicineOrders: zod.array(
+    zod.object({
+      id: zod.number(),
+      type: zod.enum(["consultation", "lab", "medicine"]),
+      itemId: zod.string(),
+      title: zod.string(),
+      patientName: zod.string(),
+      phone: zod.string(),
+      notes: zod.string(),
+      address: zod.string(),
+      mode: zod.string(),
+      dateSlot: zod.string(),
+      status: zod.string(),
+      amount: zod.number(),
+      createdAt: zod.coerce.date(),
+    }),
+  ),
+});
+
+/**
  * @summary Convert AI medical assistant answer to spoken audio
  */
 

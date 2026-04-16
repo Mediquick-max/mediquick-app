@@ -6,6 +6,13 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from "./adminLoginInput";
+export * from "./adminLoginResult";
+export * from "./adminPayment";
+export * from "./adminStats";
+export * from "./adminSubscription";
+export * from "./adminUser";
+export * from "./apiConfigItem";
 export * from "./careActivity";
 export * from "./careOptions";
 export * from "./careRequest";
@@ -31,3 +38,5 @@ export * from "./reminder";
 export * from "./reminderSummary";
 export * from "./searchPharmaciesParams";
 export * from "./symptomCheckInput";
+export * from "./updateAdminUserInput";
+export * from "./updateApiConfigInput";

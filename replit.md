@@ -24,6 +24,7 @@ The workspace includes **MediQuick**, a React web app for daily healthcare: medi
 
 - `artifacts/mediquick-app` — MediQuick web app at `/`
 - `artifacts/api-server` — shared API server at `/api`
+- `artifacts/admin-panel` — MediQuick Admin Panel at `/admin/`
 - `artifacts/mockup-sandbox` — canvas/mockup preview server at `/__mockup`
 
 ## MediQuick API Surface
