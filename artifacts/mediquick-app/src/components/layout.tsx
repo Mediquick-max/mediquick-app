@@ -1,6 +1,6 @@
 import { ReactNode, useState } from "react";
 import { Link } from "wouter";
-import { LogIn, UserPlus, LogOut, ChevronDown } from "lucide-react";
+import { LogIn, UserPlus, LogOut, ChevronDown, Store } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { MediQuickLogo } from "@/components/logo";
 
@@ -50,7 +50,15 @@ export function Layout({ children }: { children: ReactNode }) {
                             </span>
                           </div>
                         </div>
-                        <div className="px-2">
+                        <div className="px-2 space-y-0.5">
+                          <Link
+                            href="/shopkeeper"
+                            onClick={() => setMenuOpen(false)}
+                            className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl text-sm text-foreground hover:bg-secondary/60 transition-colors font-medium"
+                          >
+                            <Store className="w-4 h-4 text-primary" />
+                            Shopkeeper Panel
+                          </Link>
                           <button
                             onClick={() => { logout(); setMenuOpen(false); }}
                             className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl text-sm text-destructive hover:bg-destructive/10 transition-colors font-medium"

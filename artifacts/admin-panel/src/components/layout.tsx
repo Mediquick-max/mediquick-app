@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import {
   LayoutDashboard, Users, CreditCard, Activity,
-  Key, Bell, LogOut, Menu, X, Settings, ChevronRight, Stethoscope
+  Key, Bell, LogOut, Menu, X, Settings, ChevronRight, Stethoscope, Store
 } from "lucide-react";
 
 const NAV = [
@@ -11,6 +11,7 @@ const NAV = [
   { href: "/subscriptions", icon: Bell, label: "Subscriptions" },
   { href: "/payments", icon: CreditCard, label: "Payments & Sales" },
   { href: "/care", icon: Stethoscope, label: "Care Activity" },
+  { href: "/shopkeepers", icon: Store, label: "Shopkeepers" },
   { href: "/api-keys", icon: Key, label: "API Configuration" },
 ];
 
@@ -31,7 +32,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <Activity className="w-5 h-5 text-primary" />
           </div>
           <div>
-            <div className="font-bold text-sidebar-foreground text-sm">MediQuick</div>
+            <div className="font-bold text-sidebar-foreground text-sm">Medi Quick</div>
             <div className="text-xs text-muted-foreground">Admin Panel</div>
           </div>
         </div>
@@ -41,19 +42,19 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         {NAV.map(item => {
           const active = location === item.href;
           return (
-            <Link key={item.href} href={item.href}>
-              <a
-                onClick={() => setSidebarOpen(false)}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all group ${
-                  active
-                    ? "bg-primary/20 text-primary"
-                    : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                }`}
-              >
-                <item.icon className="w-4 h-4 flex-shrink-0" />
-                {item.label}
-                {active && <ChevronRight className="w-3.5 h-3.5 ml-auto" />}
-              </a>
+            <Link
+              key={item.href}
+              href={item.href}
+              onClick={() => setSidebarOpen(false)}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all group ${
+                active
+                  ? "bg-primary/20 text-primary"
+                  : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+              }`}
+            >
+              <item.icon className="w-4 h-4 flex-shrink-0" />
+              {item.label}
+              {active && <ChevronRight className="w-3.5 h-3.5 ml-auto" />}
             </Link>
           );
         })}

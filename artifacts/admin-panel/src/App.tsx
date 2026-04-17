@@ -11,6 +11,7 @@ import SubscriptionsPage from "@/pages/subscriptions";
 import PaymentsPage from "@/pages/payments";
 import CareActivityPage from "@/pages/care-activity";
 import ApiKeysPage from "@/pages/api-keys";
+import ShopkeepersPage from "@/pages/shopkeepers";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
@@ -24,6 +25,7 @@ function AppRoutes() {
         <Route path="/subscriptions" component={SubscriptionsPage} />
         <Route path="/payments" component={PaymentsPage} />
         <Route path="/care" component={CareActivityPage} />
+        <Route path="/shopkeepers" component={ShopkeepersPage} />
         <Route path="/api-keys" component={ApiKeysPage} />
         <Route component={NotFound} />
       </Switch>
