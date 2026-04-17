@@ -27,6 +27,33 @@ The workspace includes **MediQuick**, a React web app for daily healthcare: medi
 - `artifacts/admin-panel` — MediQuick Admin Panel at `/admin/`
 - `artifacts/mockup-sandbox` — canvas/mockup preview server at `/__mockup`
 
+## Doctor Consultation System
+
+- **DB Tables**: `doctors`, `appointments`, `doctor_reviews` (in `lib/db/src/schema/`)
+- **API Routes** (`/api/doctors/...`):
+  - `GET /doctors` — list doctors with search/spec/type filters
+  - `GET /doctors/specializations` — list unique specializations
+  - `GET /doctors/:id` — doctor profile + reviews
+  - `POST /doctors/:id/book` — book appointment (Razorpay optional, auto-confirm without keys)
+  - `POST /doctors/appointments/:id/verify` — verify Razorpay payment, generate Jitsi link
+  - `GET /doctors/my/appointments` — user's appointments (auth required)
+  - `GET /doctors/admin/all` — admin: all doctors
+  - `POST /doctors/admin/create` — admin: add doctor
+  - `PUT /doctors/admin/:id` — admin: edit doctor
+  - `DELETE /doctors/admin/:id` — admin: deactivate doctor
+  - `GET /doctors/admin/appointments` — admin: all appointments
+- **Frontend**: `/consult` page with search, filters, doctor cards, profile modal, booking form, Jitsi video link
+- **Admin Pages**: `/doctors` (manage), `/appointments` (view all bookings + revenue)
+- **Video Calls**: Jitsi Meet — `https://meet.jit.si/mediquick-{id}-{timestamp}` (no API key needed)
+- **8 seeded doctors** with specializations + reviews on first load
+
+## Shopkeeper Subscription System
+
+- **DB Tables**: `shopkeeper_medicines`, `shopkeeper_subscriptions`
+- **API Routes** (`/api/shopkeeper/...`): medicine CRUD with plan limits, subscription Razorpay order/verify
+- **Plans**: Free (10), Basic ₹199 (50), Pro ₹499 (200), Unlimited ₹999 (∞)
+- **Frontend**: `/shopkeeper` page with Medicines + Plans tabs; limit-reached popup
+
 ## MediQuick API Surface
 
 - `GET /api/reminders` — list all reminders

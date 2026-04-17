@@ -7,6 +7,7 @@ import remindersRouter from "./reminders";
 import adminRouter from "./admin";
 import authRouter from "./auth";
 import shopkeeperRouter from "./shopkeeper";
+import doctorsRouter from "./doctors";
 
 const router: IRouter = Router();
 
@@ -18,5 +19,6 @@ router.use(careRouter);
 router.use("/admin", adminRouter);
 router.use("/auth", authRouter);
 router.use("/shopkeeper", shopkeeperRouter);
+router.use("/doctors", doctorsRouter);
 
 export default router;

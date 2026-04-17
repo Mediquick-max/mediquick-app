@@ -27,3 +27,6 @@ export * from "./payments";
 export * from "./api-config";
 export * from "./shopkeeper-medicines";
 export * from "./shopkeeper-subscriptions";
+export * from "./doctors";
+export * from "./appointments";
+export * from "./doctor-reviews";

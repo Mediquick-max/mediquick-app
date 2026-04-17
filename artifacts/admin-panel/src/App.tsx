@@ -12,6 +12,8 @@ import PaymentsPage from "@/pages/payments";
 import CareActivityPage from "@/pages/care-activity";
 import ApiKeysPage from "@/pages/api-keys";
 import ShopkeepersPage from "@/pages/shopkeepers";
+import DoctorsAdminPage from "@/pages/doctors-admin";
+import AppointmentsAdminPage from "@/pages/appointments-admin";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
@@ -25,6 +27,8 @@ function AppRoutes() {
         <Route path="/subscriptions" component={SubscriptionsPage} />
         <Route path="/payments" component={PaymentsPage} />
         <Route path="/care" component={CareActivityPage} />
+        <Route path="/doctors" component={DoctorsAdminPage} />
+        <Route path="/appointments" component={AppointmentsAdminPage} />
         <Route path="/shopkeepers" component={ShopkeepersPage} />
         <Route path="/api-keys" component={ApiKeysPage} />
         <Route component={NotFound} />

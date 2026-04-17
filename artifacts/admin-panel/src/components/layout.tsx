@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import {
   LayoutDashboard, Users, CreditCard, Activity,
-  Key, Bell, LogOut, Menu, X, Settings, ChevronRight, Stethoscope, Store
+  Key, Bell, LogOut, Menu, X, Settings, ChevronRight, Stethoscope, Store, CalendarCheck
 } from "lucide-react";
 
 const NAV = [
@@ -10,7 +10,9 @@ const NAV = [
   { href: "/users", icon: Users, label: "Users" },
   { href: "/subscriptions", icon: Bell, label: "Subscriptions" },
   { href: "/payments", icon: CreditCard, label: "Payments & Sales" },
-  { href: "/care", icon: Stethoscope, label: "Care Activity" },
+  { href: "/care", icon: Activity, label: "Care Activity" },
+  { href: "/doctors", icon: Stethoscope, label: "Doctors" },
+  { href: "/appointments", icon: CalendarCheck, label: "Appointments" },
   { href: "/shopkeepers", icon: Store, label: "Shopkeepers" },
   { href: "/api-keys", icon: Key, label: "API Configuration" },
 ];

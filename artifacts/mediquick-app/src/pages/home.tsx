@@ -5,7 +5,8 @@ import { CreateReminderDialog } from "@/components/create-reminder-dialog";
 import { PharmacySearch } from "@/components/pharmacy-search";
 import { CareServices } from "@/components/care-services";
 import { MedicalAiAssistant } from "@/components/medical-ai-assistant";
-import { Bot, CheckCircle2, HeartPulse, ShieldCheck } from "lucide-react";
+import { Bot, CheckCircle2, HeartPulse, ShieldCheck, Stethoscope, ChevronRight, Star } from "lucide-react";
+import { Link } from "wouter";
 
 export default function Home() {
   const { data: summary } = useGetReminderSummary();
@@ -63,6 +64,34 @@ export default function Home() {
             <p className="text-muted-foreground font-medium mt-1">Ask health questions, check symptoms, and get emergency guidance.</p>
           </div>
           <MedicalAiAssistant />
+        </section>
+
+        <hr className="border-border/60" />
+
+        <section className="space-y-4">
+          <div>
+            <h2 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+              <Stethoscope className="w-6 h-6 text-primary" />
+              Consult a Doctor
+            </h2>
+            <p className="text-muted-foreground font-medium mt-1">Book video or clinic consultations with verified specialists.</p>
+          </div>
+          <Link href="/consult" className="block group">
+            <div className="bg-gradient-to-r from-primary to-orange-600 rounded-3xl p-6 text-white flex items-center justify-between hover:shadow-xl transition-all hover:scale-[1.01]">
+              <div className="space-y-1.5">
+                <div className="flex gap-1 flex-wrap">
+                  {["⭐ 4.9 rated", "Video + Clinic", "₹399 onwards"].map(t => (
+                    <span key={t} className="text-xs bg-white/20 px-2 py-0.5 rounded-full font-medium">{t}</span>
+                  ))}
+                </div>
+                <p className="text-xl font-bold">Find Specialist Doctors</p>
+                <p className="text-sm text-white/80">General Physician, Cardiologist, Dermatologist & more</p>
+              </div>
+              <div className="flex-shrink-0 bg-white/20 rounded-2xl p-3 group-hover:bg-white/30 transition-colors">
+                <ChevronRight className="w-6 h-6" />
+              </div>
+            </div>
+          </Link>
         </section>
 
         <hr className="border-border/60" />
