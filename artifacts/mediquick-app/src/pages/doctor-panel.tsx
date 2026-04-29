@@ -580,7 +580,10 @@ export default function DoctorPanelPage() {
               <div className="flex-1">
                 <div className="font-bold text-blue-900 text-sm">Platform Fee — 2% per Booking</div>
                 <div className="text-blue-700 text-xs mt-1">
-                  Medi Quick platform 2% service charge leti hai har confirmed consultation par. Baaki <strong>98% aapko milta hai</strong>.
+                  Medi Quick platform 2% service charge leti hai har confirmed consultation par. Baaki <strong>98% aapko milta hai</strong> — chahe patient koi bhi membership plan le.
+                </div>
+                <div className="text-blue-600 text-xs mt-1.5 bg-blue-50 rounded-xl px-3 py-2">
+                  💡 Agar patient Gold/Platinum/Lifetime plan mein discount le raha hai, toh woh discount <strong>platform apni membership revenue se deta hai</strong>. Aapki earnings par koi asar nahi — aapko hamesha apni poori fee ka 98% milega.
                 </div>
                 <div className="flex gap-4 mt-2.5">
                   <div className="text-xs">
