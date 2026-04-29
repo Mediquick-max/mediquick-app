@@ -83,7 +83,7 @@ const MEMBERSHIP_PLANS = [
       "Unlimited doctor consultations",
       "10% discount on all doctor consultations",
       "Unlimited lab tests",
-      "15% discount on all lab tests",
+      "20% discount on all lab tests",
       "Priority booking always",
       "Health report storage lifetime",
       "Family health tracking (up to 6 members)",
