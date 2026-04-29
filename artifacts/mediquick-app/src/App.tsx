@@ -11,6 +11,7 @@ import ShopkeeperPage from "@/pages/shopkeeper";
 import ConsultPage from "@/pages/consult";
 import MedicinePage from "@/pages/medicine";
 import DoctorPanelPage from "@/pages/doctor-panel";
+import LabTestsPage from "@/pages/lab-tests";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +25,7 @@ function Router() {
       <Route path="/consult" component={ConsultPage} />
       <Route path="/medicine" component={MedicinePage} />
       <Route path="/doctor-panel" component={DoctorPanelPage} />
+      <Route path="/lab-tests" component={LabTestsPage} />
       <Route component={NotFound} />
     </Switch>
   );

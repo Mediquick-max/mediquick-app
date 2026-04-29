@@ -5,7 +5,7 @@ import { CreateReminderDialog } from "@/components/create-reminder-dialog";
 import { PharmacySearch } from "@/components/pharmacy-search";
 import { CareServices } from "@/components/care-services";
 import { MedicalAiAssistant } from "@/components/medical-ai-assistant";
-import { Bot, CheckCircle2, HeartPulse, ShieldCheck, Stethoscope, ChevronRight, Pill, MapPin, LocateFixed, Loader2 } from "lucide-react";
+import { Bot, CheckCircle2, HeartPulse, ShieldCheck, Stethoscope, ChevronRight, Pill, MapPin, LocateFixed, Loader2, FlaskConical } from "lucide-react";
 import { Link } from "wouter";
 import { useGeolocation } from "@/lib/use-geolocation";
 
@@ -88,7 +88,7 @@ export default function Home() {
             <h2 className="text-2xl font-bold tracking-tight">Quick Access</h2>
             <p className="text-muted-foreground font-medium mt-1">All healthcare services in one place</p>
           </div>
-          <div className="grid sm:grid-cols-2 gap-3">
+          <div className="grid sm:grid-cols-3 gap-3">
             <Link href="/consult" className="block group">
               <div className="bg-gradient-to-br from-primary to-orange-600 rounded-3xl p-5 text-white flex flex-col gap-3 hover:shadow-xl transition-all hover:scale-[1.02] h-full">
                 <div className="flex items-center justify-between">
@@ -103,6 +103,25 @@ export default function Home() {
                 </div>
                 <div className="flex gap-1.5 flex-wrap">
                   {["⭐ 4.9 rated", "8 Specialists", "Video + Clinic"].map(t => (
+                    <span key={t} className="text-xs bg-white/20 px-2 py-0.5 rounded-full font-medium">{t}</span>
+                  ))}
+                </div>
+              </div>
+            </Link>
+            <Link href="/lab-tests" className="block group">
+              <div className="bg-gradient-to-br from-violet-500 to-purple-700 rounded-3xl p-5 text-white flex flex-col gap-3 hover:shadow-xl transition-all hover:scale-[1.02] h-full">
+                <div className="flex items-center justify-between">
+                  <div className="bg-white/20 rounded-2xl p-2.5">
+                    <FlaskConical className="w-5 h-5" />
+                  </div>
+                  <ChevronRight className="w-5 h-5 opacity-70 group-hover:opacity-100 transition-opacity" />
+                </div>
+                <div>
+                  <p className="font-bold text-lg leading-snug">Book Lab Tests</p>
+                  <p className="text-sm text-white/80 mt-0.5">Home collection · ₹299 onwards</p>
+                </div>
+                <div className="flex gap-1.5 flex-wrap">
+                  {["🏠 Home Sample", "NABL Certified", "Report in 12 hr"].map(t => (
                     <span key={t} className="text-xs bg-white/20 px-2 py-0.5 rounded-full font-medium">{t}</span>
                   ))}
                 </div>
