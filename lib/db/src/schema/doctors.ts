@@ -24,6 +24,12 @@ export const doctorsTable = pgTable("doctors", {
   address: text("address").notNull().default(""),
   availableDays: text("available_days").notNull().default("Mon,Tue,Wed,Thu,Fri"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  paymentMethod: text("payment_method").notNull().default("upi"),
+  upiId: text("upi_id").notNull().default(""),
+  bankAccountHolder: text("bank_account_holder").notNull().default(""),
+  bankAccountNumber: text("bank_account_number").notNull().default(""),
+  bankIfscCode: text("bank_ifsc_code").notNull().default(""),
+  bankName: text("bank_name").notNull().default(""),
 });
 
 export type Doctor = typeof doctorsTable.$inferSelect;

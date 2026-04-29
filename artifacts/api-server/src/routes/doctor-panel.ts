@@ -132,7 +132,8 @@ router.put("/profile", async (req, res) => {
   const allowed = [
     "name", "phone", "specialization", "qualifications", "experienceYears",
     "city", "hospitalName", "address", "fee", "consultationType", "bio",
-    "languages", "availableDays", "imageUrl"
+    "languages", "availableDays", "imageUrl",
+    "paymentMethod", "upiId", "bankAccountHolder", "bankAccountNumber", "bankIfscCode", "bankName"
   ];
   const updateData: Record<string, any> = {};
   for (const key of allowed) {

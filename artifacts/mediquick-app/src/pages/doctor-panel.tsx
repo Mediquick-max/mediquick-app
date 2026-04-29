@@ -5,7 +5,7 @@ import {
   Clock, Calendar, CheckCircle2, XCircle, Loader2, LogOut, Edit3,
   Save, Eye, EyeOff, ChevronRight, Star, TrendingUp, Users, 
   AlertCircle, RefreshCw, Video, Pill, IndianRupee, BadgeCheck,
-  ClipboardList, X, Plus
+  ClipboardList, X, Plus, Wallet, CreditCard, Landmark, ShieldCheck
 } from "lucide-react";
 import { MediQuickLogo } from "@/components/logo";
 
@@ -40,6 +40,8 @@ interface DoctorProfile {
   consultationType: string; bio: string; languages: string;
   availableDays: string; availableSlots: string; imageUrl: string;
   registrationStatus: string; status: string; rating: number; totalReviews: number;
+  paymentMethod: string; upiId: string;
+  bankAccountHolder: string; bankAccountNumber: string; bankIfscCode: string; bankName: string;
 }
 
 interface Appointment {
@@ -52,7 +54,7 @@ export default function DoctorPanelPage() {
   const [token, setToken] = useState<string | null>(() => localStorage.getItem("mq_doc_token"));
   const [doctor, setDoctor] = useState<DoctorProfile | null>(null);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [activeTab, setActiveTab] = useState<"dashboard" | "profile" | "appointments">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "profile" | "appointments" | "payments">("dashboard");
   const [authTab, setAuthTab] = useState<"login" | "register">("login");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -78,6 +80,17 @@ export default function DoctorPanelPage() {
   const [saving, setSaving] = useState(false);
   const [apptLoading, setApptLoading] = useState(false);
 
+  const [paymentForm, setPaymentForm] = useState({
+    paymentMethod: "upi",
+    upiId: "",
+    bankAccountHolder: "",
+    bankAccountNumber: "",
+    bankIfscCode: "",
+    bankName: "",
+  });
+  const [paymentSaving, setPaymentSaving] = useState(false);
+  const [paymentSaved, setPaymentSaved] = useState(false);
+
   const authHeaders = useCallback(() => ({
     "Content-Type": "application/json",
     ...(token ? { Authorization: `Bearer ${token}` } : {})
@@ -91,8 +104,35 @@ export default function DoctorPanelPage() {
       if (!res.ok) throw new Error();
       const data = await res.json();
       setDoctor(data.doctor);
+      setPaymentForm({
+        paymentMethod: data.doctor.paymentMethod || "upi",
+        upiId: data.doctor.upiId || "",
+        bankAccountHolder: data.doctor.bankAccountHolder || "",
+        bankAccountNumber: data.doctor.bankAccountNumber || "",
+        bankIfscCode: data.doctor.bankIfscCode || "",
+        bankName: data.doctor.bankName || "",
+      });
     } catch {}
   }, [token]);
+
+  const handlePaymentSave = async () => {
+    setPaymentSaving(true);
+    setError("");
+    try {
+      const res = await fetch(`${API}/api/doctor-panel/profile`, {
+        method: "PUT",
+        headers: authHeaders(),
+        body: JSON.stringify(paymentForm),
+      });
+      if (!res.ok) { const d = await res.json(); throw new Error(d.error || "Failed"); }
+      const data = await res.json();
+      setDoctor(data.doctor);
+      setPaymentSaved(true);
+      setTimeout(() => setPaymentSaved(false), 3000);
+    } catch (e: any) {
+      setError(e.message || "Could not save payment details");
+    } finally { setPaymentSaving(false); }
+  };
 
   const fetchAppointments = useCallback(async () => {
     setApptLoading(true);
@@ -493,14 +533,15 @@ export default function DoctorPanelPage() {
             </button>
           </div>
         </div>
-        <div className="max-w-4xl mx-auto px-4 flex gap-0.5 pb-0.5">
+        <div className="max-w-4xl mx-auto px-4 flex gap-0.5 pb-0.5 overflow-x-auto">
           {[
             { id: "dashboard", label: "Dashboard", icon: TrendingUp },
             { id: "profile", label: "My Profile", icon: User },
             { id: "appointments", label: `Appointments${pending > 0 ? ` (${pending})` : ""}`, icon: ClipboardList },
+            { id: "payments", label: "Payment Details", icon: Wallet },
           ].map(tab => (
             <button key={tab.id} onClick={() => setActiveTab(tab.id as any)}
-              className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-semibold border-b-2 transition-all ${activeTab === tab.id ? "text-blue-600 border-blue-600" : "text-muted-foreground border-transparent hover:text-foreground"}`}>
+              className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-semibold border-b-2 transition-all whitespace-nowrap ${activeTab === tab.id ? "text-blue-600 border-blue-600" : "text-muted-foreground border-transparent hover:text-foreground"}`}>
               <tab.icon className="w-3.5 h-3.5" /> {tab.label}
             </button>
           ))}
@@ -861,6 +902,151 @@ export default function DoctorPanelPage() {
                 ))}
               </div>
             )}
+          </div>
+        )}
+
+        {activeTab === "payments" && (
+          <div className="space-y-5">
+            {paymentSaved && (
+              <div className="flex items-center gap-2 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-2xl px-4 py-3 text-sm">
+                <ShieldCheck className="w-4 h-4" /> Payment details saved successfully!
+              </div>
+            )}
+            <div className="bg-amber-50 border border-amber-200 rounded-3xl p-4 flex items-start gap-3">
+              <Landmark className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+              <div>
+                <div className="font-bold text-amber-800 text-sm">Payout Information</div>
+                <div className="text-amber-700 text-xs mt-1">
+                  Aapki earnings (98%) is account mein transfer ki jaayegi. Please sahi bank/UPI details bharein.
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-3xl border border-border/50 shadow-sm p-5 space-y-5">
+              <h2 className="font-bold text-base flex items-center gap-2">
+                <Wallet className="w-4 h-4 text-blue-600" /> Payment Method
+              </h2>
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { id: "upi", label: "UPI / GPay / PhonePe", icon: CreditCard },
+                  { id: "bank", label: "Bank Account (NEFT/IMPS)", icon: Landmark },
+                ].map(opt => (
+                  <button key={opt.id} onClick={() => setPaymentForm(f => ({ ...f, paymentMethod: opt.id }))}
+                    className={`flex items-center gap-2.5 p-3.5 rounded-2xl border-2 text-sm font-semibold transition-all text-left ${paymentForm.paymentMethod === opt.id ? "border-blue-500 bg-blue-50 text-blue-800" : "border-border bg-secondary/30 text-foreground hover:border-blue-300"}`}>
+                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${paymentForm.paymentMethod === opt.id ? "bg-blue-500" : "bg-muted"}`}>
+                      <opt.icon className={`w-4 h-4 ${paymentForm.paymentMethod === opt.id ? "text-white" : "text-muted-foreground"}`} />
+                    </div>
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+
+              {paymentForm.paymentMethod === "upi" ? (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-bold text-muted-foreground mb-1.5">UPI ID *</label>
+                    <input
+                      value={paymentForm.upiId}
+                      onChange={e => setPaymentForm(f => ({ ...f, upiId: e.target.value }))}
+                      placeholder="yourname@upi / 9876543210@ybl"
+                      className="w-full px-3 py-2.5 rounded-2xl border border-border bg-secondary/30 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1.5">
+                      Google Pay, PhonePe, Paytm, BHIM — koi bhi UPI ID chal sakta hai
+                    </p>
+                  </div>
+                  {paymentForm.upiId && (
+                    <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-3 flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                      <div className="text-xs">
+                        <div className="font-semibold text-emerald-800">UPI ID: {paymentForm.upiId}</div>
+                        <div className="text-emerald-600">Earnings is ID pe direct transfer honge</div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-bold text-muted-foreground mb-1.5">Account Holder Name *</label>
+                    <input
+                      value={paymentForm.bankAccountHolder}
+                      onChange={e => setPaymentForm(f => ({ ...f, bankAccountHolder: e.target.value }))}
+                      placeholder="Jaise aapka naam bank mein hai"
+                      className="w-full px-3 py-2.5 rounded-2xl border border-border bg-secondary/30 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-muted-foreground mb-1.5">Account Number *</label>
+                    <input
+                      value={paymentForm.bankAccountNumber}
+                      onChange={e => setPaymentForm(f => ({ ...f, bankAccountNumber: e.target.value.replace(/\D/g, "") }))}
+                      placeholder="Enter your account number"
+                      className="w-full px-3 py-2.5 rounded-2xl border border-border bg-secondary/30 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm font-mono tracking-wider"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-bold text-muted-foreground mb-1.5">IFSC Code *</label>
+                      <input
+                        value={paymentForm.bankIfscCode}
+                        onChange={e => setPaymentForm(f => ({ ...f, bankIfscCode: e.target.value.toUpperCase() }))}
+                        placeholder="e.g. SBIN0001234"
+                        maxLength={11}
+                        className="w-full px-3 py-2.5 rounded-2xl border border-border bg-secondary/30 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm font-mono"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-muted-foreground mb-1.5">Bank Name</label>
+                      <input
+                        value={paymentForm.bankName}
+                        onChange={e => setPaymentForm(f => ({ ...f, bankName: e.target.value }))}
+                        placeholder="e.g. SBI, HDFC, ICICI"
+                        className="w-full px-3 py-2.5 rounded-2xl border border-border bg-secondary/30 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                      />
+                    </div>
+                  </div>
+                  {paymentForm.bankAccountNumber && paymentForm.bankIfscCode && (
+                    <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-3 space-y-1">
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-800">
+                        <CheckCircle2 className="w-3.5 h-3.5" /> Bank Details Summary
+                      </div>
+                      <div className="text-xs text-emerald-700 space-y-0.5">
+                        {paymentForm.bankAccountHolder && <div>Name: {paymentForm.bankAccountHolder}</div>}
+                        <div>A/C: •••• {paymentForm.bankAccountNumber.slice(-4)}</div>
+                        <div>IFSC: {paymentForm.bankIfscCode}{paymentForm.bankName ? ` (${paymentForm.bankName})` : ""}</div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <button onClick={handlePaymentSave} disabled={paymentSaving}
+                className="w-full bg-blue-600 text-white py-3.5 rounded-2xl font-bold text-sm hover:bg-blue-700 active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-60">
+                {paymentSaving ? <><Loader2 className="w-4 h-4 animate-spin" /> Saving...</> : <><ShieldCheck className="w-4 h-4" /> Save Payment Details</>}
+              </button>
+            </div>
+
+            <div className="bg-white rounded-3xl border border-border/50 shadow-sm p-5">
+              <h3 className="font-bold text-sm mb-3 flex items-center gap-2">
+                <IndianRupee className="w-4 h-4 text-emerald-600" /> Payout Summary
+              </h3>
+              <div className="space-y-2">
+                {[
+                  { label: "Your consultation fee", value: `₹${doctor.fee}` },
+                  { label: "Platform fee (2%)", value: `₹${Math.round(doctor.fee * 0.02)}`, color: "text-orange-600" },
+                  { label: "Your payout per consultation", value: `₹${Math.round(doctor.fee * 0.98)}`, color: "text-emerald-700", bold: true },
+                ].map(row => (
+                  <div key={row.label} className={`flex items-center justify-between text-sm ${row.bold ? "border-t border-border/50 pt-2 font-bold" : ""}`}>
+                    <span className="text-muted-foreground">{row.label}</span>
+                    <span className={row.color || "font-medium"}>{row.value}</span>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground mt-3">
+                * Payouts are processed every week to your registered account
+              </p>
+            </div>
           </div>
         )}
       </div>
