@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { apiGet } from "@/lib/api";
-import { Stethoscope, FlaskConical, Package, RefreshCw } from "lucide-react";
+import { Stethoscope, FlaskConical, Package, RefreshCw, ArrowUpRight, ArrowDownRight } from "lucide-react";
 
 interface CareRequest {
   id: number;
@@ -15,6 +15,8 @@ interface CareRequest {
   dateSlot: string;
   status: string;
   amount: number;
+  platformFee: number;
+  providerPayout: number;
   createdAt: string;
 }
 
@@ -31,41 +33,64 @@ const STATUS_COLORS: Record<string, string> = {
   completed: "bg-blue-500/20 text-blue-400",
 };
 
-function CareTable({ items, emptyMsg }: { items: CareRequest[]; emptyMsg: string }) {
+function CareTable({ items, emptyMsg, showCommission }: { items: CareRequest[]; emptyMsg: string; showCommission?: boolean }) {
   if (items.length === 0) {
     return <div className="p-8 text-center text-muted-foreground">{emptyMsg}</div>;
   }
+  const totalAmount = items.reduce((s, r) => s + r.amount, 0);
+  const totalPlatform = items.reduce((s, r) => s + (r.platformFee ?? 0), 0);
+  const totalProvider = items.reduce((s, r) => s + (r.providerPayout ?? 0), 0);
+
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b border-border bg-muted/30">
-            <th className="text-left px-4 py-3 text-muted-foreground font-medium">Patient</th>
-            <th className="text-left px-4 py-3 text-muted-foreground font-medium hidden sm:table-cell">Service</th>
-            <th className="text-left px-4 py-3 text-muted-foreground font-medium hidden md:table-cell">Date / Slot</th>
-            <th className="text-left px-4 py-3 text-muted-foreground font-medium">Amount</th>
-            <th className="text-left px-4 py-3 text-muted-foreground font-medium">Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {items.map(r => (
-            <tr key={r.id} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
-              <td className="px-4 py-3">
-                <div className="font-medium text-foreground">{r.patientName}</div>
-                <div className="text-xs text-muted-foreground">{r.phone}</div>
-              </td>
-              <td className="px-4 py-3 text-foreground hidden sm:table-cell">{r.title}</td>
-              <td className="px-4 py-3 text-muted-foreground text-xs hidden md:table-cell">{r.dateSlot}</td>
-              <td className="px-4 py-3 font-medium text-foreground">₹{r.amount}</td>
-              <td className="px-4 py-3">
-                <span className={`px-2 py-0.5 rounded-full text-xs font-medium capitalize ${STATUS_COLORS[r.status] ?? "bg-muted text-muted-foreground"}`}>
-                  {r.status}
-                </span>
-              </td>
+    <div>
+      {showCommission && items.length > 0 && (
+        <div className="flex gap-4 flex-wrap px-4 py-3 bg-muted/20 border-b border-border text-xs">
+          <span className="text-muted-foreground">Total GMV: <strong className="text-foreground">₹{totalAmount.toLocaleString("en-IN")}</strong></span>
+          <span className="flex items-center gap-1 text-emerald-400"><ArrowUpRight className="w-3 h-3" /> Platform (2%): <strong>₹{totalPlatform.toLocaleString("en-IN")}</strong></span>
+          <span className="flex items-center gap-1 text-muted-foreground"><ArrowDownRight className="w-3 h-3" /> Provider (98%): <strong className="text-foreground">₹{totalProvider.toLocaleString("en-IN")}</strong></span>
+        </div>
+      )}
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-border bg-muted/30">
+              <th className="text-left px-4 py-3 text-muted-foreground font-medium">Patient</th>
+              <th className="text-left px-4 py-3 text-muted-foreground font-medium hidden sm:table-cell">Service</th>
+              <th className="text-left px-4 py-3 text-muted-foreground font-medium hidden md:table-cell">Date / Slot</th>
+              <th className="text-left px-4 py-3 text-muted-foreground font-medium">Total</th>
+              {showCommission && <th className="text-left px-4 py-3 text-emerald-400 font-medium hidden lg:table-cell">Platform 2%</th>}
+              {showCommission && <th className="text-left px-4 py-3 text-muted-foreground font-medium hidden lg:table-cell">Provider 98%</th>}
+              <th className="text-left px-4 py-3 text-muted-foreground font-medium">Status</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {items.map(r => (
+              <tr key={r.id} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
+                <td className="px-4 py-3">
+                  <div className="font-medium text-foreground">{r.patientName}</div>
+                  <div className="text-xs text-muted-foreground">{r.phone}</div>
+                </td>
+                <td className="px-4 py-3 text-foreground hidden sm:table-cell">{r.title}</td>
+                <td className="px-4 py-3 text-muted-foreground text-xs hidden md:table-cell">{r.dateSlot}</td>
+                <td className="px-4 py-3 font-medium text-foreground">₹{r.amount}</td>
+                {showCommission && (
+                  <td className="px-4 py-3 hidden lg:table-cell">
+                    <span className="text-emerald-400 font-semibold">₹{r.platformFee ?? Math.round(r.amount * 0.02)}</span>
+                  </td>
+                )}
+                {showCommission && (
+                  <td className="px-4 py-3 text-foreground hidden lg:table-cell">₹{r.providerPayout ?? Math.round(r.amount * 0.98)}</td>
+                )}
+                <td className="px-4 py-3">
+                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium capitalize ${STATUS_COLORS[r.status] ?? "bg-muted text-muted-foreground"}`}>
+                    {r.status}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
@@ -145,8 +170,8 @@ export default function CareActivityPage() {
           <div className="p-8 text-center text-muted-foreground">Loading care activity...</div>
         ) : (
           <>
-            {tab === "consultations" && <CareTable items={data?.consultations ?? []} emptyMsg="No consultations booked yet" />}
-            {tab === "lab" && <CareTable items={data?.labBookings ?? []} emptyMsg="No lab tests booked yet" />}
+            {tab === "consultations" && <CareTable items={data?.consultations ?? []} emptyMsg="No consultations booked yet" showCommission />}
+            {tab === "lab" && <CareTable items={data?.labBookings ?? []} emptyMsg="No lab tests booked yet" showCommission />}
             {tab === "medicine" && <CareTable items={data?.medicineOrders ?? []} emptyMsg="No medicine orders placed yet" />}
           </>
         )}

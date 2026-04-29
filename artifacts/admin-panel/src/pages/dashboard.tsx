@@ -3,7 +3,7 @@ import { apiGet } from "@/lib/api";
 import {
   Users, TrendingUp, CreditCard, Activity,
   UserCheck, IndianRupee, Stethoscope, FlaskConical,
-  Package, Star, RefreshCw
+  Package, Star, RefreshCw, Percent, ArrowUpRight, ArrowDownRight
 } from "lucide-react";
 
 interface Stats {
@@ -20,6 +20,12 @@ interface Stats {
   totalLabBookings: number;
   totalMedicineOrders: number;
   newUsersThisMonth: number;
+  consultationPlatformFee: number;
+  consultationProviderPayout: number;
+  consultationTotalAmount: number;
+  labPlatformFee: number;
+  labProviderPayout: number;
+  labTotalAmount: number;
 }
 
 function fmt(n: number) {
@@ -207,6 +213,84 @@ export default function Dashboard() {
             value={stats.totalMedicineOrders}
             color="bg-violet-500/20 text-violet-400"
           />
+        </div>
+      </div>
+
+      {/* Commission Tracking */}
+      <div>
+        <h2 className="text-base font-semibold text-foreground mb-1 flex items-center gap-2">
+          <Percent className="w-4 h-4 text-primary" /> Commission Tracking
+        </h2>
+        <p className="text-xs text-muted-foreground mb-3">Platform earns 2% on every doctor consultation and lab test booking</p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+          {/* Consultation Commission */}
+          <div className="bg-card border border-card-border rounded-xl p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Stethoscope className="w-4 h-4 text-blue-400" />
+              <span className="text-sm font-semibold text-foreground">Doctor Consultations</span>
+            </div>
+            <div className="text-xs text-muted-foreground mb-1">Total Booking Value</div>
+            <div className="text-lg font-bold text-foreground mb-3">{fmt(stats.consultationTotalAmount)}</div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between bg-emerald-500/10 rounded-lg px-3 py-2">
+                <div className="flex items-center gap-1.5">
+                  <ArrowUpRight className="w-3.5 h-3.5 text-emerald-400" />
+                  <span className="text-xs text-foreground font-medium">Platform (2%)</span>
+                </div>
+                <span className="text-sm font-bold text-emerald-400">{fmt(stats.consultationPlatformFee)}</span>
+              </div>
+              <div className="flex items-center justify-between bg-muted/30 rounded-lg px-3 py-2">
+                <div className="flex items-center gap-1.5">
+                  <ArrowDownRight className="w-3.5 h-3.5 text-muted-foreground" />
+                  <span className="text-xs text-muted-foreground font-medium">Doctors (98%)</span>
+                </div>
+                <span className="text-sm font-bold text-foreground">{fmt(stats.consultationProviderPayout)}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Lab Test Commission */}
+          <div className="bg-card border border-card-border rounded-xl p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <FlaskConical className="w-4 h-4 text-violet-400" />
+              <span className="text-sm font-semibold text-foreground">Lab Tests</span>
+            </div>
+            <div className="text-xs text-muted-foreground mb-1">Total Booking Value</div>
+            <div className="text-lg font-bold text-foreground mb-3">{fmt(stats.labTotalAmount)}</div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between bg-emerald-500/10 rounded-lg px-3 py-2">
+                <div className="flex items-center gap-1.5">
+                  <ArrowUpRight className="w-3.5 h-3.5 text-emerald-400" />
+                  <span className="text-xs text-foreground font-medium">Platform (2%)</span>
+                </div>
+                <span className="text-sm font-bold text-emerald-400">{fmt(stats.labPlatformFee)}</span>
+              </div>
+              <div className="flex items-center justify-between bg-muted/30 rounded-lg px-3 py-2">
+                <div className="flex items-center gap-1.5">
+                  <ArrowDownRight className="w-3.5 h-3.5 text-muted-foreground" />
+                  <span className="text-xs text-muted-foreground font-medium">Labs (98%)</span>
+                </div>
+                <span className="text-sm font-bold text-foreground">{fmt(stats.labProviderPayout)}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Total commission summary bar */}
+        <div className="bg-gradient-to-r from-emerald-500/10 to-emerald-500/5 border border-emerald-500/20 rounded-xl p-4 flex items-center justify-between flex-wrap gap-3">
+          <div>
+            <p className="text-xs text-muted-foreground">Total Platform Earnings (2%)</p>
+            <p className="text-2xl font-bold text-emerald-400">{fmt(stats.consultationPlatformFee + stats.labPlatformFee)}</p>
+          </div>
+          <div className="text-right">
+            <p className="text-xs text-muted-foreground">Total Provider Payouts (98%)</p>
+            <p className="text-2xl font-bold text-foreground">{fmt(stats.consultationProviderPayout + stats.labProviderPayout)}</p>
+          </div>
+          <div className="text-right">
+            <p className="text-xs text-muted-foreground">Total Booking GMV</p>
+            <p className="text-2xl font-bold text-foreground">{fmt(stats.consultationTotalAmount + stats.labTotalAmount)}</p>
+          </div>
         </div>
       </div>
 

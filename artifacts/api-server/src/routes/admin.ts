@@ -116,6 +116,24 @@ router.get("/stats", requireAdmin, async (req, res) => {
       .from(appUsersTable)
       .where(gte(appUsersTable.joinedAt, startOfMonth));
 
+    const [consultationCommission] = await db
+      .select({
+        platformFee: sql<number>`coalesce(sum(platform_fee), 0)::int`,
+        providerPayout: sql<number>`coalesce(sum(provider_payout), 0)::int`,
+        totalAmount: sql<number>`coalesce(sum(amount), 0)::int`,
+      })
+      .from(careRequestsTable)
+      .where(eq(careRequestsTable.type, "consultation"));
+
+    const [labCommission] = await db
+      .select({
+        platformFee: sql<number>`coalesce(sum(platform_fee), 0)::int`,
+        providerPayout: sql<number>`coalesce(sum(provider_payout), 0)::int`,
+        totalAmount: sql<number>`coalesce(sum(amount), 0)::int`,
+      })
+      .from(careRequestsTable)
+      .where(eq(careRequestsTable.type, "lab"));
+
     res.json({
       totalUsers: totalUsers?.count ?? 0,
       activeUsers: activeUsers?.count ?? 0,
@@ -130,6 +148,12 @@ router.get("/stats", requireAdmin, async (req, res) => {
       totalLabBookings: labBookings?.count ?? 0,
       totalMedicineOrders: medicineOrders?.count ?? 0,
       newUsersThisMonth: newUsersThisMonth?.count ?? 0,
+      consultationPlatformFee: consultationCommission?.platformFee ?? 0,
+      consultationProviderPayout: consultationCommission?.providerPayout ?? 0,
+      consultationTotalAmount: consultationCommission?.totalAmount ?? 0,
+      labPlatformFee: labCommission?.platformFee ?? 0,
+      labProviderPayout: labCommission?.providerPayout ?? 0,
+      labTotalAmount: labCommission?.totalAmount ?? 0,
     });
   } catch (err) {
     req.log.error({ err }, "Failed to fetch admin stats");

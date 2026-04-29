@@ -45,27 +45,14 @@ const doctors = [
 ];
 
 const labTests = [
-  {
-    id: "lab-full-body",
-    name: "Full Body Checkup",
-    includes: "CBC, liver, kidney, thyroid, sugar, lipid profile",
-    price: 899,
-    reportTime: "24 hours",
-  },
-  {
-    id: "lab-diabetes",
-    name: "Diabetes Care Package",
-    includes: "HbA1c, fasting sugar, kidney markers",
-    price: 499,
-    reportTime: "12 hours",
-  },
-  {
-    id: "lab-fever",
-    name: "Fever & Infection Panel",
-    includes: "CBC, CRP, malaria antigen, dengue screen",
-    price: 699,
-    reportTime: "Same day",
-  },
+  { id: "full-body", name: "Full Body Checkup", includes: "CBC, liver, kidney, thyroid, sugar, lipid profile", price: 899, reportTime: "24 hours" },
+  { id: "diabetes", name: "Diabetes Care Package", includes: "HbA1c, fasting sugar, kidney markers", price: 499, reportTime: "12 hours" },
+  { id: "fever", name: "Fever & Infection Panel", includes: "CBC, CRP, malaria antigen, dengue screen", price: 699, reportTime: "Same day" },
+  { id: "cardiac", name: "Heart Health Package", includes: "Lipid profile, ECG, Troponin, CRP, HbA1c", price: 799, reportTime: "24 hours" },
+  { id: "thyroid", name: "Thyroid Profile", includes: "TSH, T3, T4, Free T3, Free T4", price: 299, reportTime: "12 hours" },
+  { id: "vitamins", name: "Vitamin & Mineral Check", includes: "Vitamin D3, B12, Iron, Calcium, Magnesium, Zinc", price: 599, reportTime: "24 hours" },
+  { id: "womens-health", name: "Women's Health Package", includes: "CBC, Thyroid, Vitamin D3 & B12, Hormones, PCOD Screen", price: 999, reportTime: "24 hours" },
+  { id: "kidney", name: "Kidney Function Test", includes: "Creatinine, BUN, Uric Acid, eGFR, Electrolytes", price: 349, reportTime: "12 hours" },
 ];
 
 const medicines = [
@@ -137,6 +124,8 @@ router.post("/care/consultations", async (req, res): Promise<void> => {
       dateSlot: parsed.data.dateSlot.trim(),
       status: parsed.data.mode === "video" ? "Video consult booked" : "Clinic visit booked",
       amount: doctor.fee,
+      platformFee: Math.round(doctor.fee * 0.02),
+      providerPayout: Math.round(doctor.fee * 0.98),
     })
     .returning();
 
@@ -168,6 +157,8 @@ router.post("/care/lab-bookings", async (req, res): Promise<void> => {
       dateSlot: parsed.data.dateSlot.trim(),
       status: "Home sample collection booked",
       amount: test.price,
+      platformFee: Math.round(test.price * 0.02),
+      providerPayout: Math.round(test.price * 0.98),
       notes: `Reports in ${test.reportTime}`,
     })
     .returning();
