@@ -377,27 +377,12 @@ export default function LabTestsPage() {
                   <p className="text-xs text-muted-foreground mt-1.5 flex items-center gap-1"><HomeIcon className="w-3 h-3" /> Phlebotomist aapke ghar aayega sample lene</p>
                 </div>
 
-                <div className="bg-secondary/40 rounded-2xl p-3 space-y-2 text-sm">
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Total Amount</span>
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-xs text-muted-foreground line-through">₹{selectedPkg.originalPrice}</span>
-                      <span className="font-bold text-foreground text-lg">₹{selectedPkg.price}</span>
-                      <span className="text-xs text-emerald-600 font-bold">Save ₹{selectedPkg.originalPrice - selectedPkg.price}</span>
-                    </div>
-                  </div>
-                  <div className="border-t border-border/50 pt-2 space-y-1.5">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-orange-600 font-medium flex items-center gap-1.5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-orange-400 inline-block" />
-                        Medi Quick Platform Fee (2%)
-                      </span>
-                      <span className="text-orange-600 font-semibold">₹{Math.round(selectedPkg.price * 0.02)}</span>
-                    </div>
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-emerald-700 font-semibold">Lab Partner Payout (98%)</span>
-                      <span className="text-emerald-700 font-semibold">₹{Math.round(selectedPkg.price * 0.98)}</span>
-                    </div>
+                <div className="bg-secondary/40 rounded-2xl p-3 flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Total Amount</span>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-xs text-muted-foreground line-through">₹{selectedPkg.originalPrice}</span>
+                    <span className="font-bold text-primary text-lg">₹{selectedPkg.price}</span>
+                    <span className="text-xs text-emerald-600 font-bold">Save ₹{selectedPkg.originalPrice - selectedPkg.price}</span>
                   </div>
                 </div>
 
