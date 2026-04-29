@@ -10,20 +10,20 @@ import { MediQuickLogo } from "@/components/logo";
 const API = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 const PLAN_ICONS: Record<string, any> = {
-  free: Shield, gold: Crown, platinum: Sparkles, lifetime: Zap,
+  free: Shield, gold: Crown, platinum: Sparkles, yearly: Zap,
 };
 
 const GRADIENT: Record<string, string> = {
   free:     "linear-gradient(135deg, #9ca3af, #4b5563)",
   gold:     "linear-gradient(135deg, #f59e0b, #d97706)",
   platinum: "linear-gradient(135deg, #a855f7, #7c3aed)",
-  lifetime: "linear-gradient(135deg, #10b981, #0d9488)",
+  yearly:   "linear-gradient(135deg, #10b981, #0d9488)",
 };
 
 const BADGE: Record<string, { label: string; bg: string; color: string }> = {
   gold:     { label: "Popular",   bg: "bg-amber-100",   color: "text-amber-700"  },
   platinum: { label: "Best Value", bg: "bg-purple-100",  color: "text-purple-700" },
-  lifetime: { label: "One-Time",  bg: "bg-emerald-100", color: "text-emerald-700"},
+  yearly:   { label: "Yearly",    bg: "bg-emerald-100", color: "text-emerald-700"},
 };
 
 interface Plan {
@@ -169,13 +169,13 @@ export default function PlansPage() {
         </div>
 
         <div className="bg-gradient-to-r from-primary to-orange-600 rounded-3xl p-8 text-white text-center space-y-4">
-          <div className="text-2xl font-black">₹999 mein Lifetime Access</div>
+          <div className="text-2xl font-black">₹999 mein Poora Saal ka Access</div>
           <p className="text-white/80 text-sm max-w-md mx-auto">
-            Ek baar pay karo aur hamesha ke liye unlimited consultations, lab discounts, aur premium benefits lo. Kabhi renew na karo!
+            Ek baar pay karo aur poore saal ke liye unlimited consultations, lab discounts, aur premium benefits lo!
           </p>
           <Link href={user ? "/my-dashboard" : "/signup"}
             className="inline-flex items-center gap-2 bg-white text-primary px-6 py-3 rounded-2xl font-bold text-sm hover:bg-white/90 transition-all">
-            <Zap className="w-4 h-4" /> Get Lifetime Access
+            <Zap className="w-4 h-4" /> Get Yearly Access
           </Link>
         </div>
       </div>

@@ -20,7 +20,7 @@ const PLAN_CONFIG: Record<string, { label: string; color: string; bg: string; bo
   free:     { label: "Free",     color: "text-gray-600",   bg: "bg-gray-100",   border: "border-gray-200",   icon: Shield   },
   gold:     { label: "Gold",     color: "text-amber-700",  bg: "bg-amber-50",   border: "border-amber-300",  icon: Crown    },
   platinum: { label: "Platinum", color: "text-purple-700", bg: "bg-purple-50",  border: "border-purple-300", icon: Sparkles },
-  lifetime: { label: "Lifetime", color: "text-emerald-700",bg: "bg-emerald-50", border: "border-emerald-400", icon: Zap     },
+  yearly:   { label: "Yearly",   color: "text-emerald-700",bg: "bg-emerald-50", border: "border-emerald-400", icon: Zap     },
 };
 
 const STATUS_MAP: Record<string, string> = {
@@ -543,7 +543,7 @@ export default function MyDashboardPage() {
                       free:     "linear-gradient(to right, #9ca3af, #4b5563)",
                       gold:     "linear-gradient(to right, #f59e0b, #ca8a04)",
                       platinum: "linear-gradient(to right, #a855f7, #7c3aed)",
-                      lifetime: "linear-gradient(to right, #10b981, #0d9488)",
+                      yearly:   "linear-gradient(to right, #10b981, #0d9488)",
                     };
                     return (
                       <div key={plan.id} className={`bg-white rounded-3xl border-2 overflow-hidden shadow-sm ${isCurrent ? "border-primary" : "border-border/50"}`}>
