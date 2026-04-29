@@ -8,6 +8,7 @@ import adminRouter from "./admin";
 import authRouter from "./auth";
 import shopkeeperRouter from "./shopkeeper";
 import doctorsRouter from "./doctors";
+import medicineStoreRouter from "./medicine-store";
 
 const router: IRouter = Router();
 
@@ -20,5 +21,6 @@ router.use("/admin", adminRouter);
 router.use("/auth", authRouter);
 router.use("/shopkeeper", shopkeeperRouter);
 router.use("/doctors", doctorsRouter);
+router.use("/medicine-store", medicineStoreRouter);
 
 export default router;

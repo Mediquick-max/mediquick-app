@@ -5,7 +5,7 @@ import { CreateReminderDialog } from "@/components/create-reminder-dialog";
 import { PharmacySearch } from "@/components/pharmacy-search";
 import { CareServices } from "@/components/care-services";
 import { MedicalAiAssistant } from "@/components/medical-ai-assistant";
-import { Bot, CheckCircle2, HeartPulse, ShieldCheck, Stethoscope, ChevronRight, Star } from "lucide-react";
+import { Bot, CheckCircle2, HeartPulse, ShieldCheck, Stethoscope, ChevronRight, Pill, Truck } from "lucide-react";
 import { Link } from "wouter";
 
 export default function Home() {
@@ -70,28 +70,49 @@ export default function Home() {
 
         <section className="space-y-4">
           <div>
-            <h2 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-              <Stethoscope className="w-6 h-6 text-primary" />
-              Consult a Doctor
-            </h2>
-            <p className="text-muted-foreground font-medium mt-1">Book video or clinic consultations with verified specialists.</p>
+            <h2 className="text-2xl font-bold tracking-tight">Quick Access</h2>
+            <p className="text-muted-foreground font-medium mt-1">All healthcare services in one place</p>
           </div>
-          <Link href="/consult" className="block group">
-            <div className="bg-gradient-to-r from-primary to-orange-600 rounded-3xl p-6 text-white flex items-center justify-between hover:shadow-xl transition-all hover:scale-[1.01]">
-              <div className="space-y-1.5">
-                <div className="flex gap-1 flex-wrap">
-                  {["⭐ 4.9 rated", "Video + Clinic", "₹399 onwards"].map(t => (
+          <div className="grid sm:grid-cols-2 gap-3">
+            <Link href="/consult" className="block group">
+              <div className="bg-gradient-to-br from-primary to-orange-600 rounded-3xl p-5 text-white flex flex-col gap-3 hover:shadow-xl transition-all hover:scale-[1.02] h-full">
+                <div className="flex items-center justify-between">
+                  <div className="bg-white/20 rounded-2xl p-2.5">
+                    <Stethoscope className="w-5 h-5" />
+                  </div>
+                  <ChevronRight className="w-5 h-5 opacity-70 group-hover:opacity-100 transition-opacity" />
+                </div>
+                <div>
+                  <p className="font-bold text-lg leading-snug">Consult a Doctor</p>
+                  <p className="text-sm text-white/80 mt-0.5">Video & clinic · ₹399 onwards</p>
+                </div>
+                <div className="flex gap-1.5 flex-wrap">
+                  {["⭐ 4.9 rated", "8 Specialists", "Video + Clinic"].map(t => (
                     <span key={t} className="text-xs bg-white/20 px-2 py-0.5 rounded-full font-medium">{t}</span>
                   ))}
                 </div>
-                <p className="text-xl font-bold">Find Specialist Doctors</p>
-                <p className="text-sm text-white/80">General Physician, Cardiologist, Dermatologist & more</p>
               </div>
-              <div className="flex-shrink-0 bg-white/20 rounded-2xl p-3 group-hover:bg-white/30 transition-colors">
-                <ChevronRight className="w-6 h-6" />
+            </Link>
+            <Link href="/medicine" className="block group">
+              <div className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-3xl p-5 text-white flex flex-col gap-3 hover:shadow-xl transition-all hover:scale-[1.02] h-full">
+                <div className="flex items-center justify-between">
+                  <div className="bg-white/20 rounded-2xl p-2.5">
+                    <Pill className="w-5 h-5" />
+                  </div>
+                  <ChevronRight className="w-5 h-5 opacity-70 group-hover:opacity-100 transition-opacity" />
+                </div>
+                <div>
+                  <p className="font-bold text-lg leading-snug">Order Medicines</p>
+                  <p className="text-sm text-white/80 mt-0.5">Delivered in 4-6 hours</p>
+                </div>
+                <div className="flex gap-1.5 flex-wrap">
+                  {["🚚 Free Delivery", "20+ Categories", "Cash on Delivery"].map(t => (
+                    <span key={t} className="text-xs bg-white/20 px-2 py-0.5 rounded-full font-medium">{t}</span>
+                  ))}
+                </div>
               </div>
-            </div>
-          </Link>
+            </Link>
+          </div>
         </section>
 
         <hr className="border-border/60" />
