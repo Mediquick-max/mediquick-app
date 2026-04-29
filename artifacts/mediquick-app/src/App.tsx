@@ -13,6 +13,7 @@ import MedicinePage from "@/pages/medicine";
 import DoctorPanelPage from "@/pages/doctor-panel";
 import LabTestsPage from "@/pages/lab-tests";
 import MyDashboardPage from "@/pages/my-dashboard";
+import PlansPage from "@/pages/plans";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +29,7 @@ function Router() {
       <Route path="/doctor-panel" component={DoctorPanelPage} />
       <Route path="/lab-tests" component={LabTestsPage} />
       <Route path="/my-dashboard" component={MyDashboardPage} />
+      <Route path="/plans" component={PlansPage} />
       <Route component={NotFound} />
     </Switch>
   );

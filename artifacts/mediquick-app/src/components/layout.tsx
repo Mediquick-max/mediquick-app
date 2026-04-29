@@ -1,6 +1,6 @@
 import { ReactNode, useState } from "react";
 import { Link, useLocation } from "wouter";
-import { LogIn, UserPlus, LogOut, ChevronDown, Store, Stethoscope, Pill, Home, X, Menu, MapPin, LocateFixed, Loader2, FlaskConical, LayoutDashboard } from "lucide-react";
+import { LogIn, UserPlus, LogOut, ChevronDown, Store, Stethoscope, Pill, Home, X, Menu, MapPin, LocateFixed, Loader2, FlaskConical, LayoutDashboard, Crown } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { MediQuickLogo } from "@/components/logo";
 import { useGeolocation } from "@/lib/use-geolocation";
@@ -10,6 +10,7 @@ const NAV_LINKS = [
   { href: "/consult", label: "Consult Doctor", icon: Stethoscope },
   { href: "/lab-tests", label: "Lab Tests", icon: FlaskConical },
   { href: "/medicine", label: "Order Medicine", icon: Pill },
+  { href: "/plans", label: "Plans", icon: Crown },
 ];
 
 export function Layout({ children }: { children: ReactNode }) {
