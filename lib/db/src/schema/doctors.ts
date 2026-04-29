@@ -16,6 +16,13 @@ export const doctorsTable = pgTable("doctors", {
   imageUrl: text("image_url").notNull().default(""),
   availableSlots: text("available_slots").notNull().default(""),
   status: text("status").notNull().default("active"),
+  email: text("email"),
+  passwordHash: text("password_hash"),
+  phone: text("phone"),
+  registrationStatus: text("registration_status").notNull().default("approved"),
+  hospitalName: text("hospital_name").notNull().default(""),
+  address: text("address").notNull().default(""),
+  availableDays: text("available_days").notNull().default("Mon,Tue,Wed,Thu,Fri"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

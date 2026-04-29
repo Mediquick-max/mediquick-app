@@ -10,6 +10,7 @@ import SignupPage from "@/pages/signup";
 import ShopkeeperPage from "@/pages/shopkeeper";
 import ConsultPage from "@/pages/consult";
 import MedicinePage from "@/pages/medicine";
+import DoctorPanelPage from "@/pages/doctor-panel";
 
 const queryClient = new QueryClient();
 
@@ -22,6 +23,7 @@ function Router() {
       <Route path="/shopkeeper" component={ShopkeeperPage} />
       <Route path="/consult" component={ConsultPage} />
       <Route path="/medicine" component={MedicinePage} />
+      <Route path="/doctor-panel" component={DoctorPanelPage} />
       <Route component={NotFound} />
     </Switch>
   );

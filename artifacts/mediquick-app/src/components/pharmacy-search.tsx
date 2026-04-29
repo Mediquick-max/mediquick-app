@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useSearchPharmacies, getSearchPharmaciesQueryKey } from "@workspace/api-client-react";
 import { Search, MapPin, Navigation, Phone, LocateFixed, Loader2, Pill, CheckCircle2 } from "lucide-react";
 import { Input } from "@/components/ui/input";

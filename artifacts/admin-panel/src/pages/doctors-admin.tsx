@@ -2,13 +2,15 @@ import { useEffect, useState } from "react";
 import { apiGet, apiUrl } from "@/lib/api";
 import {
   Stethoscope, Plus, Edit2, Trash2, Loader2, X, Star,
-  Video, Building2, RefreshCw, CheckCircle2, AlertTriangle
+  Video, Building2, RefreshCw, CheckCircle2, AlertTriangle,
+  Clock, XCircle, BadgeCheck, Mail, Phone, MapPin
 } from "lucide-react";
 
 interface Doctor {
   id: number; name: string; specialization: string; experienceYears: number;
   rating: number; totalReviews: number; fee: number; consultationType: string;
   city: string; status: string; languages: string; bio: string; qualifications: string;
+  email?: string; phone?: string; hospitalName?: string; registrationStatus?: string;
 }
 
 const SPECS = [
@@ -27,6 +29,7 @@ const EMPTY_FORM = { name: "", specialization: "General Physician", experienceYe
 
 export default function DoctorsAdminPage() {
   const [doctors, setDoctors] = useState<Doctor[]>([]);
+  const [pendingDoctors, setPendingDoctors] = useState<Doctor[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ ...EMPTY_FORM });
@@ -34,19 +37,45 @@ export default function DoctorsAdminPage() {
   const [saving, setSaving] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [toast, setToast] = useState("");
+  const [activeTab, setActiveTab] = useState<"all" | "pending">("pending");
 
   function showToast(msg: string) { setToast(msg); setTimeout(() => setToast(""), 3000); }
 
   async function loadDoctors() {
     setLoading(true);
     try {
-      const data = await apiGet<Doctor[]>("/doctors/admin/all");
-      setDoctors(data);
+      const [all, pending] = await Promise.all([
+        apiGet<Doctor[]>("/doctors/admin/all"),
+        apiGet<Doctor[]>("/doctors/admin/pending"),
+      ]);
+      setDoctors(all);
+      setPendingDoctors(pending);
+      if (pending.length > 0) setActiveTab("pending");
+      else setActiveTab("all");
     } catch { }
     setLoading(false);
   }
 
   useEffect(() => { loadDoctors(); }, []);
+
+  async function handleApprove(id: number) {
+    const token = localStorage.getItem("mq_admin_token") ?? "";
+    await fetch(apiUrl(`/doctors/admin/${id}/approve`), {
+      method: "PUT", headers: { Authorization: `Bearer ${token}` }
+    });
+    showToast("Doctor approved and listed!");
+    loadDoctors();
+  }
+
+  async function handleReject(id: number) {
+    if (!confirm("Reject this doctor registration?")) return;
+    const token = localStorage.getItem("mq_admin_token") ?? "";
+    await fetch(apiUrl(`/doctors/admin/${id}/reject`), {
+      method: "PUT", headers: { Authorization: `Bearer ${token}` }
+    });
+    showToast("Doctor registration rejected");
+    loadDoctors();
+  }
 
   function openAdd() {
     setForm({ ...EMPTY_FORM });
@@ -119,7 +148,7 @@ export default function DoctorsAdminPage() {
           <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
             <Stethoscope className="w-6 h-6 text-primary" /> Doctor Management
           </h1>
-          <p className="text-muted-foreground text-sm mt-1">Add, edit, and manage doctor profiles</p>
+          <p className="text-muted-foreground text-sm mt-1">Manage doctor profiles and approve registrations</p>
         </div>
         <div className="flex gap-2">
           <button onClick={loadDoctors} className="flex items-center gap-2 bg-secondary text-secondary-foreground px-3 py-2 rounded-xl text-sm hover:bg-secondary/80">
@@ -131,10 +160,14 @@ export default function DoctorsAdminPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-4 gap-4">
         <div className="bg-card border border-card-border rounded-xl p-4 text-center">
           <p className="text-2xl font-bold text-foreground">{activeDoctors.length}</p>
           <p className="text-sm text-muted-foreground">Active Doctors</p>
+        </div>
+        <div className="bg-card border border-card-border rounded-xl p-4 text-center">
+          <p className="text-2xl font-bold text-amber-600">{pendingDoctors.length}</p>
+          <p className="text-sm text-muted-foreground">Pending Approval</p>
         </div>
         <div className="bg-card border border-card-border rounded-xl p-4 text-center">
           <p className="text-2xl font-bold text-foreground">{activeDoctors.filter(d => d.consultationType !== "clinic").length}</p>
@@ -146,7 +179,65 @@ export default function DoctorsAdminPage() {
         </div>
       </div>
 
-      {loading ? (
+      <div className="flex gap-1 border-b border-border">
+        <button onClick={() => setActiveTab("pending")}
+          className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-semibold border-b-2 transition-all -mb-px ${activeTab === "pending" ? "text-amber-600 border-amber-500" : "text-muted-foreground border-transparent hover:text-foreground"}`}>
+          <Clock className="w-3.5 h-3.5" /> Pending Approvals
+          {pendingDoctors.length > 0 && <span className="bg-amber-500 text-white text-xs px-1.5 py-0.5 rounded-full">{pendingDoctors.length}</span>}
+        </button>
+        <button onClick={() => setActiveTab("all")}
+          className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-semibold border-b-2 transition-all -mb-px ${activeTab === "all" ? "text-primary border-primary" : "text-muted-foreground border-transparent hover:text-foreground"}`}>
+          <Stethoscope className="w-3.5 h-3.5" /> All Doctors ({doctors.length})
+        </button>
+      </div>
+
+      {activeTab === "pending" && (
+        <div className="space-y-4">
+          {pendingDoctors.length === 0 ? (
+            <div className="bg-card border border-card-border rounded-xl p-12 text-center text-muted-foreground">
+              <CheckCircle2 className="w-10 h-10 mx-auto mb-3 text-emerald-400" />
+              <p className="font-semibold">All caught up! No pending approvals.</p>
+            </div>
+          ) : (
+            pendingDoctors.map(doc => (
+              <div key={doc.id} className="bg-card border-2 border-amber-200 rounded-xl p-5">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="font-bold text-base">{doc.name}</span>
+                      <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-semibold flex items-center gap-1">
+                        <Clock className="w-3 h-3" /> Pending Review
+                      </span>
+                    </div>
+                    <div className="text-primary font-semibold text-sm">{doc.specialization}</div>
+                    <div className="text-muted-foreground text-xs mt-1">{doc.qualifications}</div>
+                    <div className="flex flex-wrap gap-3 mt-2 text-xs text-muted-foreground">
+                      {doc.email && <span className="flex items-center gap-1"><Mail className="w-3 h-3" />{doc.email}</span>}
+                      {doc.phone && <span className="flex items-center gap-1"><Phone className="w-3 h-3" />{doc.phone}</span>}
+                      <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{doc.city}</span>
+                      {doc.hospitalName && <span className="flex items-center gap-1"><Building2 className="w-3 h-3" />{doc.hospitalName}</span>}
+                      <span>₹{doc.fee}/consult • {doc.experienceYears} yrs exp</span>
+                    </div>
+                    {doc.bio && <p className="text-xs text-muted-foreground mt-2 line-clamp-2">{doc.bio}</p>}
+                  </div>
+                  <div className="flex flex-col gap-2 shrink-0">
+                    <button onClick={() => handleApprove(doc.id)}
+                      className="flex items-center gap-1.5 bg-emerald-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-emerald-700 transition-colors">
+                      <BadgeCheck className="w-4 h-4" /> Approve
+                    </button>
+                    <button onClick={() => handleReject(doc.id)}
+                      className="flex items-center gap-1.5 bg-red-50 text-red-600 px-4 py-2 rounded-xl text-sm font-semibold hover:bg-red-100 border border-red-200 transition-colors">
+                      <XCircle className="w-4 h-4" /> Reject
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      )}
+
+      {activeTab === "all" && (loading ? (
         <div className="flex items-center justify-center py-16"><Loader2 className="w-8 h-8 animate-spin text-primary/40" /></div>
       ) : (
         <div className="bg-card border border-card-border rounded-xl overflow-hidden">
@@ -199,7 +290,7 @@ export default function DoctorsAdminPage() {
             </tbody>
           </table>
         </div>
-      )}
+      ))}
 
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">

@@ -273,6 +273,31 @@ router.get("/admin/all", async (_req, res) => {
   res.json(docs);
 });
 
+router.get("/admin/pending", async (_req, res) => {
+  const docs = await db.select().from(doctorsTable)
+    .where(eq(doctorsTable.registrationStatus, "pending"))
+    .orderBy(desc(doctorsTable.createdAt));
+  res.json(docs);
+});
+
+router.put("/admin/:id/approve", async (req, res) => {
+  const id = Number(req.params.id);
+  if (isNaN(id)) { res.status(400).json({ error: "Invalid ID" }); return; }
+  const [doc] = await db.update(doctorsTable)
+    .set({ registrationStatus: "approved", status: "active" })
+    .where(eq(doctorsTable.id, id)).returning();
+  res.json(doc);
+});
+
+router.put("/admin/:id/reject", async (req, res) => {
+  const id = Number(req.params.id);
+  if (isNaN(id)) { res.status(400).json({ error: "Invalid ID" }); return; }
+  const [doc] = await db.update(doctorsTable)
+    .set({ registrationStatus: "rejected", status: "inactive" })
+    .where(eq(doctorsTable.id, id)).returning();
+  res.json(doc);
+});
+
 router.post("/admin/create", async (req, res) => {
   const { name, specialization, experienceYears, fee, consultationType, bio, qualifications, languages, city, availableSlots } = req.body ?? {};
   if (!name || !specialization) { res.status(400).json({ error: "Name and specialization required" }); return; }

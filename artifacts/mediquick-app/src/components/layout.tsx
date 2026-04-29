@@ -152,6 +152,16 @@ export function Layout({ children }: { children: ReactNode }) {
       <main className="flex-1 max-w-3xl mx-auto w-full px-4 py-8">
         {children}
       </main>
+
+      <footer className="border-t border-border/40 bg-background/60 mt-auto">
+        <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between text-xs text-muted-foreground">
+          <span>© 2025 Medi Quick</span>
+          <Link href="/doctor-panel"
+            className="flex items-center gap-1.5 font-semibold text-blue-600 hover:text-blue-700 transition-colors">
+            <Stethoscope className="w-3.5 h-3.5" /> Are you a Doctor? Register here
+          </Link>
+        </div>
+      </footer>
     </div>
   );
 }

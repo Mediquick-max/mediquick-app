@@ -9,6 +9,7 @@ import authRouter from "./auth";
 import shopkeeperRouter from "./shopkeeper";
 import doctorsRouter from "./doctors";
 import medicineStoreRouter from "./medicine-store";
+import doctorPanelRouter from "./doctor-panel";
 
 const router: IRouter = Router();
 
@@ -22,5 +23,6 @@ router.use("/auth", authRouter);
 router.use("/shopkeeper", shopkeeperRouter);
 router.use("/doctors", doctorsRouter);
 router.use("/medicine-store", medicineStoreRouter);
+router.use("/doctor-panel", doctorPanelRouter);
 
 export default router;
