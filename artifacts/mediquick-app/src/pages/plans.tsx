@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "wouter";
+import { Link } from "wouter";
 import {
   Crown, Sparkles, Shield, Zap, CheckCircle2, Loader2,
   BadgeCheck, Star, ArrowRight, Stethoscope, FlaskConical
@@ -32,16 +32,9 @@ interface Plan {
 }
 
 export default function PlansPage() {
-  const { user, loading: authLoading } = useAuth();
-  const [, navigate] = useLocation();
+  const { user } = useAuth();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!authLoading && !user) {
-      navigate("/login");
-    }
-  }, [user, authLoading]);
 
   useEffect(() => {
     fetch(`${API}/api/patient/membership/plans`)
@@ -50,14 +43,6 @@ export default function PlansPage() {
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
-
-  if (authLoading || !user) {
-    return (
-      <div className="min-h-screen bg-[#fdf6ef] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-[#fdf6ef]">
@@ -68,9 +53,16 @@ export default function PlansPage() {
             <div className="font-bold text-sm leading-none">Medi Quick</div>
           </Link>
           <div className="flex items-center gap-2">
-            <Link href="/my-dashboard" className="flex items-center gap-1.5 bg-primary text-white px-4 py-2 rounded-2xl text-sm font-semibold hover:bg-primary/90 transition-colors">
-              My Dashboard <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
+            {user ? (
+              <Link href="/my-dashboard" className="flex items-center gap-1.5 bg-primary text-white px-4 py-2 rounded-2xl text-sm font-semibold hover:bg-primary/90 transition-colors">
+                My Dashboard <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            ) : (
+              <>
+                <Link href="/login" className="text-sm font-semibold text-foreground hover:text-primary px-3 py-2">Login</Link>
+                <Link href="/signup" className="bg-primary text-white px-4 py-2 rounded-2xl text-sm font-semibold hover:bg-primary/90 transition-colors">Sign Up Free</Link>
+              </>
+            )}
           </div>
         </div>
       </header>
