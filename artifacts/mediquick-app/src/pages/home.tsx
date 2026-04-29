@@ -5,11 +5,13 @@ import { CreateReminderDialog } from "@/components/create-reminder-dialog";
 import { PharmacySearch } from "@/components/pharmacy-search";
 import { CareServices } from "@/components/care-services";
 import { MedicalAiAssistant } from "@/components/medical-ai-assistant";
-import { Bot, CheckCircle2, HeartPulse, ShieldCheck, Stethoscope, ChevronRight, Pill, Truck } from "lucide-react";
+import { Bot, CheckCircle2, HeartPulse, ShieldCheck, Stethoscope, ChevronRight, Pill, MapPin, LocateFixed, Loader2 } from "lucide-react";
 import { Link } from "wouter";
+import { useGeolocation } from "@/lib/use-geolocation";
 
 export default function Home() {
   const { data: summary } = useGetReminderSummary();
+  const geo = useGeolocation();
 
   const progress = summary && summary.dueToday > 0 
     ? Math.round((summary.takenToday / summary.dueToday) * 100) 
@@ -19,10 +21,23 @@ export default function Home() {
     <Layout>
       <div className="space-y-10 pb-12">
         <section className="space-y-2 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary mb-2">
-            <ShieldCheck className="w-4 h-4" />
-            One app for daily healthcare
-          </div>
+          {geo.location ? (
+            <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 border border-emerald-100 px-3 py-1 text-sm font-semibold text-emerald-700 mb-2">
+              <MapPin className="w-3.5 h-3.5" />
+              Delivering to {geo.location.displayName}
+            </div>
+          ) : geo.loading ? (
+            <div className="inline-flex items-center gap-2 rounded-full bg-secondary px-3 py-1 text-sm font-semibold text-muted-foreground mb-2">
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              Detecting your location...
+            </div>
+          ) : (
+            <button onClick={geo.detectLocation}
+              className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary mb-2 hover:bg-primary/20 transition-colors">
+              <LocateFixed className="w-3.5 h-3.5" />
+              {geo.permissionDenied ? "One app for daily healthcare" : "Tap to detect your location"}
+            </button>
+          )}
           <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-foreground">
             Book doctors, tests, medicines and reminders.
           </h1>

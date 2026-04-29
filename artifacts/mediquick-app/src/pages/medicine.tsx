@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Layout } from "@/components/layout";
 import { useAuth } from "@/lib/auth";
+import { useGeolocation } from "@/lib/use-geolocation";
 import {
   Search, ShoppingCart, Plus, Minus, Trash2, X, Package,
   MapPin, Phone, User, Loader2, CheckCircle2, Pill,
@@ -36,6 +37,7 @@ const OFFERS = [
 
 export default function MedicinePage() {
   const { user, token } = useAuth();
+  const geo = useGeolocation();
   const [medicines, setMedicines] = useState<Medicine[]>([]);
   const [categories, setCategories] = useState<string[]>(["All"]);
   const [loading, setLoading] = useState(true);
@@ -54,6 +56,16 @@ export default function MedicinePage() {
   });
   const [placing, setPlacing] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState<any>(null);
+
+  useEffect(() => {
+    if (geo.location) {
+      setCheckoutForm(f => ({
+        ...f,
+        city: f.city || geo.location!.city,
+        pincode: f.pincode || geo.location!.pincode,
+      }));
+    }
+  }, [geo.location]);
 
   const headers = { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) };
 
@@ -431,7 +443,14 @@ export default function MedicinePage() {
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-semibold text-muted-foreground mb-1.5">City *</label>
+                      <label className="block text-xs font-semibold text-muted-foreground mb-1.5 flex items-center gap-1">
+                        City *
+                        {geo.location && checkoutForm.city === geo.location.city && (
+                          <span className="text-emerald-600 font-medium flex items-center gap-0.5">
+                            <MapPin className="w-3 h-3" /> Auto-detected
+                          </span>
+                        )}
+                      </label>
                       <input value={checkoutForm.city} onChange={e => setCheckoutForm(f => ({ ...f, city: e.target.value }))} required
                         placeholder="Mumbai"
                         className="w-full bg-background border border-border rounded-2xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />

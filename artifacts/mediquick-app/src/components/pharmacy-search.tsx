@@ -1,18 +1,27 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchPharmacies, getSearchPharmaciesQueryKey } from "@workspace/api-client-react";
-import { Search, MapPin, Navigation, Phone, LocateFixed, Loader2, Pill } from "lucide-react";
+import { Search, MapPin, Navigation, Phone, LocateFixed, Loader2, Pill, CheckCircle2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
+import { useGeolocation } from "@/lib/use-geolocation";
 
 export function PharmacySearch() {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeSearch, setActiveSearch] = useState("");
-  const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
-  const [locating, setLocating] = useState(false);
-  const [locationMessage, setLocationMessage] = useState("Using default Delhi location. Tap location for nearby results.");
+  const geo = useGeolocation();
+
+  const location = geo.location ? { lat: geo.location.lat, lng: geo.location.lng } : null;
+
+  const locationMessage = geo.loading
+    ? "Detecting your location..."
+    : geo.location
+    ? `Showing pharmacies near ${geo.location.displayName}`
+    : geo.permissionDenied
+    ? "Location access denied. Using default Delhi location."
+    : "Using default Delhi location. Tap to use your exact location.";
 
   const searchParams = useMemo(
     () => ({
@@ -32,30 +41,6 @@ export function PharmacySearch() {
     if (searchTerm.trim()) {
       setActiveSearch(searchTerm.trim());
     }
-  };
-
-  const useCurrentLocation = () => {
-    if (!navigator.geolocation) {
-      setLocationMessage("Location is not supported in this browser.");
-      return;
-    }
-
-    setLocating(true);
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setLocation({
-          lat: Number(position.coords.latitude.toFixed(5)),
-          lng: Number(position.coords.longitude.toFixed(5)),
-        });
-        setLocationMessage("Using your current location for nearby pharmacy results.");
-        setLocating(false);
-      },
-      () => {
-        setLocationMessage("Could not access your location. Default Delhi location is still active.");
-        setLocating(false);
-      },
-      { enableHighAccuracy: true, timeout: 8000 },
-    );
   };
 
   const quickMedicines = ["Paracetamol", "Metformin", "Insulin", "Cetirizine"];
@@ -105,11 +90,18 @@ export function PharmacySearch() {
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between text-sm text-muted-foreground">
-          <p>{locationMessage}</p>
-          <Button type="button" variant="outline" size="sm" className="rounded-full gap-2 shrink-0" onClick={useCurrentLocation} disabled={locating}>
-            {locating ? <Loader2 className="w-4 h-4 animate-spin" /> : <LocateFixed className="w-4 h-4" />}
-            Use my location
-          </Button>
+          <p className={geo.location ? "text-emerald-600 font-medium" : ""}>{locationMessage}</p>
+          {!geo.location && !geo.permissionDenied && (
+            <Button type="button" variant="outline" size="sm" className="rounded-full gap-2 shrink-0" onClick={geo.detectLocation} disabled={geo.loading}>
+              {geo.loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <LocateFixed className="w-4 h-4" />}
+              {geo.loading ? "Detecting..." : "Use my location"}
+            </Button>
+          )}
+          {geo.location && (
+            <div className="flex items-center gap-1.5 text-emerald-600 font-semibold text-xs shrink-0">
+              <CheckCircle2 className="w-4 h-4" /> Location active
+            </div>
+          )}
         </div>
       </div>
 
