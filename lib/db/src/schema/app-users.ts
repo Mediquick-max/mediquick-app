@@ -12,6 +12,11 @@ export const appUsersTable = pgTable("app_users", {
   deviceType: text("device_type").notNull().default("web"),
   passwordHash: text("password_hash").notNull().default(""),
   joinedAt: timestamp("joined_at", { withTimezone: true }).notNull().defaultNow(),
+  gender: text("gender").notNull().default(""),
+  dateOfBirth: text("date_of_birth").notNull().default(""),
+  bloodGroup: text("blood_group").notNull().default(""),
+  allergies: text("allergies").notNull().default(""),
+  membershipExpiresAt: timestamp("membership_expires_at", { withTimezone: true }),
 });
 
 export type AppUser = typeof appUsersTable.$inferSelect;

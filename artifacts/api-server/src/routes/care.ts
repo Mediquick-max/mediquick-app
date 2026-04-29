@@ -11,6 +11,18 @@ import {
 
 const router: IRouter = Router();
 
+function parseUserId(req: any): number | null {
+  try {
+    const auth = req.headers.authorization ?? "";
+    const token = auth.replace("Bearer ", "").trim();
+    if (!token) return null;
+    const decoded = Buffer.from(token, "base64url").toString("utf-8");
+    const [id] = decoded.split(":");
+    const userId = Number(id);
+    return isNaN(userId) ? null : userId;
+  } catch { return null; }
+}
+
 const doctors = [
   {
     id: "doc-general-asha",
@@ -145,6 +157,8 @@ router.post("/care/lab-bookings", async (req, res): Promise<void> => {
     return;
   }
 
+  const userId = parseUserId(req);
+
   const [created] = await db
     .insert(careRequestsTable)
     .values({
@@ -160,6 +174,7 @@ router.post("/care/lab-bookings", async (req, res): Promise<void> => {
       platformFee: Math.round(test.price * 0.02),
       providerPayout: Math.round(test.price * 0.98),
       notes: `Reports in ${test.reportTime}`,
+      userId: userId ?? undefined,
     })
     .returning();
 

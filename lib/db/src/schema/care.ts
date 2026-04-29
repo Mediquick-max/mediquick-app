@@ -15,5 +15,6 @@ export const careRequestsTable = pgTable("care_requests", {
   amount: integer("amount").notNull().default(0),
   platformFee: integer("platform_fee").notNull().default(0),
   providerPayout: integer("provider_payout").notNull().default(0),
+  userId: integer("user_id"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
