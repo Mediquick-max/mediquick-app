@@ -532,6 +532,24 @@ export default function DoctorPanelPage() {
 
         {activeTab === "dashboard" && (
           <div className="space-y-6">
+            <div className="bg-blue-50 border border-blue-200 rounded-3xl p-4 flex items-start gap-3">
+              <div className="w-9 h-9 rounded-2xl bg-blue-600 flex items-center justify-center shrink-0">
+                <IndianRupee className="w-4 h-4 text-white" />
+              </div>
+              <div className="flex-1">
+                <div className="font-bold text-blue-900 text-sm">Platform Fee — 2% per Booking</div>
+                <div className="text-blue-700 text-xs mt-1">
+                  Medi Quick platform 2% service charge leti hai har confirmed consultation par. Baaki <strong>98% aapko milta hai</strong>.
+                </div>
+                <div className="flex gap-4 mt-2.5">
+                  <div className="text-xs">
+                    <div className="text-blue-500 font-medium">Example: ₹{doctor.fee} consult</div>
+                    <div className="text-blue-900 font-bold">Aapko milega: ₹{Math.round(doctor.fee * 0.98)}</div>
+                    <div className="text-blue-500">Platform: ₹{Math.round(doctor.fee * 0.02)}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               {[
                 { label: "Pending", value: pending, color: "amber", icon: Clock },
@@ -784,7 +802,25 @@ export default function DoctorPanelPage() {
                             <Calendar className="w-3 h-3" /> {a.date} at {a.timeSlot}
                           </div>
                           {a.healthIssue && <div className="text-xs text-foreground mt-1 max-w-xs">{a.healthIssue}</div>}
-                          {a.amountPaid > 0 && <div className="text-xs text-emerald-600 font-semibold mt-1">₹{a.amountPaid} paid</div>}
+                          {a.amountPaid > 0 && (
+                            <div className="mt-2 bg-gray-50 border border-gray-200 rounded-xl p-2.5 space-y-1">
+                              <div className="flex items-center justify-between text-xs">
+                                <span className="text-muted-foreground">Patient paid</span>
+                                <span className="font-bold text-foreground">₹{a.amountPaid}</span>
+                              </div>
+                              <div className="flex items-center justify-between text-xs">
+                                <span className="text-orange-600 font-medium flex items-center gap-1">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-orange-400 inline-block" />
+                                  Platform fee (2%)
+                                </span>
+                                <span className="text-orange-600 font-semibold">− ₹{Math.round(a.amountPaid * 0.02)}</span>
+                              </div>
+                              <div className="border-t border-gray-200 pt-1 flex items-center justify-between text-xs">
+                                <span className="text-emerald-700 font-bold">Your earnings (98%)</span>
+                                <span className="text-emerald-700 font-bold">₹{Math.round(a.amountPaid * 0.98)}</span>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </div>
                       <div className="flex flex-col items-end gap-2 shrink-0">
