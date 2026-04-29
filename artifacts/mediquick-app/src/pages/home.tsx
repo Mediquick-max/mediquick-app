@@ -121,7 +121,7 @@ export default function Home() {
                   <p className="text-sm text-white/80 mt-0.5">Delivered in 4-6 hours</p>
                 </div>
                 <div className="flex gap-1.5 flex-wrap">
-                  {["🚚 Free Delivery", "20+ Categories", "Cash on Delivery"].map(t => (
+                  {["🚚 Fast Delivery", "1 Lakh+ Medicines", "Via Tata 1mg"].map(t => (
                     <span key={t} className="text-xs bg-white/20 px-2 py-0.5 rounded-full font-medium">{t}</span>
                   ))}
                 </div>
