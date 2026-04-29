@@ -20,6 +20,7 @@ const PLAN_CONFIG: Record<string, { label: string; color: string; bg: string; bo
   free:     { label: "Free",     color: "text-gray-600",   bg: "bg-gray-100",   border: "border-gray-200",   icon: Shield   },
   gold:     { label: "Gold",     color: "text-amber-700",  bg: "bg-amber-50",   border: "border-amber-300",  icon: Crown    },
   platinum: { label: "Platinum", color: "text-purple-700", bg: "bg-purple-50",  border: "border-purple-300", icon: Sparkles },
+  lifetime: { label: "Lifetime", color: "text-emerald-700",bg: "bg-emerald-50", border: "border-emerald-400", icon: Zap     },
 };
 
 const STATUS_MAP: Record<string, string> = {
@@ -538,15 +539,15 @@ export default function MyDashboardPage() {
                 <div className="space-y-3">
                   {plans.map(plan => {
                     const isCurrent = data.user.currentPlan === plan.id;
-                    const planColors: Record<string, { header: string; badge: string; btn: string }> = {
-                      free:     { header: "from-gray-400 to-gray-600",   badge: "bg-gray-100 text-gray-700",    btn: "bg-gray-500 hover:bg-gray-600" },
-                      gold:     { header: "from-amber-400 to-yellow-600", badge: "bg-amber-100 text-amber-700",  btn: "bg-amber-500 hover:bg-amber-600" },
-                      platinum: { header: "from-purple-500 to-violet-700", badge: "bg-purple-100 text-purple-700", btn: "bg-purple-600 hover:bg-purple-700" },
+                    const GRADIENT: Record<string, string> = {
+                      free:     "linear-gradient(to right, #9ca3af, #4b5563)",
+                      gold:     "linear-gradient(to right, #f59e0b, #ca8a04)",
+                      platinum: "linear-gradient(to right, #a855f7, #7c3aed)",
+                      lifetime: "linear-gradient(to right, #10b981, #0d9488)",
                     };
-                    const pc = planColors[plan.id] ?? planColors.free;
                     return (
                       <div key={plan.id} className={`bg-white rounded-3xl border-2 overflow-hidden shadow-sm ${isCurrent ? "border-primary" : "border-border/50"}`}>
-                        <div className={`bg-gradient-to-r ${pc.header} p-4 text-white`}>
+                        <div style={{ background: GRADIENT[plan.id] ?? GRADIENT.free }} className="p-4 text-white">
                           <div className="flex items-center justify-between">
                             <div>
                               <div className="font-bold text-lg flex items-center gap-2">
@@ -554,7 +555,7 @@ export default function MyDashboardPage() {
                                 {isCurrent && <BadgeCheck className="w-5 h-5" />}
                               </div>
                               <div className="text-white/80 text-sm">
-                                {plan.price === 0 ? "Free forever" : `₹${plan.price}/month`}
+                                {plan.price === 0 ? "Free forever" : `₹${plan.price}${(plan as any).tag ? " · " + (plan as any).tag : "/month"}`}
                               </div>
                             </div>
                             {isCurrent ? (

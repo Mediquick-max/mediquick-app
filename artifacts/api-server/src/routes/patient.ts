@@ -30,6 +30,7 @@ const MEMBERSHIP_PLANS = [
     price: 0,
     duration: 0,
     color: "gray",
+    tag: "",
     benefits: [
       "Sirf 5 doctor consultations",
       "Sirf 5 lab tests book kar sakte ho",
@@ -40,9 +41,10 @@ const MEMBERSHIP_PLANS = [
   {
     id: "gold",
     name: "Gold",
-    price: 199,
+    price: 99,
     duration: 30,
     color: "yellow",
+    tag: "Monthly",
     benefits: [
       "Unlimited doctor consultations",
       "Unlimited lab tests",
@@ -55,9 +57,10 @@ const MEMBERSHIP_PLANS = [
   {
     id: "platinum",
     name: "Platinum",
-    price: 499,
+    price: 199,
     duration: 30,
     color: "purple",
+    tag: "Monthly",
     benefits: [
       "Unlimited doctor consultations",
       "Unlimited lab tests",
@@ -66,6 +69,24 @@ const MEMBERSHIP_PLANS = [
       "Dedicated health manager",
       "Home sample collection priority",
       "Family health tracking (up to 4 members)",
+    ],
+  },
+  {
+    id: "lifetime",
+    name: "Lifetime",
+    price: 999,
+    duration: 36500,
+    color: "emerald",
+    tag: "One-time • Forever",
+    benefits: [
+      "Ek baar pay karo, hamesha ke liye",
+      "Unlimited doctor consultations",
+      "10% discount on all doctor consultations",
+      "Unlimited lab tests",
+      "15% discount on all lab tests",
+      "Priority booking always",
+      "Health report storage lifetime",
+      "Family health tracking (up to 6 members)",
     ],
   },
 ];
