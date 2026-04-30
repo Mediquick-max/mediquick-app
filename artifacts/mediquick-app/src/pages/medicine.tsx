@@ -44,11 +44,14 @@ const QUICK_SEARCHES = ["Paracetamol", "Vitamin D3", "Metformin", "Azithromycin"
 
 const AFFILIATE = "https://inr.deals/axPR6g";
 
-function openPharmaEasy(_query?: string) {
-  window.open(AFFILIATE, "_blank", "noopener,noreferrer");
+function openPharmaEasy(query?: string) {
+  const url = query
+    ? `https://pharmeasy.in/search/all?name=${encodeURIComponent(query)}`
+    : AFFILIATE;
+  window.open(url, "_blank", "noopener,noreferrer");
 }
 
-function open1mg(_query?: string) { openPharmaEasy(); }
+function open1mg(query?: string) { openPharmaEasy(query); }
 
 function fmtDist(m: number | null) {
   if (m == null) return "—";
