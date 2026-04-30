@@ -5,7 +5,8 @@ import {
   Clock, Calendar, CheckCircle2, XCircle, Loader2, LogOut, Edit3,
   Save, Eye, EyeOff, ChevronRight, Star, TrendingUp, Users, 
   AlertCircle, RefreshCw, Video, Pill, IndianRupee, BadgeCheck,
-  ClipboardList, X, Plus, Wallet, CreditCard, Landmark, ShieldCheck
+  ClipboardList, X, Plus, Wallet, CreditCard, Landmark, ShieldCheck,
+  Crown, Sparkles, Shield, Zap, ArrowRight
 } from "lucide-react";
 import { MediQuickLogo } from "@/components/logo";
 
@@ -54,7 +55,9 @@ export default function DoctorPanelPage() {
   const [token, setToken] = useState<string | null>(() => localStorage.getItem("mq_doc_token"));
   const [doctor, setDoctor] = useState<DoctorProfile | null>(null);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [activeTab, setActiveTab] = useState<"dashboard" | "profile" | "appointments" | "payments">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "profile" | "appointments" | "payments" | "plans">("dashboard");
+  const [docPlans, setDocPlans] = useState<any[]>([]);
+  const [docPlansLoading, setDocPlansLoading] = useState(false);
   const [authTab, setAuthTab] = useState<"login" | "register">("login");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -147,6 +150,17 @@ export default function DoctorPanelPage() {
   useEffect(() => {
     if (token) { fetchProfile(); fetchAppointments(); }
   }, [token]);
+
+  useEffect(() => {
+    if (activeTab === "plans" && docPlans.length === 0) {
+      setDocPlansLoading(true);
+      fetch(`${API}/api/doctor-panel/plans`)
+        .then(r => r.json())
+        .then(d => setDocPlans(d.plans ?? []))
+        .catch(() => {})
+        .finally(() => setDocPlansLoading(false));
+    }
+  }, [activeTab]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -539,6 +553,7 @@ export default function DoctorPanelPage() {
             { id: "profile", label: "My Profile", icon: User },
             { id: "appointments", label: `Appointments${pending > 0 ? ` (${pending})` : ""}`, icon: ClipboardList },
             { id: "payments", label: "Payment Details", icon: Wallet },
+            { id: "plans", label: "Subscription Plans", icon: Crown },
           ].map(tab => (
             <button key={tab.id} onClick={() => setActiveTab(tab.id as any)}
               className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-semibold border-b-2 transition-all whitespace-nowrap ${activeTab === tab.id ? "text-blue-600 border-blue-600" : "text-muted-foreground border-transparent hover:text-foreground"}`}>
@@ -1049,6 +1064,109 @@ export default function DoctorPanelPage() {
               <p className="text-xs text-muted-foreground mt-3">
                 * Payouts are processed every week to your registered account
               </p>
+            </div>
+          </div>
+        )}
+        {activeTab === "plans" && (
+          <div className="space-y-6">
+            <div className="text-center space-y-2">
+              <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-4 py-1.5 rounded-full text-sm font-semibold">
+                <Crown className="w-4 h-4" /> Doctor Subscription Plans
+              </div>
+              <h2 className="text-2xl font-bold text-foreground">Apna Plan Chuno</h2>
+              <p className="text-muted-foreground text-sm max-w-lg mx-auto">
+                Apni practice grow karo — zyada patients, kam platform fee, aur premium features ke saath.
+              </p>
+            </div>
+
+            {docPlansLoading ? (
+              <div className="flex justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-blue-500" /></div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                {docPlans.map(plan => {
+                  const GRAD: Record<string, string> = {
+                    basic:  "linear-gradient(135deg, #9ca3af, #4b5563)",
+                    pro:    "linear-gradient(135deg, #3b82f6, #1d4ed8)",
+                    clinic: "linear-gradient(135deg, #a855f7, #7c3aed)",
+                  };
+                  const ICON: Record<string, any> = { basic: Shield, pro: Star, clinic: Sparkles };
+                  const Icon = ICON[plan.id] ?? Shield;
+                  const isCurrent = plan.id === "basic";
+                  return (
+                    <div key={plan.id}
+                      className={`bg-white rounded-3xl border-2 overflow-hidden shadow-sm hover:shadow-lg transition-all flex flex-col ${plan.id === "pro" ? "border-blue-300 scale-[1.02]" : "border-border/50"}`}>
+                      {plan.id === "pro" && (
+                        <div className="bg-blue-100 text-blue-700 text-xs font-bold text-center py-1.5">
+                          ⭐ Most Popular
+                        </div>
+                      )}
+                      <div style={{ background: GRAD[plan.id] ?? GRAD.basic }} className="p-5 text-white">
+                        <div className="w-11 h-11 rounded-2xl bg-white/20 flex items-center justify-center mb-3">
+                          <Icon className="w-5 h-5 text-white" />
+                        </div>
+                        <div className="font-bold text-xl">{plan.name}</div>
+                        <div className="mt-2">
+                          {plan.price === 0 ? (
+                            <div className="text-2xl font-black">Free</div>
+                          ) : (
+                            <div className="flex items-baseline gap-1">
+                              <span className="text-2xl font-black">₹{plan.price}</span>
+                              <span className="text-white/70 text-sm">/ month</span>
+                            </div>
+                          )}
+                        </div>
+                        <div className="mt-1.5 inline-flex items-center gap-1 bg-white/20 rounded-xl px-2.5 py-1 text-xs font-semibold">
+                          <IndianRupee className="w-3 h-3" /> Platform fee: {plan.platformFee}
+                        </div>
+                      </div>
+
+                      <div className="p-4 flex-1 flex flex-col">
+                        <ul className="space-y-2.5 flex-1">
+                          {plan.benefits.map((b: string, i: number) => (
+                            <li key={i} className="flex items-start gap-2 text-sm">
+                              <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                              <span className="text-foreground">{b}</span>
+                            </li>
+                          ))}
+                        </ul>
+                        <div className="mt-5">
+                          {isCurrent ? (
+                            <div className="w-full py-2.5 rounded-2xl text-sm font-bold text-center bg-gray-100 text-gray-500">
+                              Current Plan
+                            </div>
+                          ) : (
+                            <button
+                              onClick={() => alert("Razorpay payment integration se upgrade hoga. Keys add karein settings mein.")}
+                              className="flex items-center justify-center gap-1.5 w-full py-2.5 rounded-2xl text-sm font-bold text-white transition-all hover:opacity-90"
+                              style={{ background: GRAD[plan.id] }}>
+                              Upgrade to {plan.name} <ArrowRight className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            <div className="bg-blue-50 border border-blue-200 rounded-3xl p-5">
+              <div className="flex items-start gap-3">
+                <div className="w-9 h-9 rounded-2xl bg-blue-100 flex items-center justify-center shrink-0">
+                  <ShieldCheck className="w-5 h-5 text-blue-600" />
+                </div>
+                <div>
+                  <div className="font-bold text-blue-900 text-sm">Platform Fee Comparison</div>
+                  <div className="text-blue-700 text-xs mt-1.5 space-y-1">
+                    <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-gray-400 inline-block"></span> Basic: 2% per consultation</div>
+                    <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-blue-500 inline-block"></span> Pro: 1.5% per consultation (save 0.5%)</div>
+                    <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-purple-500 inline-block"></span> Clinic: 1% per consultation (save 1%)</div>
+                  </div>
+                  <p className="text-blue-600 text-xs mt-2">
+                    💡 Pro plan par ₹500 fee ke saath: har consultation par ₹2.50 extra bachta hai. 50 consultations/month = ₹125 bachega!
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         )}

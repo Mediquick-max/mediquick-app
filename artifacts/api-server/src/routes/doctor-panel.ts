@@ -182,4 +182,65 @@ router.put("/appointments/:id/status", async (req, res) => {
   res.json({ appointment: updated });
 });
 
+const DOCTOR_PLANS = [
+  {
+    id: "basic",
+    name: "Basic",
+    price: 0,
+    tag: "Free Forever",
+    platformFee: "2%",
+    color: "gray",
+    benefits: [
+      "Up to 10 consultations/month",
+      "Standard profile listing",
+      "Basic patient matching",
+      "2% platform fee per booking",
+      "AI health assistant access",
+      "Standard support",
+    ],
+  },
+  {
+    id: "pro",
+    name: "Pro",
+    price: 299,
+    tag: "Monthly",
+    platformFee: "1.5%",
+    color: "blue",
+    benefits: [
+      "Up to 50 consultations/month",
+      "Featured listing (2x visibility)",
+      "Priority patient matching",
+      "1.5% platform fee (reduced)",
+      "Consultation analytics",
+      "Dedicated support",
+      "AI health assistant access",
+      "Medicine reminders for patients",
+    ],
+  },
+  {
+    id: "clinic",
+    name: "Clinic",
+    price: 599,
+    tag: "Monthly",
+    platformFee: "1%",
+    color: "purple",
+    benefits: [
+      "Unlimited consultations",
+      "Top featured listing",
+      "Maximum patient visibility",
+      "1% platform fee (lowest)",
+      "Advanced analytics & reports",
+      "Priority 24/7 support",
+      "Custom profile badge",
+      "Multi-doctor clinic support",
+      "AI health assistant access",
+      "Medicine reminders for patients",
+    ],
+  },
+];
+
+router.get("/plans", (_req, res) => {
+  res.json({ plans: DOCTOR_PLANS });
+});
+
 export default router;
