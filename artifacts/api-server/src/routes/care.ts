@@ -144,8 +144,17 @@ router.post("/care/consultations", async (req, res): Promise<void> => {
   res.status(201).json(created);
 });
 
+// Lab plan discount rates (online payment only)
+const LAB_PLAN_DISCOUNTS: Record<string, number> = {
+  free: 0, gold: 0.02, platinum: 0.05, yearly: 0.10,
+};
+
 router.post("/care/lab-bookings", async (req, res): Promise<void> => {
-  const parsed = CreateLabBookingBody.safeParse(req.body);
+  const bodyWithPayment = { ...req.body };
+  const paymentMethod: "online" | "cash" = bodyWithPayment.paymentMethod === "cash" ? "cash" : "online";
+  delete bodyWithPayment.paymentMethod;
+
+  const parsed = CreateLabBookingBody.safeParse(bodyWithPayment);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
     return;
@@ -159,6 +168,28 @@ router.post("/care/lab-bookings", async (req, res): Promise<void> => {
 
   const userId = parseUserId(req);
 
+  // Get user's active plan for discount
+  let userPlan = "free";
+  if (userId) {
+    const { appUsersTable } = await import("@workspace/db");
+    const { eq } = await import("drizzle-orm");
+    const [u] = await db.select({ plan: appUsersTable.plan, membershipExpiresAt: appUsersTable.membershipExpiresAt })
+      .from(appUsersTable).where(eq(appUsersTable.id, userId)).limit(1);
+    if (u && u.plan !== "free" && u.membershipExpiresAt && new Date(u.membershipExpiresAt) > new Date()) {
+      userPlan = u.plan;
+    }
+  }
+
+  const discountRate = paymentMethod === "online" ? (LAB_PLAN_DISCOUNTS[userPlan] ?? 0) : 0;
+  const discountAmount = Math.round(test.price * discountRate);
+  const finalAmount = test.price - discountAmount;
+  const platformFee = Math.round(finalAmount * 0.02);
+  const providerPayout = finalAmount - platformFee;
+
+  const statusMsg = paymentMethod === "cash"
+    ? "Cash payment - Home sample collection booked"
+    : "Home sample collection booked";
+
   const [created] = await db
     .insert(careRequestsTable)
     .values({
@@ -169,16 +200,18 @@ router.post("/care/lab-bookings", async (req, res): Promise<void> => {
       phone: parsed.data.phone.trim(),
       address: parsed.data.address.trim(),
       dateSlot: parsed.data.dateSlot.trim(),
-      status: "Home sample collection booked",
-      amount: test.price,
-      platformFee: Math.round(test.price * 0.02),
-      providerPayout: Math.round(test.price * 0.98),
+      status: statusMsg,
+      amount: finalAmount,
+      platformFee,
+      providerPayout,
+      discountAmount,
+      paymentMethod,
       notes: `Reports in ${test.reportTime}`,
       userId: userId ?? undefined,
     })
     .returning();
 
-  res.status(201).json(created);
+  res.status(201).json({ ...created, originalPrice: test.price, discountAmount, finalAmount, paymentMethod });
 });
 
 router.post("/care/medicine-orders", async (req, res): Promise<void> => {

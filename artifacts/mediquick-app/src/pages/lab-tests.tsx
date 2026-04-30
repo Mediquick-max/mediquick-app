@@ -6,8 +6,15 @@ import {
   FlaskConical, Search, CheckCircle2, Clock, Home as HomeIcon,
   ChevronRight, Loader2, X, User, Phone, MapPin, Calendar,
   Star, Shield, Truck, FileText, Package, RefreshCw, Microscope,
-  Heart, Droplets, Brain, Bone, Eye, Baby, Activity
+  Heart, Droplets, Brain, Bone, Eye, Baby, Activity, CreditCard, Banknote, Tag
 } from "lucide-react";
+
+const LAB_PLAN_DISCOUNTS: Record<string, number> = {
+  free: 0, gold: 0.02, platinum: 0.05, yearly: 0.10,
+};
+const LAB_PLAN_LABELS: Record<string, string> = {
+  gold: "2% off (Gold Plan)", platinum: "5% off (Platinum Plan)", yearly: "10% off (Yearly Plan)",
+};
 
 const API = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -98,6 +105,7 @@ export default function LabTestsPage() {
     phone: "",
     address: geo.location ? `${geo.location.city}, ${geo.location.pincode}` : "",
     dateSlot: defaultDate,
+    paymentMethod: "online" as "online" | "cash",
   });
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -132,6 +140,7 @@ export default function LabTestsPage() {
           phone: form.phone,
           address: form.address,
           dateSlot: form.dateSlot,
+          paymentMethod: form.paymentMethod,
         }),
       });
       if (r.ok) {
@@ -394,18 +403,92 @@ export default function LabTestsPage() {
                   <p className="text-xs text-muted-foreground mt-1.5 flex items-center gap-1"><HomeIcon className="w-3 h-3" /> Phlebotomist aapke ghar aayega sample lene</p>
                 </div>
 
-                <div className="bg-secondary/40 rounded-2xl p-3 flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Total Amount</span>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-xs text-muted-foreground line-through">₹{selectedPkg.originalPrice}</span>
-                    <span className="font-bold text-primary text-lg">₹{selectedPkg.price}</span>
-                    <span className="text-xs text-emerald-600 font-bold">Save ₹{selectedPkg.originalPrice - selectedPkg.price}</span>
+                {/* Payment Method Selector */}
+                <div>
+                  <h3 className="font-semibold text-sm mb-2 flex items-center gap-1.5"><CreditCard className="w-4 h-4 text-primary" /> Payment Method</h3>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button type="button" onClick={() => setForm(f => ({ ...f, paymentMethod: "online" }))}
+                      className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all border ${
+                        form.paymentMethod === "online"
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-secondary/60 text-muted-foreground border-border hover:text-foreground"
+                      }`}>
+                      <CreditCard className="w-4 h-4" /> Online Pay
+                    </button>
+                    <button type="button" onClick={() => setForm(f => ({ ...f, paymentMethod: "cash" }))}
+                      className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all border ${
+                        form.paymentMethod === "cash"
+                          ? "bg-emerald-600 text-white border-emerald-600"
+                          : "bg-secondary/60 text-muted-foreground border-border hover:text-foreground"
+                      }`}>
+                      <Banknote className="w-4 h-4" /> Cash
+                    </button>
                   </div>
                 </div>
 
+                {/* Fee Display */}
+                {(() => {
+                  const plan = user?.plan ?? "free";
+                  const rate = form.paymentMethod === "online" ? (LAB_PLAN_DISCOUNTS[plan] ?? 0) : 0;
+                  const planDiscount = Math.round(selectedPkg.price * rate);
+                  const finalAmt = selectedPkg.price - planDiscount;
+                  return (
+                    <div className={`rounded-2xl p-3 border ${form.paymentMethod === "cash" ? "bg-amber-50 border-amber-200" : "bg-secondary/40 border-secondary"}`}>
+                      {form.paymentMethod === "cash" ? (
+                        <>
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-muted-foreground">Total Amount (Cash)</span>
+                            <div className="flex items-baseline gap-2">
+                              <span className="text-xs text-muted-foreground line-through">₹{selectedPkg.originalPrice}</span>
+                              <span className="font-bold text-foreground text-lg">₹{selectedPkg.price}</span>
+                            </div>
+                          </div>
+                          <p className="text-xs text-amber-700 mt-1.5 flex items-start gap-1">
+                            <Banknote className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
+                            Lab center ko seedha cash dein. Subscription discount cash par apply nahi hoga.
+                          </p>
+                        </>
+                      ) : planDiscount > 0 ? (
+                        <div className="flex items-center justify-between text-sm">
+                          <div>
+                            <span className="text-muted-foreground">Total Amount</span>
+                            <div className="text-xs text-muted-foreground mt-0.5">
+                              <span className="line-through">₹{selectedPkg.originalPrice}</span> (package discount)
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="font-bold text-primary text-lg">₹{finalAmt}</div>
+                            <div className="text-xs text-emerald-600 font-bold flex items-center gap-1 justify-end">
+                              <Tag className="w-3 h-3" /> Save ₹{selectedPkg.price - finalAmt} ({LAB_PLAN_LABELS[plan] ?? `${Math.round(rate * 100)}% plan`})
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-muted-foreground">Total Amount</span>
+                          <div className="flex items-baseline gap-2">
+                            <span className="text-xs text-muted-foreground line-through">₹{selectedPkg.originalPrice}</span>
+                            <span className="font-bold text-primary text-lg">₹{selectedPkg.price}</span>
+                            <span className="text-xs text-emerald-600 font-bold">Save ₹{selectedPkg.originalPrice - selectedPkg.price}</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
+
                 <button type="submit" disabled={submitting}
-                  className="w-full bg-primary text-primary-foreground py-3.5 rounded-2xl font-bold text-sm hover:bg-primary/90 active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-60">
-                  {submitting ? <><Loader2 className="w-4 h-4 animate-spin" /> Booking...</> : <><CheckCircle2 className="w-4 h-4" /> Confirm Booking</>}
+                  className={`w-full py-3.5 rounded-2xl font-bold text-sm active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-60 ${
+                    form.paymentMethod === "cash"
+                      ? "bg-emerald-600 hover:bg-emerald-700 text-white"
+                      : "bg-primary hover:bg-primary/90 text-primary-foreground"
+                  }`}>
+                  {submitting
+                    ? <><Loader2 className="w-4 h-4 animate-spin" /> Booking...</>
+                    : form.paymentMethod === "cash"
+                      ? <><Banknote className="w-4 h-4" /> Confirm (Cash Payment)</>
+                      : <><CheckCircle2 className="w-4 h-4" /> Confirm Booking</>
+                  }
                 </button>
               </form>
             </div>

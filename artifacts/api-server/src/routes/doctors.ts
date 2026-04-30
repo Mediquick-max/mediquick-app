@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { eq, ilike, or, desc, and } from "drizzle-orm";
 import crypto from "crypto";
-import { db, doctorsTable, appointmentsTable, doctorReviewsTable } from "@workspace/db";
+import { db, doctorsTable, appointmentsTable, doctorReviewsTable, appUsersTable } from "@workspace/db";
 
 const router = Router();
 
@@ -156,12 +156,18 @@ router.get("/:id", async (req, res) => {
   res.json({ ...doctor, reviews });
 });
 
+// Doctor plan discount rates (online payment only)
+const DOCTOR_PLAN_DISCOUNTS: Record<string, number> = {
+  free: 0, gold: 0, platinum: 0, yearly: 0.10,
+};
+
 router.post("/:id/book", async (req, res) => {
   const doctorId = Number(req.params.id);
   if (isNaN(doctorId)) { res.status(400).json({ error: "Invalid doctor ID" }); return; }
 
   const userId = parseAuth(req);
-  const { patientName, phone, date, timeSlot, healthIssue, consultationType } = req.body ?? {};
+  const { patientName, phone, date, timeSlot, healthIssue, consultationType, paymentMethod } = req.body ?? {};
+  const pMethod: "online" | "cash" = paymentMethod === "cash" ? "cash" : "online";
 
   if (!patientName || !phone || !date || !timeSlot) {
     res.status(400).json({ error: "Patient name, phone, date, and time slot are required" });
@@ -171,14 +177,25 @@ router.post("/:id/book", async (req, res) => {
   const [doctor] = await db.select().from(doctorsTable).where(eq(doctorsTable.id, doctorId));
   if (!doctor) { res.status(404).json({ error: "Doctor not found" }); return; }
 
-  const keyId = process.env.RAZORPAY_KEY_ID;
-  const keySecret = process.env.RAZORPAY_KEY_SECRET;
+  // Get user's active subscription plan for discount
+  let userPlan = "free";
+  if (userId) {
+    const [u] = await db.select({ plan: appUsersTable.plan, membershipExpiresAt: appUsersTable.membershipExpiresAt })
+      .from(appUsersTable).where(eq(appUsersTable.id, userId)).limit(1);
+    if (u && u.plan !== "free" && u.membershipExpiresAt && new Date(u.membershipExpiresAt) > new Date()) {
+      userPlan = u.plan;
+    }
+  }
 
-  if (!keyId || !keySecret) {
+  const discountRate = pMethod === "online" ? (DOCTOR_PLAN_DISCOUNTS[userPlan] ?? 0) : 0;
+  const discountAmount = Math.round(doctor.fee * discountRate);
+  const finalFee = doctor.fee - discountAmount;
+
+  // ── Cash payment: confirm immediately, no Razorpay ──────────────
+  if (pMethod === "cash") {
     const meetingLink = consultationType === "video" || consultationType === "both"
       ? `https://meet.jit.si/mediquick-${Date.now()}`
       : "";
-
     const [apt] = await db.insert(appointmentsTable).values({
       userId: userId ?? undefined,
       doctorId,
@@ -191,9 +208,37 @@ router.post("/:id/book", async (req, res) => {
       status: "confirmed",
       meetingLink,
       amountPaid: doctor.fee,
+      discountAmount: 0,
+      paymentMethod: "cash",
     }).returning();
+    res.status(201).json({ appointment: apt, paymentRequired: false, isCash: true, message: "Appointment confirmed. Please pay cash to the doctor." });
+    return;
+  }
 
-    res.status(201).json({ appointment: apt, paymentRequired: false, message: "Appointment confirmed (payment gateway not configured)" });
+  // ── Online payment ───────────────────────────────────────────────
+  const keyId = process.env.RAZORPAY_KEY_ID;
+  const keySecret = process.env.RAZORPAY_KEY_SECRET;
+
+  if (!keyId || !keySecret) {
+    const meetingLink = consultationType === "video" || consultationType === "both"
+      ? `https://meet.jit.si/mediquick-${Date.now()}`
+      : "";
+    const [apt] = await db.insert(appointmentsTable).values({
+      userId: userId ?? undefined,
+      doctorId,
+      patientName,
+      phone,
+      date,
+      timeSlot,
+      healthIssue: healthIssue ?? "",
+      consultationType: consultationType ?? "video",
+      status: "confirmed",
+      meetingLink,
+      amountPaid: finalFee,
+      discountAmount,
+      paymentMethod: "online",
+    }).returning();
+    res.status(201).json({ appointment: apt, paymentRequired: false, discountAmount, finalFee, message: "Appointment confirmed" });
     return;
   }
 
@@ -201,12 +246,11 @@ router.post("/:id/book", async (req, res) => {
     const Razorpay = (await import("razorpay")).default;
     const rzp = new Razorpay({ key_id: keyId, key_secret: keySecret });
     const order = await rzp.orders.create({
-      amount: doctor.fee * 100,
+      amount: finalFee * 100,
       currency: "INR",
       receipt: `apt_${doctorId}_${Date.now()}`,
       notes: { doctorId: String(doctorId), userId: String(userId ?? "guest") },
     });
-
     const [apt] = await db.insert(appointmentsTable).values({
       userId: userId ?? undefined,
       doctorId,
@@ -218,10 +262,11 @@ router.post("/:id/book", async (req, res) => {
       consultationType: consultationType ?? "video",
       status: "pending",
       razorpayOrderId: order.id,
-      amountPaid: doctor.fee,
+      amountPaid: finalFee,
+      discountAmount,
+      paymentMethod: "online",
     }).returning();
-
-    res.status(201).json({ appointment: apt, paymentRequired: true, orderId: order.id, amount: doctor.fee * 100, currency: "INR", keyId });
+    res.status(201).json({ appointment: apt, paymentRequired: true, orderId: order.id, amount: finalFee * 100, currency: "INR", keyId, discountAmount, finalFee });
   } catch (err: any) {
     res.status(500).json({ error: "Failed to create payment order" });
   }

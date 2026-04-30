@@ -15,6 +15,8 @@ export const appointmentsTable = pgTable("appointments", {
   razorpayOrderId: text("razorpay_order_id").notNull().default(""),
   razorpayPaymentId: text("razorpay_payment_id").notNull().default(""),
   amountPaid: doublePrecision("amount_paid").notNull().default(0),
+  discountAmount: doublePrecision("discount_amount").notNull().default(0),
+  paymentMethod: text("payment_method").notNull().default("online"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
