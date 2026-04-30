@@ -5,7 +5,8 @@ import {
   CheckCircle2, Loader2, LogOut, Edit3, Save, Eye, EyeOff,
   TrendingUp, AlertCircle, RefreshCw, IndianRupee, BadgeCheck,
   ClipboardList, X, Wallet, ShieldCheck, Crown, Star, Sparkles,
-  Shield, ArrowRight, Calendar, Activity, Zap, Bell, BellRing
+  Shield, ArrowRight, Calendar, Activity, Zap, Bell, BellRing,
+  Store, Package, Trash2, Navigation, Plus, Pill
 } from "lucide-react";
 import { MediQuickLogo } from "@/components/logo";
 
@@ -46,7 +47,19 @@ export default function LabCenterPage() {
   const [token, setToken] = useState<string | null>(() => localStorage.getItem("mq_lab_token"));
   const [lab, setLab] = useState<LabProfile | null>(null);
   const [bookings, setBookings] = useState<Booking[]>([]);
-  const [activeTab, setActiveTab] = useState<"dashboard" | "profile" | "bookings" | "plans">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "profile" | "bookings" | "plans" | "medicines">("dashboard");
+  const [shopProfile, setShopProfile] = useState<any>(null);
+  const [shopMeds, setShopMeds] = useState<any[]>([]);
+  const [shopLoading, setShopLoading] = useState(false);
+  const [shopSaving, setShopSaving] = useState(false);
+  const [shopEditMode, setShopEditMode] = useState(false);
+  const [shopForm, setShopForm] = useState({ shopName: "", shopAddress: "", shopPhone: "", city: "", pincode: "" });
+  const [medForm, setMedForm] = useState({ name: "", category: "General", price: "", stock: "", unit: "strip", description: "", manufacturer: "" });
+  const [addingMed, setAddingMed] = useState(false);
+  const [showMedForm, setShowMedForm] = useState(false);
+  const [geoLoading, setGeoLoading] = useState(false);
+  const [shopLat, setShopLat] = useState<number | null>(null);
+  const [shopLng, setShopLng] = useState<number | null>(null);
   const [plans, setPlans] = useState<any[]>([]);
   const [plansLoading, setPlansLoading] = useState(false);
   const [authTab, setAuthTab] = useState<"login" | "register">("login");
@@ -146,6 +159,84 @@ export default function LabCenterPage() {
     }
     if (activeTab === "bookings") fetchBookings();
   }, [activeTab]);
+
+  const fetchShopData = useCallback(async () => {
+    if (!token) return;
+    setShopLoading(true);
+    const h = { Authorization: `Bearer ${token}` };
+    const [profRes, medsRes] = await Promise.all([
+      fetch(`${API}/api/shopkeeper/profile`, { headers: h }),
+      fetch(`${API}/api/shopkeeper/medicines`, { headers: h }),
+    ]);
+    if (profRes.ok) {
+      const p = await profRes.json();
+      if (p) {
+        setShopProfile(p);
+        setShopForm({ shopName: p.shopName ?? "", shopAddress: p.shopAddress ?? "", shopPhone: p.shopPhone ?? "", city: p.city ?? "", pincode: p.pincode ?? "" });
+        setShopLat(p.lat); setShopLng(p.lng);
+      } else {
+        setShopEditMode(true);
+      }
+    }
+    if (medsRes.ok) setShopMeds(await medsRes.json());
+    setShopLoading(false);
+  }, [token]);
+
+  useEffect(() => { if (activeTab === "medicines") fetchShopData(); }, [activeTab, fetchShopData]);
+
+  async function saveShopProfile() {
+    if (!token) return;
+    setShopSaving(true);
+    const r = await fetch(`${API}/api/shopkeeper/profile`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ ...shopForm, lat: shopLat, lng: shopLng }),
+    });
+    if (r.ok) { const p = await r.json(); setShopProfile(p); setShopEditMode(false); }
+    setShopSaving(false);
+  }
+
+  async function detectShopLocation() {
+    if (!navigator.geolocation) return;
+    setGeoLoading(true);
+    navigator.geolocation.getCurrentPosition(async pos => {
+      const { latitude: lat, longitude: lng } = pos.coords;
+      setShopLat(lat); setShopLng(lng);
+      try {
+        const r = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&addressdetails=1`, { headers: { "Accept-Language": "en" } });
+        const d = await r.json();
+        const a = d.address ?? {};
+        const city = a.city ?? a.town ?? a.village ?? "";
+        const pincode = a.postcode ?? "";
+        const road = a.road ?? a.suburb ?? "";
+        setShopForm(f => ({ ...f, city, pincode, shopAddress: `${road}, ${city}`.replace(/^,\s*/, "") }));
+      } catch {}
+      setGeoLoading(false);
+    }, () => setGeoLoading(false));
+  }
+
+  async function addMedicine() {
+    if (!token || !medForm.name.trim()) return;
+    setAddingMed(true);
+    const r = await fetch(`${API}/api/shopkeeper/medicines`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ ...medForm, price: Number(medForm.price), stock: Number(medForm.stock) }),
+    });
+    if (r.ok) {
+      const m = await r.json();
+      setShopMeds(prev => [m, ...prev]);
+      setMedForm({ name: "", category: "General", price: "", stock: "", unit: "strip", description: "", manufacturer: "" });
+      setShowMedForm(false);
+    }
+    setAddingMed(false);
+  }
+
+  async function deleteMedicine(id: number) {
+    if (!token) return;
+    await fetch(`${API}/api/shopkeeper/medicines/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
+    setShopMeds(prev => prev.filter(m => m.id !== id));
+  }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault(); setLoading(true); setError("");
@@ -370,6 +461,7 @@ export default function LabCenterPage() {
             { id: "dashboard", label: "Dashboard", icon: TrendingUp },
             { id: "profile", label: "Profile", icon: User },
             { id: "bookings", label: `Bookings${stats.pending > 0 ? ` (${stats.pending})` : ""}`, icon: ClipboardList },
+            { id: "medicines", label: "Medicine Shop", icon: Store },
             { id: "plans", label: "Subscription Plans", icon: Crown },
           ].map(tab => (
             <button key={tab.id} onClick={() => setActiveTab(tab.id as any)}
@@ -661,6 +753,160 @@ export default function LabCenterPage() {
                 ))}
               </div>
             )}
+          </div>
+        )}
+
+        {activeTab === "medicines" && (
+          <div className="space-y-5">
+            <div className="bg-white rounded-3xl border border-border/50 shadow-sm p-5 space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="font-bold text-base flex items-center gap-2"><Store className="w-4 h-4 text-blue-600" /> Medicine Shop Profile</h2>
+                {shopProfile && !shopEditMode && (
+                  <button onClick={() => setShopEditMode(true)} className="flex items-center gap-1.5 text-xs font-semibold text-blue-600 px-3 py-1.5 rounded-xl border border-blue-200 bg-blue-50 hover:bg-blue-100 transition-colors">
+                    <Edit3 className="w-3.5 h-3.5" /> Edit
+                  </button>
+                )}
+              </div>
+              <div className="bg-primary/5 border border-primary/20 rounded-2xl p-3 text-xs text-muted-foreground">
+                Apne lab center ka medicine shop setup karein. Patients 5km ke andar apki listed medicines order kar sakte hain.
+              </div>
+              {shopLoading ? (
+                <div className="flex items-center justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-blue-500" /></div>
+              ) : shopEditMode || !shopProfile ? (
+                <div className="space-y-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-muted-foreground mb-1">Shop / Lab Name *</label>
+                      <input value={shopForm.shopName} onChange={e => setShopForm(f => ({ ...f, shopName: e.target.value }))}
+                        placeholder="Sharma Diagnostics Pharmacy"
+                        className="w-full px-3 py-2.5 rounded-2xl border border-border bg-secondary/30 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-muted-foreground mb-1">Contact Phone *</label>
+                      <input value={shopForm.shopPhone} onChange={e => setShopForm(f => ({ ...f, shopPhone: e.target.value }))} type="tel"
+                        placeholder="10-digit mobile"
+                        className="w-full px-3 py-2.5 rounded-2xl border border-border bg-secondary/30 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <label className="block text-xs font-semibold text-muted-foreground mb-1">Address</label>
+                      <input value={shopForm.shopAddress} onChange={e => setShopForm(f => ({ ...f, shopAddress: e.target.value }))}
+                        placeholder="Street address"
+                        className="w-full px-3 py-2.5 rounded-2xl border border-border bg-secondary/30 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-muted-foreground mb-1">City</label>
+                      <input value={shopForm.city} onChange={e => setShopForm(f => ({ ...f, city: e.target.value }))} placeholder="City name"
+                        className="w-full px-3 py-2.5 rounded-2xl border border-border bg-secondary/30 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-muted-foreground mb-1">Pincode</label>
+                      <input value={shopForm.pincode} onChange={e => setShopForm(f => ({ ...f, pincode: e.target.value }))} placeholder="6-digit pincode"
+                        className="w-full px-3 py-2.5 rounded-2xl border border-border bg-secondary/30 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
+                    </div>
+                  </div>
+                  <button onClick={detectShopLocation} disabled={geoLoading}
+                    className="flex items-center gap-2 text-sm font-semibold text-blue-600 px-4 py-2.5 rounded-2xl border border-blue-200 bg-blue-50 hover:bg-blue-100 transition-colors w-full justify-center">
+                    {geoLoading ? <><Loader2 className="w-4 h-4 animate-spin" /> Detecting...</> : <><Navigation className="w-4 h-4" /> Detect Location (for delivery range)</>}
+                  </button>
+                  {shopLat && shopLng && (
+                    <div className="text-xs text-emerald-700 bg-emerald-50 rounded-xl p-2.5 flex items-center gap-1.5">
+                      <CheckCircle2 className="w-3.5 h-3.5" /> Location set: {shopLat.toFixed(4)}, {shopLng.toFixed(4)}
+                    </div>
+                  )}
+                  <div className="flex gap-2">
+                    <button onClick={saveShopProfile} disabled={shopSaving || !shopForm.shopName}
+                      className="flex-1 bg-blue-600 text-white py-2.5 rounded-2xl font-bold text-sm hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-60">
+                      {shopSaving ? <><Loader2 className="w-4 h-4 animate-spin" /> Saving...</> : <><Save className="w-4 h-4" /> Save Profile</>}
+                    </button>
+                    {shopProfile && <button onClick={() => setShopEditMode(false)} className="px-4 py-2.5 rounded-2xl border border-border text-sm font-semibold hover:bg-secondary/40 transition-colors">Cancel</button>}
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between"><span className="text-muted-foreground">Name</span><span className="font-semibold">{shopProfile.shopName}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Phone</span><span className="font-semibold">{shopProfile.shopPhone || "—"}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Address</span><span className="font-semibold text-right max-w-[60%]">{shopProfile.shopAddress || "—"}</span></div>
+                  <div className="flex items-center gap-1.5 text-xs mt-1">
+                    {shopProfile.lat ? <><CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /><span className="text-emerald-700">Location set — visible to patients within 5km</span></> : <><AlertCircle className="w-3.5 h-3.5 text-amber-500" /><span className="text-amber-700">Location not set — click Edit to add</span></>}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {shopProfile && (
+              <div className="bg-white rounded-3xl border border-border/50 shadow-sm p-5 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="font-bold text-base flex items-center gap-2"><Pill className="w-4 h-4 text-blue-600" /> Listed Medicines ({shopMeds.length})</h2>
+                  <button onClick={() => setShowMedForm(s => !s)}
+                    className="flex items-center gap-1.5 text-xs font-semibold text-white bg-blue-600 px-3 py-1.5 rounded-xl hover:bg-blue-700 transition-colors">
+                    <Plus className="w-3.5 h-3.5" /> Add Medicine
+                  </button>
+                </div>
+                {showMedForm && (
+                  <div className="bg-secondary/30 rounded-2xl p-4 space-y-3 border border-border">
+                    <p className="text-xs font-semibold text-muted-foreground">New Medicine</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <input value={medForm.name} onChange={e => setMedForm(f => ({ ...f, name: e.target.value }))} placeholder="Medicine name *"
+                        className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-blue-400" />
+                      <input value={medForm.manufacturer} onChange={e => setMedForm(f => ({ ...f, manufacturer: e.target.value }))} placeholder="Manufacturer"
+                        className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-blue-400" />
+                      <input value={medForm.price} onChange={e => setMedForm(f => ({ ...f, price: e.target.value }))} type="number" placeholder="Price (₹) *"
+                        className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-blue-400" />
+                      <input value={medForm.stock} onChange={e => setMedForm(f => ({ ...f, stock: e.target.value }))} type="number" placeholder="Stock quantity"
+                        className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-blue-400" />
+                      <input value={medForm.unit} onChange={e => setMedForm(f => ({ ...f, unit: e.target.value }))} placeholder="Unit (strip/bottle/tablet)"
+                        className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-blue-400" />
+                      <select value={medForm.category} onChange={e => setMedForm(f => ({ ...f, category: e.target.value }))}
+                        className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+                        {["General","Fever & Pain","Antibiotics","Gastric & Acidity","Diabetes","Cardiac & BP","Allergy & Cold","Vitamins & Nutrition"].map(c => <option key={c}>{c}</option>)}
+                      </select>
+                      <input value={medForm.description} onChange={e => setMedForm(f => ({ ...f, description: e.target.value }))} placeholder="Description (optional)"
+                        className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 sm:col-span-2" />
+                    </div>
+                    <div className="flex gap-2">
+                      <button onClick={addMedicine} disabled={addingMed || !medForm.name.trim() || !medForm.price}
+                        className="flex-1 bg-blue-600 text-white py-2.5 rounded-xl font-bold text-sm hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-60">
+                        {addingMed ? <><Loader2 className="w-4 h-4 animate-spin" /> Adding...</> : <><Plus className="w-4 h-4" /> Add Medicine</>}
+                      </button>
+                      <button onClick={() => setShowMedForm(false)} className="px-4 py-2.5 rounded-xl border border-border text-sm hover:bg-secondary/40 transition-colors">Cancel</button>
+                    </div>
+                  </div>
+                )}
+                {shopMeds.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Package className="w-10 h-10 text-muted-foreground/20 mx-auto mb-2" />
+                    <p className="text-sm text-muted-foreground">No medicines listed yet.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {shopMeds.map(med => (
+                      <div key={med.id} className="flex items-center gap-3 p-3 rounded-2xl border border-border/50 bg-secondary/20 hover:bg-secondary/40 transition-colors">
+                        <div className="text-xl">💊</div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-sm truncate">{med.name}</p>
+                          <p className="text-xs text-muted-foreground">{med.category} · {med.unit} · Stock: {med.stock}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-blue-600 text-sm">₹{med.price}</span>
+                          <button onClick={() => deleteMedicine(med.id)} className="w-7 h-7 rounded-lg bg-red-50 text-red-500 flex items-center justify-center hover:bg-red-100 transition-colors">
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+            <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 text-sm text-blue-800">
+              <div className="flex items-start gap-2">
+                <Package className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-bold">How local delivery works</p>
+                  <p className="mt-1 text-xs">Patients within 5km will see your listed medicines. You deliver directly and collect cash. ₹10 per 100m delivery charge (₹1 platform fee included).</p>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 

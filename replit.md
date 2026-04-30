@@ -27,6 +27,15 @@ The workspace includes **MediQuick**, a React web app for daily healthcare: medi
 - `artifacts/admin-panel` — MediQuick Admin Panel at `/admin/`
 - `artifacts/mockup-sandbox` — canvas/mockup preview server at `/__mockup`
 
+## Local Medicine Ordering System (New)
+
+- **DB Tables**: `shopkeeper_profiles` (shop name, address, lat/lng, city, pincode) + `local_medicine_orders` (delivery details, distance, charges, status)
+- **API routes**: `GET/PUT /api/shopkeeper/profile`, `GET /api/shopkeeper/nearby`, `POST /api/shopkeeper/calc-distance`, `POST /api/shopkeeper/local-orders`, `GET /api/shopkeeper/local-orders`
+- **Distance**: Haversine formula — straight-line distance between shopkeeper and delivery address
+- **Delivery logic**: ₹10 per 100m, ₹1 platform fee per 100m (included in ₹10), max 5km
+- **Medicine page tabs**: Tab 1 = Tata 1mg (redirect), Tab 2 = Local Store (browse nearby, cart, checkout)
+- **Doctor Panel / Lab Center tabs**: "Medicine Shop" tab — lets doctors/labs register their own shop + list medicines for local delivery
+
 ## Doctor Consultation System
 
 - **DB Tables**: `doctors`, `appointments`, `doctor_reviews` (in `lib/db/src/schema/`)
