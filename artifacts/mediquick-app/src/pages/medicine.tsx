@@ -42,9 +42,17 @@ const CATEGORY_ICONS: Record<string, string> = {
 
 const QUICK_SEARCHES = ["Paracetamol", "Vitamin D3", "Metformin", "Azithromycin", "Cetirizine", "Omeprazole", "Aspirin", "Insulin"];
 
-function open1mg(_query?: string) {
-  window.open("https://inr.deals/axPR6g", "_blank", "noopener,noreferrer");
+const AFFILIATE = "https://inr.deals/axPR6g";
+
+function openPharmaEasy(query?: string) {
+  const url = query
+    ? `https://pharmeasy.in/search/all?name=${encodeURIComponent(query)}`
+    : AFFILIATE;
+  window.open(url, "_blank", "noopener,noreferrer");
 }
+
+// kept for backward compat
+function open1mg(query?: string) { openPharmaEasy(query); }
 
 function fmtDist(m: number | null) {
   if (m == null) return "—";
@@ -97,7 +105,7 @@ function TabPharmaEasy() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    open1mg();
+    openPharmaEasy(search.trim() || undefined);
   };
 
   return (
@@ -135,7 +143,7 @@ function TabPharmaEasy() {
         <p className="text-xs font-semibold text-muted-foreground mb-2">Quick search</p>
         <div className="flex flex-wrap gap-2">
           {QUICK_SEARCHES.map(q => (
-            <button key={q} onClick={() => open1mg()}
+            <button key={q} onClick={() => openPharmaEasy(q)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border bg-card text-xs font-medium text-muted-foreground hover:border-[#00A650]/40 hover:text-[#00A650] transition-all">
               <Pill className="w-3 h-3" /> {q} <ExternalLink className="w-2.5 h-2.5 opacity-50" />
             </button>
@@ -179,7 +187,7 @@ function TabPharmaEasy() {
           <Pill className="w-14 h-14 text-[#00A650]/20 mx-auto mb-3" />
           <p className="font-semibold">No medicines found</p>
           <p className="text-sm text-muted-foreground mt-1">Try a different search term</p>
-          <button onClick={() => open1mg()}
+          <button onClick={() => openPharmaEasy(search.trim() || "medicine")}
             className="mt-4 flex items-center gap-2 text-white px-5 py-2.5 rounded-xl text-sm font-bold mx-auto transition-colors" style={{ backgroundColor: PE }}>
             Search on PharmaEasy <ExternalLink className="w-4 h-4" />
           </button>
@@ -188,7 +196,7 @@ function TabPharmaEasy() {
         <div>
           <div className="flex items-center justify-between mb-3">
             <p className="text-sm text-muted-foreground font-medium">{medicines.length} medicines found</p>
-            <button onClick={() => open1mg()} className="flex items-center gap-1.5 text-xs font-semibold hover:underline" style={{ color: PE }}>
+            <button onClick={() => openPharmaEasy(search || activeCategory)} className="flex items-center gap-1.5 text-xs font-semibold hover:underline" style={{ color: PE }}>
               See all on PharmaEasy <ExternalLink className="w-3 h-3" />
             </button>
           </div>
@@ -217,7 +225,7 @@ function TabPharmaEasy() {
                       <span className="font-bold text-foreground text-base">₹{med.price}</span>
                       <span className="text-xs text-muted-foreground line-through">₹{mrp}</span>
                     </div>
-                    <button onClick={() => open1mg()}
+                    <button onClick={() => openPharmaEasy(med.name)}
                       className="flex items-center gap-1.5 text-white px-3 py-2 rounded-xl text-xs font-bold active:scale-95 transition-all" style={{ backgroundColor: PE }}>
                       Order on PharmaEasy <ExternalLink className="w-3 h-3" />
                     </button>
