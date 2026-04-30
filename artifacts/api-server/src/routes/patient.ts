@@ -48,7 +48,7 @@ const MEMBERSHIP_PLANS = [
     benefits: [
       "Unlimited doctor consultations",
       "Unlimited lab tests",
-      "5% discount on 10 lab tests",
+      "2% discount on 5 lab tests",
       "Priority doctor booking",
       "1 free consultation per month",
       "Health report storage",
@@ -64,7 +64,7 @@ const MEMBERSHIP_PLANS = [
     benefits: [
       "Unlimited doctor consultations",
       "Unlimited lab tests",
-      "10% discount on 10 lab tests",
+      "5% discount on 5 lab tests",
       "Unlimited free consultations",
       "Dedicated health manager",
       "Home sample collection priority",
@@ -81,9 +81,9 @@ const MEMBERSHIP_PLANS = [
     benefits: [
       "Saal bhar ki unlimited access",
       "Unlimited doctor consultations",
-      "10% discount on 10 doctor consultations",
+      "10% discount on 5 doctor consultations",
       "Unlimited lab tests",
-      "10% discount on 10 lab tests",
+      "10% discount on 5 lab tests",
       "Priority booking always",
       "Health report storage",
       "Family health tracking (up to 6 members)",
