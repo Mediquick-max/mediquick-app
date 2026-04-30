@@ -191,12 +191,53 @@ export default function Home() {
 
         <hr className="border-border/60" />
 
-        <section className="space-y-6">
+        <section className="space-y-4">
           <div>
-            <h2 className="text-2xl font-bold tracking-tight mb-2">Find Medicine Nearby</h2>
-            <p className="text-muted-foreground font-medium">Search for pharmacies near you that carry what you need.</p>
+            <h2 className="text-2xl font-bold tracking-tight">Find Medicine Nearby</h2>
+            <p className="text-muted-foreground font-medium mt-1">Search for pharmacies near you that carry what you need.</p>
           </div>
           <PharmacySearch />
+        </section>
+
+        <hr className="border-border/60" />
+
+        <section className="space-y-4">
+          <div>
+            <h2 className="text-2xl font-bold tracking-tight">MediQuick ke saath Judein</h2>
+            <p className="text-muted-foreground font-medium mt-1">Doctor ya Lab Center — apni services lakho patients tak pahunchaein.</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Link href="/doctor-panel" className="group block bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-3xl p-5 hover:border-blue-400 hover:shadow-md transition-all">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-2xl bg-blue-600 flex items-center justify-center shadow-sm">
+                  <Stethoscope className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <div className="font-bold text-foreground text-base">Doctor hain aap?</div>
+                  <div className="text-xs text-blue-600 font-semibold">Doctor Portal</div>
+                </div>
+              </div>
+              <p className="text-sm text-muted-foreground mb-3">Register karein, apni profile banayein aur patients se video ya clinic consultation lein.</p>
+              <div className="flex items-center gap-1.5 text-blue-600 font-semibold text-sm group-hover:gap-2.5 transition-all">
+                Register karein <ChevronRight className="w-4 h-4" />
+              </div>
+            </Link>
+            <Link href="/lab-center" className="group block bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 rounded-3xl p-5 hover:border-emerald-400 hover:shadow-md transition-all">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-2xl bg-emerald-600 flex items-center justify-center shadow-sm">
+                  <FlaskConical className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <div className="font-bold text-foreground text-base">Lab Center hain?</div>
+                  <div className="text-xs text-emerald-600 font-semibold">Lab Center Portal</div>
+                </div>
+              </div>
+              <p className="text-sm text-muted-foreground mb-3">Apna diagnostic center, pathology lab ya radiology center register karein aur bookings paayein.</p>
+              <div className="flex items-center gap-1.5 text-emerald-600 font-semibold text-sm group-hover:gap-2.5 transition-all">
+                Register karein <ChevronRight className="w-4 h-4" />
+              </div>
+            </Link>
+          </div>
         </section>
       </div>
     </Layout>

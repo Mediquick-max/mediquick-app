@@ -395,6 +395,24 @@ export default function LabTestsPage() {
           </div>
         </div>
       )}
+      {/* Lab Center CTA Section */}
+      <div className="mt-10 mb-2">
+        <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 rounded-3xl p-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-600 flex items-center justify-center flex-shrink-0 shadow-sm">
+              <Microscope className="w-6 h-6 text-white" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-bold text-lg text-foreground">Kya aapka Lab Center hai?</h3>
+              <p className="text-sm text-muted-foreground mt-0.5">Apna diagnostic center, pathology lab ya radiology center MediQuick par register karein — daily bookings paayein aur Featured Spot bhi le sakte hain.</p>
+            </div>
+            <a href="/lab-center"
+              className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white px-5 py-2.5 rounded-2xl font-semibold text-sm transition-all flex-shrink-0">
+              <FlaskConical className="w-4 h-4" /> Lab Center Portal <ChevronRight className="w-4 h-4" />
+            </a>
+          </div>
+        </div>
+      </div>
     </Layout>
   );
 }

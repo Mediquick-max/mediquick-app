@@ -584,6 +584,25 @@ export default function ConsultPage() {
         </div>
       )}
 
+      {/* Doctor CTA Section */}
+      <div className="mt-10 mb-2">
+        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-3xl p-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center flex-shrink-0 shadow-sm">
+              <Stethoscope className="w-6 h-6 text-white" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-bold text-lg text-foreground">Kya aap Doctor hain?</h3>
+              <p className="text-sm text-muted-foreground mt-0.5">MediQuick par apni profile banayein — video ya clinic consultation lekar lakho patients tak pahunchein. Featured spot bhi le sakte hain.</p>
+            </div>
+            <a href="/doctor-panel"
+              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white px-5 py-2.5 rounded-2xl font-semibold text-sm transition-all flex-shrink-0">
+              <Stethoscope className="w-4 h-4" /> Doctor Portal <ChevronRight className="w-4 h-4" />
+            </a>
+          </div>
+        </div>
+      </div>
+
       {bookingSuccess && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
           <div className="bg-card rounded-3xl p-8 max-w-sm w-full shadow-2xl border border-border text-center space-y-4">

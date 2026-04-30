@@ -1,6 +1,6 @@
 import { ReactNode, useState } from "react";
 import { Link, useLocation } from "wouter";
-import { LogIn, UserPlus, LogOut, ChevronDown, Store, Stethoscope, Pill, Home, X, Menu, MapPin, LocateFixed, Loader2, FlaskConical, LayoutDashboard, Crown } from "lucide-react";
+import { LogIn, UserPlus, LogOut, ChevronDown, Store, Stethoscope, Pill, Home, X, Menu, MapPin, LocateFixed, Loader2, FlaskConical, LayoutDashboard, Crown, ChevronRight } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { MediQuickLogo } from "@/components/logo";
 import { useGeolocation } from "@/lib/use-geolocation";
@@ -160,12 +160,18 @@ export function Layout({ children }: { children: ReactNode }) {
       </main>
 
       <footer className="border-t border-border/40 bg-background/60 mt-auto">
-        <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between text-xs text-muted-foreground">
+        <div className="max-w-3xl mx-auto px-4 py-4 flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
           <span>© 2026 Medi Quick</span>
-          <Link href="/doctor-panel"
-            className="flex items-center gap-1.5 font-semibold text-blue-600 hover:text-blue-700 transition-colors">
-            <Stethoscope className="w-3.5 h-3.5" /> Are you a Doctor? Register here
-          </Link>
+          <div className="flex items-center gap-4">
+            <Link href="/doctor-panel"
+              className="flex items-center gap-1.5 font-semibold text-blue-600 hover:text-blue-700 transition-colors">
+              <Stethoscope className="w-3.5 h-3.5" /> Doctor hain? Register karein
+            </Link>
+            <Link href="/lab-center"
+              className="flex items-center gap-1.5 font-semibold text-emerald-600 hover:text-emerald-700 transition-colors">
+              <FlaskConical className="w-3.5 h-3.5" /> Lab Center? Register karein
+            </Link>
+          </div>
         </div>
       </footer>
     </div>

@@ -7,6 +7,9 @@ import {
   paymentsTable,
   apiConfigTable,
   careRequestsTable,
+  labCentersTable,
+  dailyFeaturedTable,
+  doctorsTable,
 } from "@workspace/db";
 import {
   AdminLoginBody,
@@ -323,6 +326,109 @@ router.get("/care-activity", requireAdmin, async (req, res) => {
     res.json({ consultations, labBookings, medicineOrders });
   } catch (err) {
     req.log.error({ err }, "Failed to fetch care activity");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// ─── Lab Centers Admin ────────────────────────────────────────────
+router.get("/lab-centers", requireAdmin, async (req, res) => {
+  try {
+    const labs = await db
+      .select({
+        id: labCentersTable.id,
+        name: labCentersTable.name,
+        email: labCentersTable.email,
+        phone: labCentersTable.phone,
+        centerType: labCentersTable.centerType,
+        city: labCentersTable.city,
+        address: labCentersTable.address,
+        accreditation: labCentersTable.accreditation,
+        registrationNumber: labCentersTable.registrationNumber,
+        plan: labCentersTable.plan,
+        planExpiresAt: labCentersTable.planExpiresAt,
+        isActive: labCentersTable.isActive,
+        createdAt: labCentersTable.createdAt,
+      })
+      .from(labCentersTable)
+      .orderBy(desc(labCentersTable.createdAt));
+    res.json(labs);
+  } catch (err) {
+    req.log.error({ err }, "Failed to fetch lab centers");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.put("/lab-centers/:id/status", requireAdmin, async (req, res) => {
+  const id = Number(req.params.id);
+  if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
+  const { isActive } = req.body;
+  try {
+    await db.update(labCentersTable).set({ isActive: isActive ? 1 : 0 }).where(eq(labCentersTable.id, id));
+    res.json({ success: true });
+  } catch (err) {
+    req.log.error({ err }, "Failed to update lab center status");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.delete("/lab-centers/:id", requireAdmin, async (req, res) => {
+  const id = Number(req.params.id);
+  if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
+  try {
+    await db.delete(labCentersTable).where(eq(labCentersTable.id, id));
+    res.json({ success: true });
+  } catch (err) {
+    req.log.error({ err }, "Failed to delete lab center");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// ─── Featured Spots Admin ─────────────────────────────────────────
+router.get("/featured", requireAdmin, async (req, res) => {
+  try {
+    const spots = await db
+      .select()
+      .from(dailyFeaturedTable)
+      .orderBy(desc(dailyFeaturedTable.featuredDate), desc(dailyFeaturedTable.createdAt));
+
+    // Enrich with names
+    const doctorIds = spots.filter(s => s.type === "doctor").map(s => s.entityId);
+    const labIds = spots.filter(s => s.type === "lab").map(s => s.entityId);
+
+    const doctors = doctorIds.length > 0
+      ? await db.select({ id: doctorsTable.id, name: doctorsTable.name, specialization: doctorsTable.specialization })
+          .from(doctorsTable)
+      : [];
+    const labs = labIds.length > 0
+      ? await db.select({ id: labCentersTable.id, name: labCentersTable.name, centerType: labCentersTable.centerType })
+          .from(labCentersTable)
+      : [];
+
+    const enriched = spots.map(s => {
+      if (s.type === "doctor") {
+        const doc = doctors.find(d => d.id === s.entityId);
+        return { ...s, entityName: doc?.name ?? `Doctor #${s.entityId}`, entityDetail: doc?.specialization ?? "" };
+      } else {
+        const lab = labs.find(l => l.id === s.entityId);
+        return { ...s, entityName: lab?.name ?? `Lab #${s.entityId}`, entityDetail: lab?.centerType ?? "" };
+      }
+    });
+
+    // Group by date for summary
+    const byDate: Record<string, { date: string; doctorCount: number; labCount: number; revenue: number; spots: typeof enriched }> = {};
+    for (const s of enriched) {
+      if (!byDate[s.featuredDate]) {
+        byDate[s.featuredDate] = { date: s.featuredDate, doctorCount: 0, labCount: 0, revenue: 0, spots: [] };
+      }
+      byDate[s.featuredDate].spots.push(s);
+      byDate[s.featuredDate].revenue += s.feeDeducted;
+      if (s.type === "doctor") byDate[s.featuredDate].doctorCount++;
+      else byDate[s.featuredDate].labCount++;
+    }
+
+    res.json({ spots: enriched, byDate: Object.values(byDate).sort((a, b) => b.date.localeCompare(a.date)) });
+  } catch (err) {
+    req.log.error({ err }, "Failed to fetch featured spots");
     res.status(500).json({ error: "Internal server error" });
   }
 });
