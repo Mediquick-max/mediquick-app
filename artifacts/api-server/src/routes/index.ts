@@ -13,6 +13,7 @@ import doctorPanelRouter from "./doctor-panel";
 import patientRouter from "./patient";
 import labCenterRouter from "./lab-center";
 import featuredRouter from "./featured";
+import notificationsRouter from "./notifications";
 
 const router: IRouter = Router();
 
@@ -30,5 +31,6 @@ router.use("/doctor-panel", doctorPanelRouter);
 router.use("/patient", patientRouter);
 router.use("/lab-center", labCenterRouter);
 router.use("/featured", featuredRouter);
+router.use("/notifications", notificationsRouter);
 
 export default router;

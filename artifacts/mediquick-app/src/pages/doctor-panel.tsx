@@ -6,7 +6,7 @@ import {
   Save, Eye, EyeOff, ChevronRight, Star, TrendingUp, Users, 
   AlertCircle, RefreshCw, Video, Pill, IndianRupee, BadgeCheck,
   ClipboardList, X, Plus, Wallet, CreditCard, Landmark, ShieldCheck,
-  Crown, Sparkles, Shield, Zap, ArrowRight
+  Crown, Sparkles, Shield, Zap, ArrowRight, Bell, BellRing
 } from "lucide-react";
 import { MediQuickLogo } from "@/components/logo";
 
@@ -64,6 +64,9 @@ export default function DoctorPanelPage() {
   const [success, setSuccess] = useState("");
   const [featuredStatus, setFeaturedStatus] = useState<{ isFeatured: boolean; spotsLeft: number; windowOpen: boolean; istHour: number; nextSlotTime: string } | null>(null);
   const [featuredJoining, setFeaturedJoining] = useState(false);
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [showNotifs, setShowNotifs] = useState(false);
 
   const [loginForm, setLoginForm] = useState({ email: "", password: "" });
   const [showPw, setShowPw] = useState(false);
@@ -100,6 +103,22 @@ export default function DoctorPanelPage() {
     "Content-Type": "application/json",
     ...(token ? { Authorization: `Bearer ${token}` } : {})
   }), [token]);
+
+  const fetchNotifications = useCallback(async () => {
+    if (!token) return;
+    try {
+      const res = await fetch(`${API}/api/notifications/doctor`, { headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" } });
+      if (res.ok) { const d = await res.json(); setNotifications(d.notifications ?? []); setUnreadCount(d.unread ?? 0); }
+    } catch {}
+  }, [token]);
+
+  const markAllRead = async () => {
+    try {
+      await fetch(`${API}/api/notifications/doctor/read-all`, { method: "PUT", headers: authHeaders() });
+      setUnreadCount(0);
+      setNotifications(prev => prev.map(n => ({ ...n, isRead: 1 })));
+    } catch {}
+  };
 
   const fetchFeaturedStatus = useCallback(async (tok?: string) => {
     try {
@@ -170,7 +189,7 @@ export default function DoctorPanelPage() {
   }, [authHeaders]);
 
   useEffect(() => {
-    if (token) { fetchProfile(); fetchAppointments(); fetchFeaturedStatus(); }
+    if (token) { fetchProfile(); fetchAppointments(); fetchFeaturedStatus(); fetchNotifications(); }
   }, [token]);
 
   useEffect(() => {
@@ -562,6 +581,34 @@ export default function DoctorPanelPage() {
                   {doctor.registrationStatus === "approved" ? "✓ Verified" : doctor.registrationStatus === "pending" ? "⏳ Pending Review" : "✗ Rejected"}
                 </div>
               </div>
+            </div>
+            <div className="relative">
+              <button onClick={() => { setShowNotifs(p => !p); if (!showNotifs && unreadCount > 0) markAllRead(); }}
+                className="relative p-2 rounded-xl border border-border hover:bg-secondary/50 transition-colors">
+                {unreadCount > 0 ? <BellRing className="w-4 h-4 text-amber-500 animate-[wiggle_1s_ease-in-out_infinite]" /> : <Bell className="w-4 h-4 text-muted-foreground" />}
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">{unreadCount > 9 ? "9+" : unreadCount}</span>
+                )}
+              </button>
+              {showNotifs && (
+                <div className="absolute right-0 top-10 w-80 bg-white rounded-3xl border border-border shadow-xl z-50 overflow-hidden">
+                  <div className="flex items-center justify-between px-4 py-3 border-b border-border/50">
+                    <div className="font-bold text-sm flex items-center gap-2"><Bell className="w-4 h-4" /> Notifications</div>
+                    <button onClick={() => setShowNotifs(false)}><X className="w-4 h-4 text-muted-foreground" /></button>
+                  </div>
+                  <div className="max-h-72 overflow-y-auto">
+                    {notifications.length === 0 ? (
+                      <div className="py-8 text-center text-sm text-muted-foreground">Koi notification nahi</div>
+                    ) : notifications.map(n => (
+                      <div key={n.id} className={`px-4 py-3 border-b border-border/30 ${n.isRead === 0 ? "bg-amber-50" : ""}`}>
+                        <div className="font-semibold text-xs text-amber-700">{n.title}</div>
+                        <div className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{n.message}</div>
+                        <div className="text-[10px] text-muted-foreground/60 mt-1">{new Date(n.createdAt).toLocaleString("en-IN", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
             <button onClick={handleLogout}
               className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground border border-border px-3 py-1.5 rounded-xl transition-colors">

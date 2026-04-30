@@ -5,7 +5,7 @@ import {
   CheckCircle2, Loader2, LogOut, Edit3, Save, Eye, EyeOff,
   TrendingUp, AlertCircle, RefreshCw, IndianRupee, BadgeCheck,
   ClipboardList, X, Wallet, ShieldCheck, Crown, Star, Sparkles,
-  Shield, ArrowRight, Calendar, Activity, Zap
+  Shield, ArrowRight, Calendar, Activity, Zap, Bell, BellRing
 } from "lucide-react";
 import { MediQuickLogo } from "@/components/logo";
 
@@ -59,6 +59,9 @@ export default function LabCenterPage() {
   const [stats, setStats] = useState({ total: 0, pending: 0, completed: 0, revenue: 0 });
   const [featuredStatus, setFeaturedStatus] = useState<{ isFeatured: boolean; spotsLeft: number; windowOpen: boolean; istHour: number; nextSlotTime: string } | null>(null);
   const [featuredJoining, setFeaturedJoining] = useState(false);
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [showNotifs, setShowNotifs] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [editForm, setEditForm] = useState<Partial<LabProfile>>({});
 
@@ -72,6 +75,22 @@ export default function LabCenterPage() {
   const authHeaders = useCallback(() => ({
     Authorization: `Bearer ${token}`, "Content-Type": "application/json",
   }), [token]);
+
+  const fetchNotifications = useCallback(async () => {
+    if (!token) return;
+    try {
+      const res = await fetch(`${API}/api/notifications/lab`, { headers: authHeaders() });
+      if (res.ok) { const d = await res.json(); setNotifications(d.notifications ?? []); setUnreadCount(d.unread ?? 0); }
+    } catch {}
+  }, [token, authHeaders]);
+
+  const markAllRead = async () => {
+    try {
+      await fetch(`${API}/api/notifications/lab/read-all`, { method: "PUT", headers: authHeaders() });
+      setUnreadCount(0);
+      setNotifications(prev => prev.map(n => ({ ...n, isRead: 1 })));
+    } catch {}
+  };
 
   const fetchFeaturedStatus = useCallback(async () => {
     if (!token) return;
@@ -113,7 +132,7 @@ export default function LabCenterPage() {
   }, [token, authHeaders]);
 
   useEffect(() => {
-    if (token) { fetchDashboard(); fetchBookings(); fetchFeaturedStatus(); }
+    if (token) { fetchDashboard(); fetchBookings(); fetchFeaturedStatus(); fetchNotifications(); }
   }, [token]);
 
   useEffect(() => {
@@ -312,6 +331,34 @@ export default function LabCenterPage() {
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-blue-100 text-blue-700 capitalize">{lab.plan}</span>
+            <div className="relative">
+              <button onClick={() => { setShowNotifs(p => !p); if (!showNotifs && unreadCount > 0) markAllRead(); }}
+                className="relative p-2 rounded-xl border border-border hover:bg-secondary/50 transition-colors">
+                {unreadCount > 0 ? <BellRing className="w-4 h-4 text-amber-500" /> : <Bell className="w-4 h-4 text-muted-foreground" />}
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">{unreadCount > 9 ? "9+" : unreadCount}</span>
+                )}
+              </button>
+              {showNotifs && (
+                <div className="absolute right-0 top-10 w-80 bg-white rounded-3xl border border-border shadow-xl z-50 overflow-hidden">
+                  <div className="flex items-center justify-between px-4 py-3 border-b border-border/50">
+                    <div className="font-bold text-sm flex items-center gap-2"><Bell className="w-4 h-4" /> Notifications</div>
+                    <button onClick={() => setShowNotifs(false)}><X className="w-4 h-4 text-muted-foreground" /></button>
+                  </div>
+                  <div className="max-h-72 overflow-y-auto">
+                    {notifications.length === 0 ? (
+                      <div className="py-8 text-center text-sm text-muted-foreground">Koi notification nahi</div>
+                    ) : notifications.map(n => (
+                      <div key={n.id} className={`px-4 py-3 border-b border-border/30 ${n.isRead === 0 ? "bg-amber-50" : ""}`}>
+                        <div className="font-semibold text-xs text-amber-700">{n.title}</div>
+                        <div className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{n.message}</div>
+                        <div className="text-[10px] text-muted-foreground/60 mt-1">{new Date(n.createdAt).toLocaleString("en-IN", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
             <button onClick={handleLogout}
               className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground border border-border px-3 py-1.5 rounded-xl transition-colors">
               <LogOut className="w-3.5 h-3.5" /> Logout
