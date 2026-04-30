@@ -62,7 +62,7 @@ export default function DoctorPanelPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [featuredStatus, setFeaturedStatus] = useState<{ isFeatured: boolean; spotsLeft: number; windowOpen: boolean; istHour: number } | null>(null);
+  const [featuredStatus, setFeaturedStatus] = useState<{ isFeatured: boolean; spotsLeft: number; windowOpen: boolean; istHour: number; nextSlotTime: string } | null>(null);
   const [featuredJoining, setFeaturedJoining] = useState(false);
 
   const [loginForm, setLoginForm] = useState({ email: "", password: "" });
@@ -658,7 +658,7 @@ export default function DoctorPanelPage() {
                       </button>
                     ) : (
                       <div className="text-xs text-amber-600 bg-amber-100 rounded-xl px-3 py-1.5 inline-block">
-                        ⏰ Window kal subah 7 AM par khulegi (IST hour: {featuredStatus.istHour}:00)
+                        ⏰ Agla slot {featuredStatus.nextSlotTime} se shuru hoga
                       </div>
                     )}
                   </div>

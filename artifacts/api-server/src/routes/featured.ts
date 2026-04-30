@@ -4,15 +4,35 @@ import { db, doctorsTable, labCentersTable, dailyFeaturedTable } from "@workspac
 
 const router = Router();
 
-function getTodayIST(): string {
-  const now = new Date();
-  const ist = new Date(now.getTime() + 5.5 * 60 * 60 * 1000);
-  return ist.toISOString().split("T")[0];
-}
-
 function getISTHour(): number {
   const now = new Date();
   return Math.floor((now.getTime() + 5.5 * 60 * 60 * 1000) / (60 * 60 * 1000)) % 24;
+}
+
+// Slot date = IST date when the current slot OPENED (at 7 AM IST).
+// Before 7 AM → still in yesterday's slot.
+// At/After 7 AM → today's slot.
+function getSlotDate(): string {
+  const now = new Date();
+  const istMs = now.getTime() + 5.5 * 60 * 60 * 1000;
+  const istHour = Math.floor(istMs / (60 * 60 * 1000)) % 24;
+  if (istHour < 7) {
+    // Before 7 AM: still showing yesterday's featured list
+    const yesterday = new Date(istMs - 24 * 60 * 60 * 1000);
+    return yesterday.toISOString().split("T")[0];
+  }
+  return new Date(istMs).toISOString().split("T")[0];
+}
+
+// Next slot opens at 7 AM IST on (slotDate + 1 day)
+function getNextSlotTime(): string {
+  const now = new Date();
+  const istMs = now.getTime() + 5.5 * 60 * 60 * 1000;
+  const istHour = Math.floor(istMs / (60 * 60 * 1000)) % 24;
+  if (istHour < 7) {
+    return "aaj subah 7 AM";
+  }
+  return "kal subah 7 AM";
 }
 
 function isRegistrationOpen(): boolean {
@@ -38,7 +58,7 @@ function parseLabId(req: any): number | null {
 
 router.get("/today", async (req, res) => {
   try {
-    const today = getTodayIST();
+    const today = getSlotDate();
 
     const docRows = await db
       .select()
@@ -75,8 +95,9 @@ router.get("/today", async (req, res) => {
     const spotsLeft = { doctors: 5 - doctors.length, labs: 5 - labs.length };
     const windowOpen = isRegistrationOpen();
     const istHour = getISTHour();
+    const nextSlotTime = getNextSlotTime();
 
-    res.json({ doctors, labs, spotsLeft, windowOpen, istHour, today });
+    res.json({ doctors, labs, spotsLeft, windowOpen, istHour, today, nextSlotTime });
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Failed to fetch featured spots" });
@@ -94,7 +115,7 @@ router.post("/doctor/join", async (req, res) => {
     });
   }
 
-  const today = getTodayIST();
+  const today = getSlotDate();
 
   try {
     const existing = await db.select().from(dailyFeaturedTable)
@@ -146,7 +167,7 @@ router.post("/lab/join", async (req, res) => {
     });
   }
 
-  const today = getTodayIST();
+  const today = getSlotDate();
 
   try {
     const existing = await db.select().from(dailyFeaturedTable)
@@ -190,7 +211,7 @@ router.post("/lab/join", async (req, res) => {
 router.get("/doctor/status", async (req, res) => {
   const doctorId = parseDoctorId(req);
   if (!doctorId) return res.status(401).json({ error: "Login required" });
-  const today = getTodayIST();
+  const today = getSlotDate();
   try {
     const rows = await db.select().from(dailyFeaturedTable)
       .where(and(eq(dailyFeaturedTable.type, "doctor"), eq(dailyFeaturedTable.entityId, doctorId), eq(dailyFeaturedTable.featuredDate, today)));
@@ -201,6 +222,7 @@ router.get("/doctor/status", async (req, res) => {
       spotsLeft: Math.max(0, 5 - (countRows[0]?.c ?? 0)),
       windowOpen: isRegistrationOpen(),
       istHour: getISTHour(),
+      nextSlotTime: getNextSlotTime(),
     });
   } catch { res.status(500).json({ error: "Status check failed" }); }
 });
@@ -208,7 +230,7 @@ router.get("/doctor/status", async (req, res) => {
 router.get("/lab/status", async (req, res) => {
   const labId = parseLabId(req);
   if (!labId) return res.status(401).json({ error: "Login required" });
-  const today = getTodayIST();
+  const today = getSlotDate();
   try {
     const rows = await db.select().from(dailyFeaturedTable)
       .where(and(eq(dailyFeaturedTable.type, "lab"), eq(dailyFeaturedTable.entityId, labId), eq(dailyFeaturedTable.featuredDate, today)));
@@ -219,6 +241,7 @@ router.get("/lab/status", async (req, res) => {
       spotsLeft: Math.max(0, 5 - (countRows[0]?.c ?? 0)),
       windowOpen: isRegistrationOpen(),
       istHour: getISTHour(),
+      nextSlotTime: getNextSlotTime(),
     });
   } catch { res.status(500).json({ error: "Status check failed" }); }
 });

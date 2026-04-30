@@ -57,7 +57,7 @@ export default function LabCenterPage() {
   const [bookingsLoading, setBookingsLoading] = useState(false);
   const [dashLoading, setDashLoading] = useState(false);
   const [stats, setStats] = useState({ total: 0, pending: 0, completed: 0, revenue: 0 });
-  const [featuredStatus, setFeaturedStatus] = useState<{ isFeatured: boolean; spotsLeft: number; windowOpen: boolean; istHour: number } | null>(null);
+  const [featuredStatus, setFeaturedStatus] = useState<{ isFeatured: boolean; spotsLeft: number; windowOpen: boolean; istHour: number; nextSlotTime: string } | null>(null);
   const [featuredJoining, setFeaturedJoining] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [editForm, setEditForm] = useState<Partial<LabProfile>>({});
@@ -402,7 +402,7 @@ export default function LabCenterPage() {
                       </button>
                     ) : (
                       <div className="text-xs text-amber-600 bg-amber-100 rounded-xl px-3 py-1.5 inline-block">
-                        ⏰ Window kal subah 7 AM par khulegi (IST hour: {featuredStatus.istHour}:00)
+                        ⏰ Agla slot {featuredStatus.nextSlotTime} se shuru hoga
                       </div>
                     )}
                   </div>
