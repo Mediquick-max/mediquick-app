@@ -11,6 +11,7 @@ import doctorsRouter from "./doctors";
 import medicineStoreRouter from "./medicine-store";
 import doctorPanelRouter from "./doctor-panel";
 import patientRouter from "./patient";
+import labCenterRouter from "./lab-center";
 
 const router: IRouter = Router();
 
@@ -26,5 +27,6 @@ router.use("/doctors", doctorsRouter);
 router.use("/medicine-store", medicineStoreRouter);
 router.use("/doctor-panel", doctorPanelRouter);
 router.use("/patient", patientRouter);
+router.use("/lab-center", labCenterRouter);
 
 export default router;

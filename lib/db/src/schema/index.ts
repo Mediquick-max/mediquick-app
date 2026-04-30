@@ -31,3 +31,4 @@ export * from "./doctors";
 export * from "./appointments";
 export * from "./doctor-reviews";
 export * from "./medicine-orders";
+export * from "./lab-centers";
