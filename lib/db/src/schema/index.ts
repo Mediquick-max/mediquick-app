@@ -32,3 +32,4 @@ export * from "./appointments";
 export * from "./doctor-reviews";
 export * from "./medicine-orders";
 export * from "./lab-centers";
+export * from "./daily-featured";

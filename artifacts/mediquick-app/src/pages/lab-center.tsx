@@ -5,7 +5,7 @@ import {
   CheckCircle2, Loader2, LogOut, Edit3, Save, Eye, EyeOff,
   TrendingUp, AlertCircle, RefreshCw, IndianRupee, BadgeCheck,
   ClipboardList, X, Wallet, ShieldCheck, Crown, Star, Sparkles,
-  Shield, ArrowRight, Calendar, Activity
+  Shield, ArrowRight, Calendar, Activity, Zap
 } from "lucide-react";
 import { MediQuickLogo } from "@/components/logo";
 
@@ -57,6 +57,8 @@ export default function LabCenterPage() {
   const [bookingsLoading, setBookingsLoading] = useState(false);
   const [dashLoading, setDashLoading] = useState(false);
   const [stats, setStats] = useState({ total: 0, pending: 0, completed: 0, revenue: 0 });
+  const [featuredStatus, setFeaturedStatus] = useState<{ isFeatured: boolean; spotsLeft: number; windowOpen: boolean; istHour: number } | null>(null);
+  const [featuredJoining, setFeaturedJoining] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [editForm, setEditForm] = useState<Partial<LabProfile>>({});
 
@@ -70,6 +72,25 @@ export default function LabCenterPage() {
   const authHeaders = useCallback(() => ({
     Authorization: `Bearer ${token}`, "Content-Type": "application/json",
   }), [token]);
+
+  const fetchFeaturedStatus = useCallback(async () => {
+    if (!token) return;
+    try {
+      const res = await fetch(`${API}/api/featured/lab/status`, { headers: authHeaders() });
+      if (res.ok) { const d = await res.json(); setFeaturedStatus(d); }
+    } catch {}
+  }, [token, authHeaders]);
+
+  const handleJoinFeatured = async () => {
+    setFeaturedJoining(true);
+    try {
+      const res = await fetch(`${API}/api/featured/lab/join`, { method: "POST", headers: authHeaders() });
+      const data = await res.json();
+      if (!res.ok) { alert(data.error ?? "Join failed"); }
+      else { alert(data.message); fetchFeaturedStatus(); }
+    } catch { alert("Network error. Please try again."); }
+    finally { setFeaturedJoining(false); }
+  };
 
   const fetchDashboard = useCallback(async () => {
     if (!token) return;
@@ -92,7 +113,7 @@ export default function LabCenterPage() {
   }, [token, authHeaders]);
 
   useEffect(() => {
-    if (token) { fetchDashboard(); fetchBookings(); }
+    if (token) { fetchDashboard(); fetchBookings(); fetchFeaturedStatus(); }
   }, [token]);
 
   useEffect(() => {
@@ -352,6 +373,46 @@ export default function LabCenterPage() {
                   <div className="text-xs text-muted-foreground font-medium">{s.label}</div>
                 </div>
               ))}
+            </div>
+
+            <div className="bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-3xl p-4 flex items-start gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-amber-400 flex items-center justify-center shrink-0">
+                <Sparkles className="w-5 h-5 text-white" />
+              </div>
+              <div className="flex-1">
+                <div className="font-bold text-amber-900 text-sm flex items-center gap-2">
+                  Aaj Ka Featured Spot
+                  {featuredStatus?.isFeatured && (
+                    <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-semibold">✅ Featured!</span>
+                  )}
+                </div>
+                <div className="text-amber-700 text-xs mt-1">
+                  Home page par 5 lab centers ko daily featured kiya jata hai — <strong>₹499/din</strong>. Fee aapki next earning se deduct hogi.
+                </div>
+                <div className="text-amber-600 text-xs mt-1">
+                  🕐 Registration window: <strong>7 AM – 9 AM IST</strong> har roz · Spots: <strong>{featuredStatus ? featuredStatus.spotsLeft : "?"}/5 bache hain</strong>
+                </div>
+                {featuredStatus && !featuredStatus.isFeatured && (
+                  <div className="mt-2.5">
+                    {featuredStatus.windowOpen ? (
+                      <button onClick={handleJoinFeatured} disabled={featuredJoining || featuredStatus.spotsLeft === 0}
+                        className="flex items-center gap-1.5 bg-amber-500 hover:bg-amber-600 disabled:opacity-60 text-white text-xs font-bold px-4 py-2 rounded-xl transition-colors">
+                        {featuredJoining ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+                        {featuredStatus.spotsLeft === 0 ? "Sab spots bhar gaye" : "Featured Mein Join Karo — ₹499"}
+                      </button>
+                    ) : (
+                      <div className="text-xs text-amber-600 bg-amber-100 rounded-xl px-3 py-1.5 inline-block">
+                        ⏰ Window kal subah 7 AM par khulegi (IST hour: {featuredStatus.istHour}:00)
+                      </div>
+                    )}
+                  </div>
+                )}
+                {featuredStatus?.isFeatured && (
+                  <div className="mt-2 text-xs text-emerald-700 bg-emerald-50 rounded-xl px-3 py-1.5 inline-block">
+                    🎉 Aapka lab center aaj home page par featured hai! ₹499 next payout se deduct hoga.
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="bg-white rounded-3xl border border-border/50 p-5 shadow-sm">

@@ -5,8 +5,9 @@ import { CreateReminderDialog } from "@/components/create-reminder-dialog";
 import { PharmacySearch } from "@/components/pharmacy-search";
 import { CareServices } from "@/components/care-services";
 import { MedicalAiAssistant } from "@/components/medical-ai-assistant";
-import { Bot, CheckCircle2, HeartPulse, ShieldCheck, Stethoscope, ChevronRight, Pill, MapPin, LocateFixed, Loader2, FlaskConical } from "lucide-react";
+import { Bot, CheckCircle2, HeartPulse, ShieldCheck, Stethoscope, ChevronRight, Pill, MapPin, LocateFixed, Loader2, FlaskConical, Sparkles } from "lucide-react";
 import { Link } from "wouter";
+import { FeaturedToday } from "@/components/featured-today";
 import { useGeolocation } from "@/lib/use-geolocation";
 
 export default function Home() {
@@ -147,6 +148,21 @@ export default function Home() {
               </div>
             </Link>
           </div>
+        </section>
+
+        <hr className="border-border/60" />
+
+        <section className="space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-600">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-2xl bg-amber-100 flex items-center justify-center">
+              <Sparkles className="w-4 h-4 text-amber-500" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold tracking-tight">Aaj Ke Featured</h2>
+              <p className="text-sm text-muted-foreground font-medium">Har roz 5 doctors + 5 labs — specially featured</p>
+            </div>
+          </div>
+          <FeaturedToday />
         </section>
 
         <hr className="border-border/60" />
