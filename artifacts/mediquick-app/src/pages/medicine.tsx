@@ -68,8 +68,10 @@ function statusLabel(s: string) {
   return m[s] ?? s;
 }
 
-// ─── Tab 1: 1mg ───────────────────────────────────────────────────────────────
-function Tab1mg() {
+const PE = "#00A650"; // PharmaEasy green
+
+// ─── Tab 1: PharmaEasy ────────────────────────────────────────────────────────
+function TabPharmaEasy() {
   const [medicines, setMedicines] = useState<Medicine[]>([]);
   const [categories, setCategories] = useState<string[]>(["All"]);
   const [loading, setLoading] = useState(true);
@@ -95,54 +97,59 @@ function Tab1mg() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (search.trim()) open1mg(search.trim());
+    open1mg();
   };
 
   return (
     <div className="space-y-5">
-      <div className="bg-gradient-to-r from-[#E40046]/5 to-[#E40046]/10 border border-[#E40046]/20 rounded-3xl p-4 flex items-center gap-4">
-        <div className="w-12 h-12 bg-[#E40046] rounded-2xl flex items-center justify-center flex-shrink-0 shadow-md">
-          <span className="text-white font-black text-sm">1mg</span>
+      {/* PharmaEasy Banner */}
+      <div className="bg-gradient-to-r from-[#00A650]/5 to-[#00A650]/10 border border-[#00A650]/25 rounded-3xl p-4 flex items-center gap-4">
+        <div className="w-12 h-12 bg-[#00A650] rounded-2xl flex items-center justify-center flex-shrink-0 shadow-md">
+          <Pill className="w-6 h-6 text-white" />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="font-bold text-foreground text-sm">Powered by Tata 1mg</div>
-          <div className="text-xs text-muted-foreground mt-0.5">India's most trusted online pharmacy. Orders fulfilled and delivered by 1mg.</div>
+          <div className="font-bold text-foreground text-sm">Powered by PharmaEasy</div>
+          <div className="text-xs text-muted-foreground mt-0.5">India's trusted online pharmacy. Order medicines, health products & more.</div>
         </div>
         <a href="https://inr.deals/axPR6g" target="_blank" rel="noopener noreferrer"
-          className="flex items-center gap-1 text-xs font-semibold text-[#E40046] hover:underline flex-shrink-0">
+          className="flex items-center gap-1 text-xs font-semibold hover:underline flex-shrink-0" style={{ color: PE }}>
           Visit <ExternalLink className="w-3 h-3" />
         </a>
       </div>
 
+      {/* Search */}
       <form onSubmit={handleSearch} className="relative">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <input value={search} onChange={e => setSearch(e.target.value)}
           placeholder="Search any medicine, brand or health condition..."
-          className="w-full bg-card border border-border rounded-2xl pl-11 pr-36 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+          className="w-full bg-card border border-border rounded-2xl pl-11 pr-44 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#00A650]/40" />
         <button type="submit"
-          className="absolute right-2 top-1/2 -translate-y-1/2 bg-[#E40046] text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-[#E40046]/90 transition-colors flex items-center gap-1.5">
-          Search on 1mg <ExternalLink className="w-3 h-3" />
+          className="absolute right-2 top-1/2 -translate-y-1/2 text-white px-4 py-2 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5"
+          style={{ backgroundColor: PE }}>
+          Search on PharmaEasy <ExternalLink className="w-3 h-3" />
         </button>
       </form>
 
+      {/* Quick searches */}
       <div>
         <p className="text-xs font-semibold text-muted-foreground mb-2">Quick search</p>
         <div className="flex flex-wrap gap-2">
           {QUICK_SEARCHES.map(q => (
-            <button key={q} onClick={() => open1mg(q)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border bg-card text-xs font-medium text-muted-foreground hover:text-primary hover:border-primary/40 transition-all">
+            <button key={q} onClick={() => open1mg()}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border bg-card text-xs font-medium text-muted-foreground hover:border-[#00A650]/40 hover:text-[#00A650] transition-all">
               <Pill className="w-3 h-3" /> {q} <ExternalLink className="w-2.5 h-2.5 opacity-50" />
             </button>
           ))}
         </div>
       </div>
 
+      {/* Feature pills */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { icon: Truck, label: "Free Delivery", sub: "On orders ₹299+", color: "text-blue-600", bg: "bg-blue-50" },
-          { icon: Clock, label: "4-6 Hr Delivery", sub: "Same day available", color: "text-violet-600", bg: "bg-violet-50" },
+          { icon: Truck, label: "Free Delivery", sub: "On orders ₹199+", color: "text-blue-600", bg: "bg-blue-50" },
+          { icon: Clock, label: "Express Delivery", sub: "2-4 hr available", color: "text-violet-600", bg: "bg-violet-50" },
           { icon: Shield, label: "100% Genuine", sub: "Verified medicines", color: "text-emerald-600", bg: "bg-emerald-50" },
-          { icon: Tag, label: "Up to 25% off", sub: "On select medicines", color: "text-orange-600", bg: "bg-orange-50" },
+          { icon: Tag, label: "Up to 20% off", sub: "On select medicines", color: "text-orange-600", bg: "bg-orange-50" },
         ].map(o => (
           <div key={o.label} className={`${o.bg} border border-border/30 rounded-2xl p-3 flex items-center gap-2`}>
             <o.icon className={`w-4 h-4 ${o.color} flex-shrink-0`} />
@@ -154,34 +161,35 @@ function Tab1mg() {
         ))}
       </div>
 
+      {/* Category filter */}
       <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
         {categories.map(cat => (
           <button key={cat} onClick={() => setActiveCategory(cat)}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold whitespace-nowrap flex-shrink-0 transition-all ${activeCategory === cat ? "bg-primary text-primary-foreground shadow-sm" : "bg-card border border-border text-muted-foreground hover:text-foreground hover:border-primary/30"}`}>
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold whitespace-nowrap flex-shrink-0 transition-all ${activeCategory === cat ? "text-white shadow-sm" : "bg-card border border-border text-muted-foreground hover:text-foreground hover:border-[#00A650]/30"}`}
+            style={activeCategory === cat ? { backgroundColor: PE } : {}}>
             <span>{CATEGORY_ICONS[cat] ?? "💊"}</span> {cat}
           </button>
         ))}
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-primary/40" /></div>
+        <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-[#00A650]/40" /></div>
       ) : medicines.length === 0 ? (
         <div className="text-center py-16">
-          <Pill className="w-14 h-14 text-primary/20 mx-auto mb-3" />
+          <Pill className="w-14 h-14 text-[#00A650]/20 mx-auto mb-3" />
           <p className="font-semibold">No medicines found</p>
           <p className="text-sm text-muted-foreground mt-1">Try a different search term</p>
-          <button onClick={() => open1mg(search || "medicine")}
-            className="mt-4 flex items-center gap-2 bg-[#E40046] text-white px-5 py-2.5 rounded-xl text-sm font-bold mx-auto hover:bg-[#E40046]/90 transition-colors">
-            Search on 1mg <ExternalLink className="w-4 h-4" />
+          <button onClick={() => open1mg()}
+            className="mt-4 flex items-center gap-2 text-white px-5 py-2.5 rounded-xl text-sm font-bold mx-auto transition-colors" style={{ backgroundColor: PE }}>
+            Search on PharmaEasy <ExternalLink className="w-4 h-4" />
           </button>
         </div>
       ) : (
         <div>
           <div className="flex items-center justify-between mb-3">
             <p className="text-sm text-muted-foreground font-medium">{medicines.length} medicines found</p>
-            <button onClick={() => open1mg(search || activeCategory)}
-              className="flex items-center gap-1.5 text-xs font-semibold text-[#E40046] hover:underline">
-              See all on 1mg <ExternalLink className="w-3 h-3" />
+            <button onClick={() => open1mg()} className="flex items-center gap-1.5 text-xs font-semibold hover:underline" style={{ color: PE }}>
+              See all on PharmaEasy <ExternalLink className="w-3 h-3" />
             </button>
           </div>
           <div className="grid sm:grid-cols-2 gap-3">
@@ -189,9 +197,9 @@ function Tab1mg() {
               const discount = Math.floor(Math.random() * 15) + 5;
               const mrp = Math.round(med.price * (1 + discount / 100));
               return (
-                <div key={med.id} className="bg-card border border-border rounded-3xl p-4 hover:border-primary/30 hover:shadow-md transition-all flex flex-col group">
+                <div key={med.id} className="bg-card border border-border rounded-3xl p-4 hover:border-[#00A650]/30 hover:shadow-md transition-all flex flex-col">
                   <div className="flex items-start gap-3 flex-1">
-                    <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center flex-shrink-0 text-xl">
+                    <div className="w-12 h-12 rounded-2xl bg-[#00A650]/10 flex items-center justify-center flex-shrink-0 text-xl">
                       {CATEGORY_ICONS[med.category] ?? "💊"}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -201,7 +209,7 @@ function Tab1mg() {
                       </div>
                       <p className="text-xs text-muted-foreground mt-0.5">{med.manufacturer}</p>
                       <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{med.description}</p>
-                      <p className="text-xs text-primary/70 font-medium mt-1">{med.unit}</p>
+                      <p className="text-xs font-medium mt-1" style={{ color: PE }}>{med.unit}</p>
                     </div>
                   </div>
                   <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/50">
@@ -209,23 +217,23 @@ function Tab1mg() {
                       <span className="font-bold text-foreground text-base">₹{med.price}</span>
                       <span className="text-xs text-muted-foreground line-through">₹{mrp}</span>
                     </div>
-                    <button onClick={() => open1mg(med.name)}
-                      className="flex items-center gap-1.5 bg-[#E40046] text-white px-3 py-2 rounded-xl text-xs font-bold hover:bg-[#E40046]/90 active:scale-95 transition-all">
-                      Order on 1mg <ExternalLink className="w-3 h-3" />
+                    <button onClick={() => open1mg()}
+                      className="flex items-center gap-1.5 text-white px-3 py-2 rounded-xl text-xs font-bold active:scale-95 transition-all" style={{ backgroundColor: PE }}>
+                      Order on PharmaEasy <ExternalLink className="w-3 h-3" />
                     </button>
                   </div>
                 </div>
               );
             })}
           </div>
-          <div className="mt-6 bg-gradient-to-r from-[#E40046]/5 to-transparent border border-[#E40046]/20 rounded-3xl p-4 flex items-center justify-between gap-4">
+          <div className="mt-6 bg-gradient-to-r from-[#00A650]/5 to-transparent border border-[#00A650]/20 rounded-3xl p-4 flex items-center justify-between gap-4">
             <div>
               <p className="font-bold text-sm">Can't find your medicine?</p>
-              <p className="text-xs text-muted-foreground mt-0.5">Search Tata 1mg's full catalogue of 1 lakh+ medicines</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Browse PharmaEasy's full catalogue of 1 lakh+ medicines</p>
             </div>
             <a href="https://inr.deals/axPR6g" target="_blank" rel="noopener noreferrer"
-              className="flex items-center gap-2 bg-[#E40046] text-white px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-[#E40046]/90 transition-colors flex-shrink-0">
-              Open 1mg <ArrowRight className="w-3.5 h-3.5" />
+              className="flex items-center gap-2 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-colors flex-shrink-0" style={{ backgroundColor: PE }}>
+              Open PharmaEasy <ArrowRight className="w-3.5 h-3.5" />
             </a>
           </div>
         </div>
@@ -831,14 +839,15 @@ export default function MedicinePage() {
             <Pill className="w-4 h-4" /> Order Medicines
           </div>
           <h1 className="text-3xl font-bold">Order Medicines Online</h1>
-          <p className="text-muted-foreground text-sm">Choose from Tata 1mg or order from your nearest local medical store</p>
+          <p className="text-muted-foreground text-sm">Choose from PharmaEasy or order from your nearest local medical store</p>
         </div>
 
         {/* Main Tabs */}
         <div className="grid grid-cols-2 gap-2 bg-secondary/40 p-1.5 rounded-2xl">
           <button onClick={() => setTab("1mg")}
-            className={`flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all ${tab === "1mg" ? "bg-[#E40046] text-white shadow-md" : "text-muted-foreground hover:text-foreground"}`}>
-            <span className="text-base">🏪</span> Tata 1mg
+            className={`flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all ${tab === "1mg" ? "text-white shadow-md" : "text-muted-foreground hover:text-foreground"}`}
+            style={tab === "1mg" ? { backgroundColor: "#00A650" } : {}}>
+            <span className="text-base">💊</span> PharmaEasy
           </button>
           <button onClick={() => setTab("local")}
             className={`flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all ${tab === "local" ? "bg-primary text-primary-foreground shadow-md" : "text-muted-foreground hover:text-foreground"}`}>
@@ -846,7 +855,7 @@ export default function MedicinePage() {
           </button>
         </div>
 
-        {tab === "1mg" ? <Tab1mg /> : <TabLocal />}
+        {tab === "1mg" ? <TabPharmaEasy /> : <TabLocal />}
       </div>
     </Layout>
   );
