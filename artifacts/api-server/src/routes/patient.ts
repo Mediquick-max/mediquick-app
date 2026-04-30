@@ -52,6 +52,8 @@ const MEMBERSHIP_PLANS = [
       "Priority doctor booking",
       "1 free consultation per month",
       "Health report storage",
+      "AI health assistant",
+      "Medicine reminders",
     ],
   },
   {
@@ -69,6 +71,8 @@ const MEMBERSHIP_PLANS = [
       "Dedicated health manager",
       "Home sample collection priority",
       "Family health tracking (up to 4 members)",
+      "AI health assistant",
+      "Medicine reminders",
     ],
   },
   {
@@ -87,6 +91,8 @@ const MEMBERSHIP_PLANS = [
       "Priority booking always",
       "Health report storage",
       "Family health tracking (up to 6 members)",
+      "AI health assistant",
+      "Medicine reminders",
     ],
   },
 ];
