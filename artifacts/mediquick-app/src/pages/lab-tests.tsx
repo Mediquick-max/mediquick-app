@@ -157,6 +157,23 @@ export default function LabTestsPage() {
           </p>
         </div>
 
+        {/* Lab Center Portal CTA */}
+        <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 rounded-3xl p-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-emerald-600 flex items-center justify-center flex-shrink-0 shadow-sm">
+              <Microscope className="w-5 h-5 text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="font-bold text-foreground text-sm">Kya aapka Lab Center hai?</div>
+              <div className="text-xs text-muted-foreground">Register karein aur lakho patients tak pahunchein — daily bookings aur Featured Spot bhi milega.</div>
+            </div>
+            <a href="/lab-center"
+              className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white px-4 py-2 rounded-2xl font-semibold text-sm transition-all flex-shrink-0 whitespace-nowrap">
+              Lab Center Portal <ChevronRight className="w-4 h-4" />
+            </a>
+          </div>
+        </div>
+
         {success && (
           <div className="bg-emerald-50 border border-emerald-200 rounded-3xl p-4 flex items-center gap-3">
             <CheckCircle2 className="w-8 h-8 text-emerald-600 flex-shrink-0" />
@@ -395,24 +412,6 @@ export default function LabTestsPage() {
           </div>
         </div>
       )}
-      {/* Lab Center CTA Section */}
-      <div className="mt-10 mb-2">
-        <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 rounded-3xl p-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-emerald-600 flex items-center justify-center flex-shrink-0 shadow-sm">
-              <Microscope className="w-6 h-6 text-white" />
-            </div>
-            <div className="flex-1">
-              <h3 className="font-bold text-lg text-foreground">Kya aapka Lab Center hai?</h3>
-              <p className="text-sm text-muted-foreground mt-0.5">Apna diagnostic center, pathology lab ya radiology center MediQuick par register karein — daily bookings paayein aur Featured Spot bhi le sakte hain.</p>
-            </div>
-            <a href="/lab-center"
-              className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white px-5 py-2.5 rounded-2xl font-semibold text-sm transition-all flex-shrink-0">
-              <FlaskConical className="w-4 h-4" /> Lab Center Portal <ChevronRight className="w-4 h-4" />
-            </a>
-          </div>
-        </div>
-      </div>
     </Layout>
   );
 }

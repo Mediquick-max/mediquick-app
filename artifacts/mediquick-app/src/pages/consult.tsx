@@ -212,6 +212,23 @@ export default function ConsultPage() {
           <p className="text-muted-foreground">Video & clinic consultations with verified specialists</p>
         </div>
 
+        {/* Doctor Portal CTA */}
+        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-3xl p-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-blue-600 flex items-center justify-center flex-shrink-0 shadow-sm">
+              <Stethoscope className="w-5 h-5 text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="font-bold text-foreground text-sm">Kya aap Doctor hain?</div>
+              <div className="text-xs text-muted-foreground">MediQuick par register karein, profile banayein aur patients se consultations lein.</div>
+            </div>
+            <a href="/doctor-panel"
+              className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white px-4 py-2 rounded-2xl font-semibold text-sm transition-all flex-shrink-0 whitespace-nowrap">
+              Doctor Portal <ChevronRight className="w-4 h-4" />
+            </a>
+          </div>
+        </div>
+
         <div className="flex rounded-2xl bg-secondary/40 p-1 gap-1">
           {[{ k: "doctors", l: "Find Doctors", i: Stethoscope }, { k: "appointments", l: "My Appointments", i: CalendarCheck }].map(t => (
             <button key={t.k} onClick={() => setActiveTab(t.k as any)}
@@ -583,25 +600,6 @@ export default function ConsultPage() {
           </div>
         </div>
       )}
-
-      {/* Doctor CTA Section */}
-      <div className="mt-10 mb-2">
-        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-3xl p-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center flex-shrink-0 shadow-sm">
-              <Stethoscope className="w-6 h-6 text-white" />
-            </div>
-            <div className="flex-1">
-              <h3 className="font-bold text-lg text-foreground">Kya aap Doctor hain?</h3>
-              <p className="text-sm text-muted-foreground mt-0.5">MediQuick par apni profile banayein — video ya clinic consultation lekar lakho patients tak pahunchein. Featured spot bhi le sakte hain.</p>
-            </div>
-            <a href="/doctor-panel"
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white px-5 py-2.5 rounded-2xl font-semibold text-sm transition-all flex-shrink-0">
-              <Stethoscope className="w-4 h-4" /> Doctor Portal <ChevronRight className="w-4 h-4" />
-            </a>
-          </div>
-        </div>
-      </div>
 
       {bookingSuccess && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
