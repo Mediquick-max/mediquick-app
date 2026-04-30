@@ -42,8 +42,8 @@ const CATEGORY_ICONS: Record<string, string> = {
 
 const QUICK_SEARCHES = ["Paracetamol", "Vitamin D3", "Metformin", "Azithromycin", "Cetirizine", "Omeprazole", "Aspirin", "Insulin"];
 
-function open1mg(query: string) {
-  window.open(`https://www.1mg.com/search/all?name=${encodeURIComponent(query)}`, "_blank", "noopener,noreferrer");
+function open1mg(_query?: string) {
+  window.open("https://inr.deals/axPR6g", "_blank", "noopener,noreferrer");
 }
 
 function fmtDist(m: number | null) {
@@ -108,7 +108,7 @@ function Tab1mg() {
           <div className="font-bold text-foreground text-sm">Powered by Tata 1mg</div>
           <div className="text-xs text-muted-foreground mt-0.5">India's most trusted online pharmacy. Orders fulfilled and delivered by 1mg.</div>
         </div>
-        <a href="https://www.1mg.com" target="_blank" rel="noopener noreferrer"
+        <a href="https://inr.deals/axPR6g" target="_blank" rel="noopener noreferrer"
           className="flex items-center gap-1 text-xs font-semibold text-[#E40046] hover:underline flex-shrink-0">
           Visit <ExternalLink className="w-3 h-3" />
         </a>
@@ -223,7 +223,7 @@ function Tab1mg() {
               <p className="font-bold text-sm">Can't find your medicine?</p>
               <p className="text-xs text-muted-foreground mt-0.5">Search Tata 1mg's full catalogue of 1 lakh+ medicines</p>
             </div>
-            <a href="https://www.1mg.com" target="_blank" rel="noopener noreferrer"
+            <a href="https://inr.deals/axPR6g" target="_blank" rel="noopener noreferrer"
               className="flex items-center gap-2 bg-[#E40046] text-white px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-[#E40046]/90 transition-colors flex-shrink-0">
               Open 1mg <ArrowRight className="w-3.5 h-3.5" />
             </a>
