@@ -8,6 +8,7 @@ import {
 import { useAuth } from "@/lib/auth";
 import { MediQuickLogo } from "@/components/logo";
 import { useGeolocation } from "@/lib/use-geolocation";
+import { usePermissions } from "@/lib/use-permissions";
 
 const NAV_LINKS = [
   { href: "/", label: "Home", shortLabel: "Home", icon: Home },
@@ -22,6 +23,7 @@ export function Layout({ children }: { children: ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [location] = useLocation();
   const geo = useGeolocation();
+  usePermissions();
 
   return (
     <div className="min-h-[100dvh] flex flex-col bg-background text-foreground font-sans selection:bg-primary/20">

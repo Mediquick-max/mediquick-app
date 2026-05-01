@@ -103,14 +103,8 @@ export function useGeolocation(): GeolocationState {
       setLocation(cached);
       return;
     }
-
-    if (navigator.geolocation) {
-      navigator.permissions?.query({ name: "geolocation" }).then(result => {
-        if (result.state === "granted") {
-          detectLocation();
-        }
-      }).catch(() => {});
-    }
+    // Auto-request location on first load (will trigger browser permission popup)
+    detectLocation();
   }, []);
 
   return { location, loading, error, permissionDenied, detectLocation };
