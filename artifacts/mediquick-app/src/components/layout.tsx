@@ -1,33 +1,37 @@
 import { ReactNode, useState } from "react";
 import { Link, useLocation } from "wouter";
-import { LogIn, UserPlus, LogOut, ChevronDown, Store, Stethoscope, Pill, Home, X, Menu, MapPin, LocateFixed, Loader2, FlaskConical, LayoutDashboard, Crown, ChevronRight } from "lucide-react";
+import {
+  LogIn, UserPlus, LogOut, ChevronDown, Store, Stethoscope, Pill,
+  Home, X, MapPin, LocateFixed, Loader2, FlaskConical, LayoutDashboard,
+  Crown,
+} from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { MediQuickLogo } from "@/components/logo";
 import { useGeolocation } from "@/lib/use-geolocation";
 
 const NAV_LINKS = [
-  { href: "/", label: "Home", icon: Home },
-  { href: "/consult", label: "Consult Doctor", icon: Stethoscope },
-  { href: "/lab-tests", label: "Lab Tests", icon: FlaskConical },
-  { href: "/medicine", label: "Order Medicine", icon: Pill },
-  { href: "/plans", label: "Plans", icon: Crown },
+  { href: "/", label: "Home", shortLabel: "Home", icon: Home },
+  { href: "/consult", label: "Consult Doctor", shortLabel: "Consult", icon: Stethoscope },
+  { href: "/lab-tests", label: "Lab Tests", shortLabel: "Lab Tests", icon: FlaskConical },
+  { href: "/medicine", label: "Order Medicine", shortLabel: "Medicine", icon: Pill },
+  { href: "/plans", label: "Plans", shortLabel: "Plans", icon: Crown },
 ];
 
 export function Layout({ children }: { children: ReactNode }) {
   const { user, logout, loading } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [navOpen, setNavOpen] = useState(false);
   const [location] = useLocation();
   const geo = useGeolocation();
 
   return (
     <div className="min-h-[100dvh] flex flex-col bg-background text-foreground font-sans selection:bg-primary/20">
+
+      {/* ── Desktop / Tablet Header ── */}
       <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/60">
         <div className="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3 flex-shrink-0">
-            <button onClick={() => setNavOpen(!navOpen)} className="sm:hidden text-muted-foreground hover:text-foreground">
-              {navOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
+
+          {/* Logo */}
+          <div className="flex items-center gap-2 flex-shrink-0">
             <Link href="/" className="flex items-center gap-2 group" data-testid="link-home">
               <div className="group-hover:scale-105 group-active:scale-95 transition-all duration-300 ease-out">
                 <MediQuickLogo className="w-8 h-8" />
@@ -36,8 +40,7 @@ export function Layout({ children }: { children: ReactNode }) {
                 <span className="font-bold text-lg tracking-tight text-foreground block leading-none">Medi Quick</span>
                 {geo.location ? (
                   <span className="flex items-center gap-0.5 text-xs text-primary font-medium leading-none mt-0.5">
-                    <MapPin className="w-2.5 h-2.5" />
-                    {geo.location.city}
+                    <MapPin className="w-2.5 h-2.5" /> {geo.location.city}
                   </span>
                 ) : geo.loading ? (
                   <span className="flex items-center gap-0.5 text-xs text-muted-foreground leading-none mt-0.5">
@@ -48,6 +51,7 @@ export function Layout({ children }: { children: ReactNode }) {
             </Link>
           </div>
 
+          {/* Desktop Nav (hidden on mobile — bottom nav handles it) */}
           <nav className="hidden sm:flex items-center gap-0.5 flex-1 justify-center">
             {NAV_LINKS.map(n => (
               <Link key={n.href} href={n.href}
@@ -59,6 +63,7 @@ export function Layout({ children }: { children: ReactNode }) {
             ))}
           </nav>
 
+          {/* Right actions */}
           <div className="flex items-center gap-2 flex-shrink-0">
             {!geo.location && !geo.loading && !geo.permissionDenied && (
               <button onClick={geo.detectLocation}
@@ -120,7 +125,7 @@ export function Layout({ children }: { children: ReactNode }) {
                   <Link href="/login"
                     className="flex items-center gap-1.5 text-sm font-semibold text-foreground hover:text-primary transition-colors px-3 py-1.5 rounded-2xl hover:bg-primary/10">
                     <LogIn className="w-4 h-4" />
-                    <span>Login</span>
+                    <span className="hidden sm:inline">Login</span>
                   </Link>
                   <Link href="/signup"
                     className="flex items-center gap-1.5 text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 active:scale-95 px-4 py-1.5 rounded-2xl transition-all">
@@ -132,34 +137,15 @@ export function Layout({ children }: { children: ReactNode }) {
             )}
           </div>
         </div>
-
-        {navOpen && (
-          <div className="sm:hidden border-t border-border/40 bg-background/95 backdrop-blur px-4 py-3 space-y-1">
-            {NAV_LINKS.map(n => (
-              <Link key={n.href} href={n.href} onClick={() => setNavOpen(false)}
-                className={`flex items-center gap-2.5 w-full px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                  location === n.href ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground hover:bg-secondary/60"
-                }`}>
-                <n.icon className="w-4 h-4" /> {n.label}
-              </Link>
-            ))}
-            {!geo.location && !geo.permissionDenied && (
-              <button onClick={() => { geo.detectLocation(); setNavOpen(false); }}
-                disabled={geo.loading}
-                className="flex items-center gap-2.5 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-primary hover:bg-primary/10 transition-all">
-                {geo.loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <LocateFixed className="w-4 h-4" />}
-                {geo.loading ? "Detecting location..." : "Detect My Location"}
-              </button>
-            )}
-          </div>
-        )}
       </header>
 
-      <main className="flex-1 max-w-3xl mx-auto w-full px-4 py-8">
+      {/* ── Main Content ── */}
+      <main className="flex-1 max-w-3xl mx-auto w-full px-4 py-8 pb-24 sm:pb-8">
         {children}
       </main>
 
-      <footer className="border-t border-border/40 bg-background/60 mt-auto">
+      {/* ── Desktop Footer ── */}
+      <footer className="hidden sm:block border-t border-border/40 bg-background/60 mt-auto">
         <div className="max-w-3xl mx-auto px-4 py-4 flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
           <span>© 2026 Medi Quick</span>
           <div className="flex items-center gap-4">
@@ -174,6 +160,29 @@ export function Layout({ children }: { children: ReactNode }) {
           </div>
         </div>
       </footer>
+
+      {/* ── Mobile Bottom Navigation Bar ── */}
+      <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-t border-border/50 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
+        <div className="flex items-stretch h-16 safe-area-inset-bottom">
+          {NAV_LINKS.map(n => {
+            const isActive = location === n.href;
+            return (
+              <Link key={n.href} href={n.href}
+                className={`flex-1 flex flex-col items-center justify-center gap-0.5 px-1 transition-all active:scale-95 ${
+                  isActive ? "text-primary" : "text-muted-foreground"
+                }`}>
+                <div className={`p-1.5 rounded-xl transition-all ${isActive ? "bg-primary/10" : ""}`}>
+                  <n.icon className={`w-5 h-5 transition-all ${isActive ? "stroke-[2.5px]" : "stroke-[1.8px]"}`} />
+                </div>
+                <span className={`text-[10px] font-medium leading-none transition-all ${isActive ? "font-bold" : ""}`}>
+                  {n.shortLabel}
+                </span>
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
+
     </div>
   );
 }
