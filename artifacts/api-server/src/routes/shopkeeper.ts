@@ -119,7 +119,7 @@ router.put("/profile", async (req, res) => {
   const userId = parseAuth(req);
   if (!userId) { res.status(401).json({ error: "Unauthorized" }); return; }
 
-  const { shopName, shopAddress, shopPhone, lat, lng, city, pincode } = req.body ?? {};
+  const { shopName, shopAddress, shopPhone, lat, lng, city, pincode, paymentMethod, upiId, bankAccountHolder, bankAccountNumber, bankIfscCode, bankName } = req.body ?? {};
 
   const [existing] = await db
     .select({ id: shopkeeperProfilesTable.id })
@@ -127,16 +127,20 @@ router.put("/profile", async (req, res) => {
     .where(eq(shopkeeperProfilesTable.shopkeeperId, userId))
     .limit(1);
 
-  const values = {
-    shopName: shopName ?? "",
-    shopAddress: shopAddress ?? "",
-    shopPhone: shopPhone ?? "",
-    lat: lat != null ? Number(lat) : null,
-    lng: lng != null ? Number(lng) : null,
-    city: city ?? "",
-    pincode: pincode ?? "",
-    updatedAt: new Date(),
-  };
+  const values: Record<string, any> = { updatedAt: new Date() };
+  if (shopName !== undefined) values.shopName = shopName ?? "";
+  if (shopAddress !== undefined) values.shopAddress = shopAddress ?? "";
+  if (shopPhone !== undefined) values.shopPhone = shopPhone ?? "";
+  if (lat !== undefined) values.lat = lat != null ? Number(lat) : null;
+  if (lng !== undefined) values.lng = lng != null ? Number(lng) : null;
+  if (city !== undefined) values.city = city ?? "";
+  if (pincode !== undefined) values.pincode = pincode ?? "";
+  if (paymentMethod !== undefined) values.paymentMethod = paymentMethod;
+  if (upiId !== undefined) values.upiId = upiId ?? "";
+  if (bankAccountHolder !== undefined) values.bankAccountHolder = bankAccountHolder ?? "";
+  if (bankAccountNumber !== undefined) values.bankAccountNumber = bankAccountNumber ?? "";
+  if (bankIfscCode !== undefined) values.bankIfscCode = bankIfscCode ?? "";
+  if (bankName !== undefined) values.bankName = bankName ?? "";
 
   if (existing) {
     const [updated] = await db
