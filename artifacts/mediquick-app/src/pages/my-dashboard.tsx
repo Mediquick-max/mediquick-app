@@ -162,6 +162,27 @@ export default function MyDashboardPage() {
           else alert(vd.error || "Verification failed");
         },
         theme: { color: "#d95f2b" },
+        prefill: {
+          name: data?.user?.name ?? "",
+          email: data?.user?.email ?? "",
+          contact: data?.user?.phone ?? "",
+        },
+        method: { upi: true, card: true, netbanking: true, wallet: true },
+        config: {
+          display: {
+            blocks: {
+              upi_block: {
+                name: "UPI (Google Pay, PhonePe, Paytm)",
+                instruments: [
+                  { method: "upi", flows: ["intent", "collect", "qr"] },
+                ],
+              },
+              other: { name: "Card / Net Banking / Wallet", instruments: [{ method: "card" }, { method: "netbanking" }, { method: "wallet" }] },
+            },
+            sequence: ["block.upi_block", "block.other"],
+            preferences: { show_default_blocks: false },
+          },
+        },
       };
       const rzp = new (window as any).Razorpay(options);
       rzp.open();
