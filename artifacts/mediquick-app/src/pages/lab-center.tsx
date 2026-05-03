@@ -597,47 +597,6 @@ export default function LabCenterPage() {
               </div>
             </div>
 
-            <div className="bg-white rounded-3xl border border-border/50 p-5 shadow-sm space-y-4">
-              <h3 className="font-bold text-sm text-muted-foreground uppercase tracking-wide">Payment Details</h3>
-              <div className="flex gap-3">
-                {["upi", "bank"].map(m => (
-                  <button key={m} onClick={() => editMode && setEditForm(p => ({ ...p, paymentMethod: m }))}
-                    className={`flex-1 py-2.5 rounded-2xl text-sm font-semibold border-2 transition-all ${(editMode ? editForm.paymentMethod : lab.paymentMethod) === m ? "border-blue-500 bg-blue-50 text-blue-700" : "border-border text-muted-foreground"}`}>
-                    {m === "upi" ? "UPI" : "Bank Account"}
-                  </button>
-                ))}
-              </div>
-              {(editMode ? editForm.paymentMethod : lab.paymentMethod) === "upi" ? (
-                <div>
-                  <label className="block text-xs font-semibold text-muted-foreground mb-1.5">UPI ID</label>
-                  {editMode ? (
-                    <input value={editForm.upiId ?? ""} onChange={e => setEditForm(p => ({ ...p, upiId: e.target.value }))}
-                      placeholder="yourlab@upi" className="w-full px-3 py-2.5 rounded-2xl border border-border bg-secondary/30 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
-                  ) : (
-                    <div className="text-sm font-medium px-3 py-2.5 bg-secondary/20 rounded-2xl">{lab.upiId || "—"}</div>
-                  )}
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {[
-                    { key: "bankAccountHolder", label: "Account Holder" },
-                    { key: "bankAccountNumber", label: "Account Number" },
-                    { key: "bankIfscCode", label: "IFSC Code" },
-                    { key: "bankName", label: "Bank Name" },
-                  ].map(f => (
-                    <div key={f.key}>
-                      <label className="block text-xs font-semibold text-muted-foreground mb-1.5">{f.label}</label>
-                      {editMode ? (
-                        <input value={(editForm as any)[f.key] ?? ""} onChange={e => setEditForm(p => ({ ...p, [f.key]: e.target.value }))}
-                          className="w-full px-3 py-2.5 rounded-2xl border border-border bg-secondary/30 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
-                      ) : (
-                        <div className="text-sm font-medium px-3 py-2.5 bg-secondary/20 rounded-2xl">{(lab as any)[f.key] || "—"}</div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
           </div>
         )}
 
