@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Link } from "wouter";
 import {
   Stethoscope, User, Lock, Mail, Phone, MapPin, Building, Award,
@@ -7,9 +7,82 @@ import {
   AlertCircle, RefreshCw, Video, Pill, IndianRupee, BadgeCheck,
   ClipboardList, X, Plus, Wallet, CreditCard, Landmark, ShieldCheck,
   Crown, Sparkles, Shield, Zap, ArrowRight, Bell, BellRing,
-  Store, Package, Trash2, Navigation, ToggleLeft, ToggleRight
+  Store, Package, Trash2, Navigation, ToggleLeft, ToggleRight, Camera
 } from "lucide-react";
 import { MediQuickLogo } from "@/components/logo";
+
+// ── Gallery Photo Uploader ──────────────────────────────────────────
+function compressImage(file: File, maxSize = 400): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        let w = img.width, h = img.height;
+        if (w > h && w > maxSize) { h = (h * maxSize) / w; w = maxSize; }
+        else if (h > maxSize) { w = (w * maxSize) / h; h = maxSize; }
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext("2d")!;
+        ctx.drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL("image/jpeg", 0.82));
+      };
+      img.onerror = reject;
+      img.src = e.target?.result as string;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function PhotoUploader({
+  value, onChange, size = "lg"
+}: { value: string; onChange: (v: string) => void; size?: "sm" | "lg" }) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const dim = size === "lg" ? "w-24 h-24" : "w-16 h-16";
+  const iconDim = size === "lg" ? "w-5 h-5" : "w-4 h-4";
+
+  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const compressed = await compressImage(file);
+      onChange(compressed);
+    } catch { /* ignore */ }
+    finally { setUploading(false); }
+    e.target.value = "";
+  }
+
+  return (
+    <div className="flex flex-col items-center gap-2">
+      <div className={`relative ${dim} shrink-0 cursor-pointer group`}
+        onClick={() => inputRef.current?.click()}>
+        <img
+          src={value || `https://api.dicebear.com/7.x/avataaars/svg?seed=doctor`}
+          alt="Profile"
+          className={`${dim} rounded-3xl object-cover bg-blue-100 border-2 border-blue-200`}
+          onError={e => { (e.target as HTMLImageElement).src = `https://api.dicebear.com/7.x/avataaars/svg?seed=doctor`; }}
+        />
+        <div className="absolute inset-0 rounded-3xl bg-black/40 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 active:opacity-100 transition-opacity">
+          {uploading
+            ? <Loader2 className={`${iconDim} text-white animate-spin`} />
+            : <Camera className={`${iconDim} text-white`} />}
+          <span className="text-white text-[10px] font-bold mt-0.5">
+            {uploading ? "..." : "Gallery"}
+          </span>
+        </div>
+      </div>
+      <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />
+      <button type="button" onClick={() => inputRef.current?.click()}
+        className="flex items-center gap-1.5 text-xs font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-xl transition-colors border border-blue-200 active:scale-95">
+        <Camera className="w-3.5 h-3.5" />
+        {value ? "Change Photo" : "Upload Photo from Gallery"}
+      </button>
+    </div>
+  );
+}
 
 const API = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -607,10 +680,11 @@ export default function DoctorPanelPage() {
                             className="w-full px-3 py-3 rounded-2xl border border-border bg-secondary/30 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
                         </div>
                         <div>
-                          <label className="block text-xs font-semibold text-muted-foreground mb-1.5">Profile Photo URL (optional)</label>
-                          <input value={regForm.imageUrl} onChange={e => setRegForm(f => ({ ...f, imageUrl: e.target.value }))}
-                            placeholder="https://..."
-                            className="w-full px-3 py-3 rounded-2xl border border-border bg-secondary/30 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
+                          <label className="block text-xs font-semibold text-muted-foreground mb-2">Profile Photo</label>
+                          <PhotoUploader
+                            value={regForm.imageUrl}
+                            onChange={v => setRegForm(f => ({ ...f, imageUrl: v }))}
+                          />
                         </div>
                       </div>
                     )}
@@ -983,7 +1057,13 @@ export default function DoctorPanelPage() {
                     <Field label="City" value={editForm.city} onChange={(v: string) => setEditForm((f: any) => ({ ...f, city: v }))} />
                     <Field label="Hospital/Clinic Name" value={editForm.hospitalName} onChange={(v: string) => setEditForm((f: any) => ({ ...f, hospitalName: v }))} />
                     <Field label="Languages" value={editForm.languages} onChange={(v: string) => setEditForm((f: any) => ({ ...f, languages: v }))} />
-                    <Field label="Profile Photo URL" value={editForm.imageUrl} onChange={(v: string) => setEditForm((f: any) => ({ ...f, imageUrl: v }))} />
+                    <div>
+                      <label className="block text-xs font-semibold text-muted-foreground mb-2">Profile Photo</label>
+                      <PhotoUploader
+                        value={editForm.imageUrl}
+                        onChange={(v: string) => setEditForm((f: any) => ({ ...f, imageUrl: v }))}
+                      />
+                    </div>
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-muted-foreground mb-1.5">Consultation Type</label>
