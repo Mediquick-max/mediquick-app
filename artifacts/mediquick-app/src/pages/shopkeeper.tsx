@@ -150,7 +150,7 @@ export default function ShopkeeperPage() {
         description: `${planKey.charAt(0).toUpperCase() + planKey.slice(1)} Plan — 1 Month`,
         theme: { color: "#d95f2b" },
         prefill: { name: user?.name ?? "", email: user?.email ?? "" },
-        method: { upi: true, card: true, netbanking: true, wallet: true, emi: false },
+        method: { upi: true, card: true, netbanking: true, wallet: true, emi: false, paylater: false },
         handler: async function (response: any) {
           const verifyRes = await fetch(`${API}/api/shopkeeper/payment/verify`, {
             method: "POST", headers,

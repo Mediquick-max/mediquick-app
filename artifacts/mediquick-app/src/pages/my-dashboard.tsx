@@ -167,7 +167,7 @@ export default function MyDashboardPage() {
           email: data?.user?.email ?? "",
           contact: data?.user?.phone ?? "",
         },
-        method: { upi: true, card: true, netbanking: true, wallet: true, emi: false },
+        method: { upi: true, card: true, netbanking: true, wallet: true, emi: false, paylater: false },
       };
       const rzp = new (window as any).Razorpay(options);
       rzp.open();
