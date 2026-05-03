@@ -408,7 +408,7 @@ function TabLocal() {
           </div>
           <div>
             <p className="font-bold text-sm">Order from Local Medical Stores</p>
-            <p className="text-xs text-muted-foreground mt-0.5">Medicines delivered by the shopkeeper. ₹10 per 100m delivery charge. Max 5 km range.</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Medicines delivered by the shopkeeper. ₹5 per 100m delivery charge. Max 5 km range.</p>
           </div>
         </div>
       </div>
@@ -663,7 +663,7 @@ function TabLocal() {
 
               <div className="text-xs text-muted-foreground flex items-start gap-1.5 bg-blue-50 rounded-xl p-2.5">
                 <Info className="w-3.5 h-3.5 flex-shrink-0 mt-0.5 text-blue-600" />
-                Delivery charge will be calculated at checkout based on your location (₹10 per 100m).
+                Delivery charge will be calculated at checkout based on your location (₹5 per 100m).
               </div>
 
               <button onClick={() => { setShowCart(false); setShowCheckout(true); setCheckoutForm(f => ({ ...f, customerName: user?.name ?? "" })); useCurrentLocationForDelivery(); }}
@@ -775,7 +775,7 @@ function TabLocal() {
                     </div>
                     <div className="flex justify-between text-muted-foreground">
                       <span>Delivery</span>
-                      <span>₹10 per 100m</span>
+                      <span>₹5 per 100m</span>
                     </div>
                     <p className="text-xs text-muted-foreground flex items-start gap-1">
                       <Info className="w-3 h-3 flex-shrink-0 mt-0.5" />

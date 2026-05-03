@@ -25,7 +25,7 @@ const PLAN_PRICES: Record<string, number> = {
   unlimited: 999,
 };
 
-const DELIVERY_RATE_PER_100M = 10;
+const DELIVERY_RATE_PER_100M = 5;
 const PLATFORM_RATE_PER_100M = 1;
 const MAX_DELIVERY_KM = 5;
 
