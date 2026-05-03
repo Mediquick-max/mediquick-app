@@ -61,6 +61,7 @@ export default function MyDashboardPage() {
   const [healthSaving, setHealthSaving] = useState(false);
   const [healthSaved, setHealthSaved] = useState(false);
   const [upgrading, setUpgrading] = useState<string | null>(null);
+  const [autopay, setAutopay] = useState(true);
 
   const fetchData = useCallback(async () => {
     if (!token) return;
@@ -126,7 +127,7 @@ export default function MyDashboardPage() {
     setUpgrading(planId);
     try {
       const res = await fetch(`${API}/api/patient/membership/upgrade`, {
-        method: "POST", headers: authHeader(token), body: JSON.stringify({ plan: planId }),
+        method: "POST", headers: authHeader(token), body: JSON.stringify({ plan: planId, autopay }),
       });
       const d = await res.json();
       if (d.code === "NO_RAZORPAY") {
@@ -168,6 +169,7 @@ export default function MyDashboardPage() {
           contact: data?.user?.phone ?? "",
         },
         method: { upi: true, card: true, netbanking: true, wallet: true, emi: false, paylater: false },
+        ...(autopay ? { recurring: 1 } : {}),
       };
       const rzp = new (window as any).Razorpay(options);
       rzp.open();
@@ -546,6 +548,23 @@ export default function MyDashboardPage() {
 
             {activeTab === "plans" && (
               <div className="space-y-4">
+                <div className="bg-emerald-50 border border-emerald-200 rounded-3xl p-4 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-2xl bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                      <RefreshCw className="w-4 h-4 text-emerald-600" />
+                    </div>
+                    <div>
+                      <div className="font-semibold text-sm text-emerald-800">Autopay / Auto-renew</div>
+                      <div className="text-xs text-emerald-600">Plan expire hone par automatic renew ho jayega</div>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setAutopay(p => !p)}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors flex-shrink-0 ${autopay ? "bg-emerald-500" : "bg-gray-300"}`}
+                  >
+                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${autopay ? "translate-x-6" : "translate-x-1"}`} />
+                  </button>
+                </div>
                 <div className={`rounded-3xl p-5 border-2 ${planCfg.border} ${planCfg.bg}`}>
                   <div className="flex items-center gap-3">
                     <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${planCfg.bg} border ${planCfg.border}`}>

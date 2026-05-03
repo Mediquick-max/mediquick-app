@@ -5,7 +5,7 @@ import { Link } from "wouter";
 import {
   Store, Plus, Trash2, Package, CreditCard, Crown, CheckCircle2,
   AlertTriangle, Loader2, X, ChevronRight, Pill, Star, Zap, Infinity,
-  ShoppingBag, BadgeCheck
+  ShoppingBag, BadgeCheck, RefreshCw
 } from "lucide-react";
 
 const API = import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -69,6 +69,7 @@ export default function ShopkeeperPage() {
   const [form, setForm] = useState({ name: "", category: "General", price: "", stock: "", unit: "strip", description: "", manufacturer: "" });
   const [formError, setFormError] = useState("");
   const [formLoading, setFormLoading] = useState(false);
+  const [autopay, setAutopay] = useState(true);
 
   const headers = { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) };
 
@@ -133,7 +134,7 @@ export default function ShopkeeperPage() {
     setPaymentLoading(planKey);
     try {
       const r = await fetch(`${API}/api/shopkeeper/payment/order`, {
-        method: "POST", headers, body: JSON.stringify({ plan: planKey }),
+        method: "POST", headers, body: JSON.stringify({ plan: planKey, autopay }),
       });
       const data = await r.json();
       if (!r.ok) { alert(data.error ?? "Failed to create order"); return; }
@@ -151,6 +152,7 @@ export default function ShopkeeperPage() {
         theme: { color: "#d95f2b" },
         prefill: { name: user?.name ?? "", email: user?.email ?? "" },
         method: { upi: true, card: true, netbanking: true, wallet: true, emi: false, paylater: false },
+        ...(autopay ? { recurring: 1 } : {}),
         handler: async function (response: any) {
           const verifyRes = await fetch(`${API}/api/shopkeeper/payment/verify`, {
             method: "POST", headers,
@@ -363,6 +365,24 @@ export default function ShopkeeperPage() {
             <div>
               <h2 className="text-xl font-bold">Subscription Plans</h2>
               <p className="text-muted-foreground text-sm mt-1">Upgrade to add more medicines to your inventory</p>
+            </div>
+
+            <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                  <RefreshCw className="w-4 h-4 text-emerald-600" />
+                </div>
+                <div>
+                  <div className="font-semibold text-sm text-emerald-800">Autopay / Auto-renew</div>
+                  <div className="text-xs text-emerald-600">Subscription expire hone par automatic renew ho jayegi</div>
+                </div>
+              </div>
+              <button
+                onClick={() => setAutopay(p => !p)}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors flex-shrink-0 ${autopay ? "bg-emerald-500" : "bg-gray-300"}`}
+              >
+                <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${autopay ? "translate-x-6" : "translate-x-1"}`} />
+              </button>
             </div>
 
             <div className="bg-secondary/40 rounded-2xl p-4 flex items-center gap-3">

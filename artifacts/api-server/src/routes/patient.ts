@@ -167,7 +167,7 @@ router.post("/membership/upgrade", async (req, res): Promise<void> => {
   const userId = parseAuth(req);
   if (!userId) { res.status(401).json({ error: "Unauthorized" }); return; }
 
-  const { plan } = req.body;
+  const { plan, autopay } = req.body;
   const selectedPlan = MEMBERSHIP_PLANS.find(p => p.id === plan && p.price > 0);
   if (!selectedPlan) { res.status(400).json({ error: "Invalid plan" }); return; }
 
@@ -182,13 +182,15 @@ router.post("/membership/upgrade", async (req, res): Promise<void> => {
   try {
     const Razorpay = (await import("razorpay")).default;
     const rzp = new Razorpay({ key_id: razorpayKeyId, key_secret: razorpayKeySecret });
-    const order = await rzp.orders.create({
+    const orderPayload: any = {
       amount: selectedPlan.price * 100,
       currency: "INR",
       receipt: `membership_${userId}_${Date.now()}`,
-      notes: { userId: String(userId), plan: selectedPlan.id },
-    });
-    res.json({ order, plan: selectedPlan, key: razorpayKeyId });
+      notes: { userId: String(userId), plan: selectedPlan.id, autopay: autopay ? "true" : "false" },
+    };
+    if (autopay) orderPayload.recurring = 1;
+    const order = await rzp.orders.create(orderPayload);
+    res.json({ order, plan: selectedPlan, key: razorpayKeyId, autopay: !!autopay });
   } catch (err) {
     req.log.error({ err }, "Razorpay order creation failed");
     res.status(500).json({ error: "Failed to create payment order" });
