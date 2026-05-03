@@ -829,7 +829,7 @@ export default function ShopkeeperPage() {
                   </p>
                 </div>
                 <p className="text-xs text-muted-foreground mt-3">
-                  * Payouts are processed every week to your registered account
+                  * Payouts are processed every Monday to your registered account
                 </p>
               </div>
             </div>
