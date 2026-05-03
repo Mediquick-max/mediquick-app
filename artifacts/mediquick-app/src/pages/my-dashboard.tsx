@@ -93,6 +93,17 @@ export default function MyDashboardPage() {
 
   useEffect(() => { if (token) fetchData(); else setLoading(false); }, [token, fetchData]);
 
+  useEffect(() => {
+    const existing = document.getElementById("razorpay-script");
+    if (!existing) {
+      const script = document.createElement("script");
+      script.id = "razorpay-script";
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.async = true;
+      document.body.appendChild(script);
+    }
+  }, []);
+
   const saveHealth = async () => {
     if (!token) return;
     setHealthSaving(true);
@@ -123,6 +134,20 @@ export default function MyDashboardPage() {
         return;
       }
       if (!res.ok) throw new Error(d.error || "Failed");
+      await new Promise<void>((resolve, reject) => {
+        if ((window as any).Razorpay) { resolve(); return; }
+        const existing = document.getElementById("razorpay-script") as HTMLScriptElement | null;
+        const scriptEl = existing || (() => {
+          const s = document.createElement("script");
+          s.id = "razorpay-script";
+          s.src = "https://checkout.razorpay.com/v1/checkout.js";
+          document.body.appendChild(s);
+          return s;
+        })();
+        scriptEl.onload = () => resolve();
+        scriptEl.onerror = () => reject(new Error("Razorpay script load failed. Check internet connection."));
+      });
+      if (!(window as any).Razorpay) throw new Error("Payment gateway load failed. Please refresh and try again.");
       const options = {
         key: d.key, amount: d.order.amount, currency: "INR",
         name: "Medi Quick", description: `${d.plan.name} Membership`,
