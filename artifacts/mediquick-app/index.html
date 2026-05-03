@@ -13,16 +13,15 @@
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
     <script>
-      // Sirf pull-to-refresh block karo — scroll allowed rahega
+      // Pull-to-refresh block — body scroll container approach
       var _lastTouchY = 0;
       document.addEventListener('touchstart', function(e) {
         _lastTouchY = e.touches[0].clientY;
       }, { passive: true });
-      document.addEventListener('touchmove', function(e) {
+      document.body.addEventListener('touchmove', function(e) {
         var touchY = e.touches[0].clientY;
-        var scrollTop = document.documentElement.scrollTop || document.body.scrollTop || 0;
-        // Sirf tab rok do jab: page bilkul top par ho AUR user neeche se upar swipe kar raha ho (pull-down)
-        if (scrollTop <= 0 && touchY > _lastTouchY) {
+        var scrollTop = document.body.scrollTop || 0;
+        if (scrollTop < 5 && touchY > _lastTouchY) {
           e.preventDefault();
         }
         _lastTouchY = touchY;
