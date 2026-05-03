@@ -1,12 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Layout } from "@/components/layout";
 import { useAuth } from "@/lib/auth";
 import { useGeolocation } from "@/lib/use-geolocation";
 import {
   FlaskConical, Search, CheckCircle2, Clock, Home as HomeIcon,
-  ChevronRight, Loader2, X, User, Phone, MapPin, Calendar,
-  Star, Shield, Truck, FileText, Package, RefreshCw, Microscope,
-  Heart, Droplets, Brain, Bone, Eye, Baby, Activity, CreditCard, Banknote, Tag
+  ChevronRight, Loader2, X, User, MapPin, Calendar,
+  Shield, FileText, Package, RefreshCw, Microscope,
+  Heart, Droplets, Brain, Bone, Baby, Activity, CreditCard, Banknote, Tag,
+  Store, ShoppingCart, Plus, Minus, ShoppingBag, Filter, Pill
 } from "lucide-react";
 
 const LAB_PLAN_DISCOUNTS: Record<string, number> = {
@@ -92,12 +93,18 @@ interface Booking {
 const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000);
 const defaultDate = `${tomorrow.getFullYear()}-${String(tomorrow.getMonth() + 1).padStart(2, "0")}-${String(tomorrow.getDate()).padStart(2, "0")}T08:00`;
 
+interface Medicine {
+  id: number; name: string; category: string; price: number;
+  stock: number; unit: string; description: string; manufacturer: string;
+}
+interface CartItem { medicine: Medicine; qty: number; }
+
 export default function LabTestsPage() {
   const { user, token } = useAuth();
   const geo = useGeolocation();
   const [search, setSearch] = useState("");
   const [selectedPkg, setSelectedPkg] = useState<typeof LAB_PACKAGES[0] | null>(null);
-  const [activeTab, setActiveTab] = useState<"tests" | "bookings">("tests");
+  const [activeTab, setActiveTab] = useState<"tests" | "bookings" | "store">("tests");
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [bookingsLoading, setBookingsLoading] = useState(false);
   const [form, setForm] = useState({
@@ -110,7 +117,83 @@ export default function LabTestsPage() {
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
 
+  // Medical Store state
+  const [medicines, setMedicines] = useState<Medicine[]>([]);
+  const [medCategories, setMedCategories] = useState<string[]>([]);
+  const [medLoading, setMedLoading] = useState(false);
+  const [activeMedCat, setActiveMedCat] = useState("All");
+  const [medSearch, setMedSearch] = useState("");
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [showCart, setShowCart] = useState(false);
+  const [orderForm, setOrderForm] = useState({ patientName: user?.name ?? "", phone: "", deliveryAddress: "", paymentMethod: "cash" as "cash" | "online" });
+  const [orderSubmitting, setOrderSubmitting] = useState(false);
+  const [orderSuccess, setOrderSuccess] = useState(false);
+
   const headers = { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) };
+
+  useEffect(() => {
+    if (activeTab === "store" && medicines.length === 0) fetchMedicines();
+  }, [activeTab]);
+
+  async function fetchMedicines() {
+    setMedLoading(true);
+    const [catRes, medRes] = await Promise.all([
+      fetch(`${API}/api/medicine-store/categories`),
+      fetch(`${API}/api/medicine-store/catalog`),
+    ]);
+    if (catRes.ok) setMedCategories(await catRes.json());
+    if (medRes.ok) setMedicines(await medRes.json());
+    setMedLoading(false);
+  }
+
+  function addToCart(med: Medicine) {
+    setCart(prev => {
+      const existing = prev.find(i => i.medicine.id === med.id);
+      if (existing) return prev.map(i => i.medicine.id === med.id ? { ...i, qty: i.qty + 1 } : i);
+      return [...prev, { medicine: med, qty: 1 }];
+    });
+  }
+  function removeFromCart(medId: number) {
+    setCart(prev => {
+      const existing = prev.find(i => i.medicine.id === medId);
+      if (existing && existing.qty > 1) return prev.map(i => i.medicine.id === medId ? { ...i, qty: i.qty - 1 } : i);
+      return prev.filter(i => i.medicine.id !== medId);
+    });
+  }
+  const cartTotal = cart.reduce((s, i) => s + i.medicine.price * i.qty, 0);
+  const cartCount = cart.reduce((s, i) => s + i.qty, 0);
+
+  const filteredMeds = medicines.filter(m =>
+    (activeMedCat === "All" || m.category === activeMedCat) &&
+    (!medSearch || m.name.toLowerCase().includes(medSearch.toLowerCase()) || m.category.toLowerCase().includes(medSearch.toLowerCase()))
+  );
+
+  async function handleMedOrder(e: React.FormEvent) {
+    e.preventDefault();
+    if (cart.length === 0) return;
+    setOrderSubmitting(true);
+    try {
+      const items = cart.map(i => ({ medicineId: i.medicine.id, quantity: i.qty }));
+      const r = await fetch(`${API}/api/medicine-store/order`, {
+        method: "POST", headers,
+        body: JSON.stringify({
+          patientName: orderForm.patientName,
+          phone: orderForm.phone,
+          deliveryAddress: orderForm.deliveryAddress,
+          paymentMethod: orderForm.paymentMethod,
+          items,
+        }),
+      });
+      if (r.ok) {
+        setOrderSuccess(true);
+        setCart([]);
+        setShowCart(false);
+      } else {
+        const d = await r.json();
+        alert(d.error ?? "Order failed, please try again");
+      }
+    } finally { setOrderSubmitting(false); }
+  }
 
   const filtered = LAB_PACKAGES.filter(p =>
     !search || p.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -197,10 +280,14 @@ export default function LabTestsPage() {
         )}
 
         <div className="flex rounded-2xl bg-secondary/40 p-1 gap-1">
-          {[{ k: "tests", l: "Test Packages", i: FlaskConical }, { k: "bookings", l: "My Bookings", i: Package }].map(t => (
+          {[
+            { k: "tests", l: "Test Packages", i: FlaskConical },
+            { k: "bookings", l: "My Bookings", i: Package },
+            { k: "store", l: "Medical Store", i: Store },
+          ].map(t => (
             <button key={t.k} onClick={() => { setActiveTab(t.k as any); if (t.k === "bookings") fetchBookings(); }}
-              className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all ${activeTab === t.k ? "bg-card shadow text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
-              <t.i className="w-4 h-4" /> {t.l}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${activeTab === t.k ? "bg-card shadow text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
+              <t.i className="w-3.5 h-3.5" /> {t.l}
             </button>
           ))}
         </div>
@@ -294,6 +381,124 @@ export default function LabTestsPage() {
           </div>
         )}
 
+        {activeTab === "store" && (
+          <div className="space-y-4">
+            {/* Header + Cart Button */}
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="font-bold text-lg">Medical Store</h2>
+                <p className="text-xs text-muted-foreground">Lab test ke saath medicines bhi order karein</p>
+              </div>
+              {cartCount > 0 && (
+                <button onClick={() => setShowCart(true)}
+                  className="relative flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2.5 rounded-2xl font-semibold text-sm active:scale-95 transition-all shadow-md">
+                  <ShoppingCart className="w-4 h-4" />
+                  Cart
+                  <span className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center font-bold">{cartCount}</span>
+                </button>
+              )}
+            </div>
+
+            {orderSuccess && (
+              <div className="bg-emerald-50 border border-emerald-200 rounded-3xl p-4 flex items-center gap-3">
+                <CheckCircle2 className="w-8 h-8 text-emerald-600 flex-shrink-0" />
+                <div>
+                  <p className="font-bold text-emerald-800">Order Placed!</p>
+                  <p className="text-sm text-emerald-700">Aapka order confirm ho gaya. Jald delivery hogi.</p>
+                </div>
+                <button onClick={() => setOrderSuccess(false)} className="ml-auto text-emerald-600"><X className="w-4 h-4" /></button>
+              </div>
+            )}
+
+            {/* Search */}
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <input value={medSearch} onChange={e => setMedSearch(e.target.value)}
+                placeholder="Medicine search karein..."
+                className="w-full bg-card border border-border rounded-2xl pl-11 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+            </div>
+
+            {/* Category Filter */}
+            {medCategories.length > 0 && (
+              <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                {medCategories.map(cat => (
+                  <button key={cat} onClick={() => setActiveMedCat(cat)}
+                    className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-all border ${
+                      activeMedCat === cat
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "bg-card text-muted-foreground border-border hover:border-primary/50 hover:text-foreground"
+                    }`}>
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {medLoading ? (
+              <div className="flex items-center justify-center py-16"><Loader2 className="w-8 h-8 animate-spin text-primary/40" /></div>
+            ) : filteredMeds.length === 0 ? (
+              <div className="text-center py-16">
+                <Pill className="w-14 h-14 text-primary/20 mx-auto mb-3" />
+                <p className="font-semibold">No medicines found</p>
+                <p className="text-sm text-muted-foreground mt-1">Try a different search</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {filteredMeds.map(med => {
+                  const cartItem = cart.find(i => i.medicine.id === med.id);
+                  return (
+                    <div key={med.id} className="bg-card border border-border rounded-3xl p-3 flex flex-col gap-2 hover:shadow-md transition-all">
+                      <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <Pill className="w-5 h-5 text-primary" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-bold text-sm leading-snug line-clamp-2">{med.name}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">{med.unit}</p>
+                        <p className="text-xs text-muted-foreground/70 mt-0.5 line-clamp-1">{med.manufacturer}</p>
+                      </div>
+                      <div className="flex items-center justify-between pt-1.5 border-t border-border/50">
+                        <span className="font-bold text-primary text-sm">₹{med.price}</span>
+                        {cartItem ? (
+                          <div className="flex items-center gap-1.5">
+                            <button onClick={() => removeFromCart(med.id)}
+                              className="w-6 h-6 rounded-full bg-secondary flex items-center justify-center hover:bg-primary/10 transition-all">
+                              <Minus className="w-3 h-3" />
+                            </button>
+                            <span className="text-sm font-bold w-4 text-center">{cartItem.qty}</span>
+                            <button onClick={() => addToCart(med)}
+                              className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 transition-all">
+                              <Plus className="w-3 h-3" />
+                            </button>
+                          </div>
+                        ) : (
+                          <button onClick={() => addToCart(med)}
+                            className="flex items-center gap-1 bg-primary/10 text-primary px-2.5 py-1 rounded-xl text-xs font-bold hover:bg-primary hover:text-primary-foreground active:scale-95 transition-all">
+                            <Plus className="w-3 h-3" /> Add
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Sticky Cart Bar */}
+            {cartCount > 0 && (
+              <div className="fixed bottom-20 left-0 right-0 px-4 z-40">
+                <button onClick={() => setShowCart(true)}
+                  className="w-full max-w-lg mx-auto flex items-center justify-between bg-primary text-primary-foreground px-5 py-3.5 rounded-2xl shadow-2xl font-semibold text-sm active:scale-95 transition-all">
+                  <div className="flex items-center gap-2">
+                    <ShoppingBag className="w-5 h-5" />
+                    <span>{cartCount} item{cartCount > 1 ? "s" : ""} in cart</span>
+                  </div>
+                  <span className="font-bold">₹{cartTotal} →</span>
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
         {activeTab === "bookings" && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -341,6 +546,96 @@ export default function LabTestsPage() {
           </div>
         )}
       </div>
+
+      {/* Cart / Order Modal */}
+      {showCart && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-card rounded-t-3xl sm:rounded-3xl w-full sm:max-w-lg max-h-[92vh] overflow-y-auto shadow-2xl border border-border">
+            <div className="sticky top-0 bg-card/95 backdrop-blur border-b border-border px-5 py-4 flex items-center justify-between rounded-t-3xl">
+              <div>
+                <h2 className="font-bold text-lg flex items-center gap-2"><ShoppingCart className="w-5 h-5 text-primary" /> Your Cart</h2>
+                <p className="text-xs text-muted-foreground">{cartCount} items · ₹{cartTotal} total</p>
+              </div>
+              <button onClick={() => setShowCart(false)} className="text-muted-foreground hover:text-foreground p-1"><X className="w-5 h-5" /></button>
+            </div>
+            <div className="p-5 space-y-5">
+              {/* Cart Items */}
+              <div className="space-y-2">
+                {cart.map(item => (
+                  <div key={item.medicine.id} className="flex items-center gap-3 bg-secondary/30 rounded-2xl p-3">
+                    <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <Pill className="w-4 h-4 text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-sm truncate">{item.medicine.name}</p>
+                      <p className="text-xs text-muted-foreground">{item.medicine.unit}</p>
+                    </div>
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                      <button onClick={() => removeFromCart(item.medicine.id)} className="w-6 h-6 rounded-full bg-card border border-border flex items-center justify-center"><Minus className="w-3 h-3" /></button>
+                      <span className="text-sm font-bold w-5 text-center">{item.qty}</span>
+                      <button onClick={() => addToCart(item.medicine)} className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center"><Plus className="w-3 h-3" /></button>
+                    </div>
+                    <span className="font-bold text-primary text-sm flex-shrink-0">₹{item.medicine.price * item.qty}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Total */}
+              <div className="flex items-center justify-between bg-primary/5 border border-primary/10 rounded-2xl px-4 py-3">
+                <span className="font-semibold text-sm">Total Amount</span>
+                <span className="font-bold text-primary text-xl">₹{cartTotal}</span>
+              </div>
+
+              {/* Order Form */}
+              <form onSubmit={handleMedOrder} className="space-y-4">
+                <h3 className="font-semibold text-sm flex items-center gap-1.5"><User className="w-4 h-4 text-primary" /> Delivery Details</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-muted-foreground mb-1.5">Full Name *</label>
+                    <input value={orderForm.patientName} onChange={e => setOrderForm(f => ({ ...f, patientName: e.target.value }))} required
+                      placeholder="Aapka naam"
+                      className="w-full bg-background border border-border rounded-2xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-muted-foreground mb-1.5">Mobile *</label>
+                    <input value={orderForm.phone} onChange={e => setOrderForm(f => ({ ...f, phone: e.target.value }))} required type="tel"
+                      placeholder="10-digit number"
+                      className="w-full bg-background border border-border rounded-2xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-muted-foreground mb-1.5"><MapPin className="w-3 h-3 inline mr-0.5" /> Delivery Address *</label>
+                  <textarea value={orderForm.deliveryAddress} onChange={e => setOrderForm(f => ({ ...f, deliveryAddress: e.target.value }))} required rows={2}
+                    placeholder="Ghar ka pura address"
+                    className="w-full bg-background border border-border rounded-2xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none" />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-muted-foreground mb-2">Payment Method</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {(["cash", "online"] as const).map(pm => (
+                      <button key={pm} type="button" onClick={() => setOrderForm(f => ({ ...f, paymentMethod: pm }))}
+                        className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all border ${
+                          orderForm.paymentMethod === pm
+                            ? pm === "cash" ? "bg-emerald-600 text-white border-emerald-600" : "bg-primary text-primary-foreground border-primary"
+                            : "bg-secondary/60 text-muted-foreground border-border"
+                        }`}>
+                        {pm === "cash" ? <><Banknote className="w-4 h-4" /> Cash</> : <><CreditCard className="w-4 h-4" /> Online</>}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <button type="submit" disabled={orderSubmitting}
+                  className="w-full py-3.5 rounded-2xl font-bold text-sm active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-60 bg-primary hover:bg-primary/90 text-primary-foreground">
+                  {orderSubmitting
+                    ? <><Loader2 className="w-4 h-4 animate-spin" /> Placing Order...</>
+                    : <><ShoppingBag className="w-4 h-4" /> Place Order · ₹{cartTotal}</>
+                  }
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
 
       {selectedPkg && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/50 backdrop-blur-sm">
