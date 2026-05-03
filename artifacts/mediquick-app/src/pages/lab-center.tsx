@@ -664,7 +664,7 @@ export default function LabCenterPage() {
               <div>
                 <div className="font-bold text-amber-800 text-sm">Payout Information</div>
                 <div className="text-amber-700 text-xs mt-1">
-                  Lab bookings ki earnings is account mein transfer ki jaayegi. Sahi bank/UPI details bharein taaki payout seamlessly ho.
+                  Aapki lab bookings ki earnings (98%) is account mein transfer ki jaayegi. Please sahi bank/UPI details bharein.
                 </div>
               </div>
             </div>
@@ -677,91 +677,123 @@ export default function LabCenterPage() {
                 {[
                   { id: "upi", label: "UPI / GPay / PhonePe", icon: CreditCard },
                   { id: "bank", label: "Bank Account (NEFT/IMPS)", icon: Landmark },
-                ].map(({ id, label, icon: Icon }) => (
-                  <button key={id} onClick={() => setPaymentForm(p => ({ ...p, paymentMethod: id }))}
-                    className={`flex flex-col items-center gap-2 p-4 rounded-2xl border-2 font-semibold text-sm transition-all ${paymentForm.paymentMethod === id ? "border-blue-500 bg-blue-50 text-blue-700" : "border-border text-muted-foreground hover:border-blue-300"}`}>
-                    <Icon className="w-5 h-5" />
-                    {label}
+                ].map(opt => (
+                  <button key={opt.id} onClick={() => setPaymentForm(p => ({ ...p, paymentMethod: opt.id }))}
+                    className={`flex items-center gap-2.5 p-3.5 rounded-2xl border-2 text-sm font-semibold transition-all text-left ${paymentForm.paymentMethod === opt.id ? "border-blue-500 bg-blue-50 text-blue-800" : "border-border bg-secondary/30 text-foreground hover:border-blue-300"}`}>
+                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${paymentForm.paymentMethod === opt.id ? "bg-blue-500" : "bg-muted"}`}>
+                      <opt.icon className={`w-4 h-4 ${paymentForm.paymentMethod === opt.id ? "text-white" : "text-muted-foreground"}`} />
+                    </div>
+                    {opt.label}
                   </button>
                 ))}
               </div>
 
               {paymentForm.paymentMethod === "upi" ? (
-                <div>
-                  <label className="block text-xs font-semibold text-muted-foreground mb-1.5">UPI ID</label>
-                  <input value={paymentForm.upiId} onChange={e => setPaymentForm(p => ({ ...p, upiId: e.target.value }))}
-                    placeholder="yourlab@upi" className="w-full px-3 py-2.5 rounded-2xl border border-border bg-secondary/30 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
-                  <p className="text-xs text-muted-foreground mt-1.5">GPay, PhonePe, Paytm, ya koi bhi UPI ID chalega.</p>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-bold text-muted-foreground mb-1.5">UPI ID *</label>
+                    <input
+                      value={paymentForm.upiId}
+                      onChange={e => setPaymentForm(p => ({ ...p, upiId: e.target.value }))}
+                      placeholder="yourlab@upi / 9876543210@ybl"
+                      className="w-full px-3 py-2.5 rounded-2xl border border-border bg-secondary/30 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1.5">
+                      Google Pay, PhonePe, Paytm, BHIM — koi bhi UPI ID chal sakta hai
+                    </p>
+                  </div>
+                  {paymentForm.upiId && (
+                    <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-3 flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                      <div className="text-xs">
+                        <div className="font-semibold text-emerald-800">UPI ID: {paymentForm.upiId}</div>
+                        <div className="text-emerald-600">Earnings is ID pe direct transfer honge</div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-4">
                   <div>
-                    <label className="block text-xs font-semibold text-muted-foreground mb-1.5">Account Holder Name</label>
-                    <input value={paymentForm.bankAccountHolder} onChange={e => setPaymentForm(p => ({ ...p, bankAccountHolder: e.target.value }))}
-                      placeholder="Full name as per bank" className="w-full px-3 py-2.5 rounded-2xl border border-border bg-secondary/30 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
+                    <label className="block text-xs font-bold text-muted-foreground mb-1.5">Account Holder Name *</label>
+                    <input
+                      value={paymentForm.bankAccountHolder}
+                      onChange={e => setPaymentForm(p => ({ ...p, bankAccountHolder: e.target.value }))}
+                      placeholder="Jaise aapka naam bank mein hai"
+                      className="w-full px-3 py-2.5 rounded-2xl border border-border bg-secondary/30 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                    />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-muted-foreground mb-1.5">Account Number</label>
-                    <input value={paymentForm.bankAccountNumber} onChange={e => setPaymentForm(p => ({ ...p, bankAccountNumber: e.target.value }))}
-                      placeholder="Bank account number" className="w-full px-3 py-2.5 rounded-2xl border border-border bg-secondary/30 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
+                    <label className="block text-xs font-bold text-muted-foreground mb-1.5">Account Number *</label>
+                    <input
+                      value={paymentForm.bankAccountNumber}
+                      onChange={e => setPaymentForm(p => ({ ...p, bankAccountNumber: e.target.value.replace(/\D/g, "") }))}
+                      placeholder="Enter your account number"
+                      className="w-full px-3 py-2.5 rounded-2xl border border-border bg-secondary/30 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm font-mono tracking-wider"
+                    />
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-semibold text-muted-foreground mb-1.5">IFSC Code</label>
-                      <input value={paymentForm.bankIfscCode} onChange={e => setPaymentForm(p => ({ ...p, bankIfscCode: e.target.value.toUpperCase() }))}
-                        placeholder="SBIN0001234" className="w-full px-3 py-2.5 rounded-2xl border border-border bg-secondary/30 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm uppercase" />
+                      <label className="block text-xs font-bold text-muted-foreground mb-1.5">IFSC Code *</label>
+                      <input
+                        value={paymentForm.bankIfscCode}
+                        onChange={e => setPaymentForm(p => ({ ...p, bankIfscCode: e.target.value.toUpperCase() }))}
+                        placeholder="e.g. SBIN0001234"
+                        maxLength={11}
+                        className="w-full px-3 py-2.5 rounded-2xl border border-border bg-secondary/30 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm font-mono"
+                      />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-muted-foreground mb-1.5">Bank Name</label>
-                      <input value={paymentForm.bankName} onChange={e => setPaymentForm(p => ({ ...p, bankName: e.target.value }))}
-                        placeholder="e.g. SBI, HDFC" className="w-full px-3 py-2.5 rounded-2xl border border-border bg-secondary/30 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
+                      <label className="block text-xs font-bold text-muted-foreground mb-1.5">Bank Name</label>
+                      <input
+                        value={paymentForm.bankName}
+                        onChange={e => setPaymentForm(p => ({ ...p, bankName: e.target.value }))}
+                        placeholder="e.g. SBI, HDFC, ICICI"
+                        className="w-full px-3 py-2.5 rounded-2xl border border-border bg-secondary/30 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                      />
                     </div>
                   </div>
+                  {paymentForm.bankAccountNumber && paymentForm.bankIfscCode && (
+                    <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-3 space-y-1">
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-800">
+                        <CheckCircle2 className="w-3.5 h-3.5" /> Bank Details Summary
+                      </div>
+                      <div className="text-xs text-emerald-700 space-y-0.5">
+                        {paymentForm.bankAccountHolder && <div>Name: {paymentForm.bankAccountHolder}</div>}
+                        <div>A/C: •••• {paymentForm.bankAccountNumber.slice(-4)}</div>
+                        <div>IFSC: {paymentForm.bankIfscCode}{paymentForm.bankName ? ` (${paymentForm.bankName})` : ""}</div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
               <button onClick={handleSavePayment} disabled={paymentSaving}
-                className="w-full bg-blue-600 text-white py-3 rounded-2xl font-bold text-sm hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-60">
+                className="w-full bg-blue-600 text-white py-3.5 rounded-2xl font-bold text-sm hover:bg-blue-700 active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-60">
                 {paymentSaving ? <><Loader2 className="w-4 h-4 animate-spin" /> Saving...</> : <><ShieldCheck className="w-4 h-4" /> Save Payment Details</>}
               </button>
             </div>
 
-            {/* Current saved details summary */}
-            {lab && (lab.upiId || lab.bankAccountNumber) && (
-              <div className="bg-white rounded-3xl border border-border/50 shadow-sm p-5">
-                <h3 className="font-bold text-sm mb-3 flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Currently Saved Details
-                </h3>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Method</span>
-                    <span className="font-semibold capitalize">{lab.paymentMethod === "upi" ? "UPI" : "Bank Account"}</span>
+            <div className="bg-white rounded-3xl border border-border/50 shadow-sm p-5">
+              <h3 className="font-bold text-sm mb-3 flex items-center gap-2">
+                <IndianRupee className="w-4 h-4 text-emerald-600" /> Payout Summary
+              </h3>
+              <div className="space-y-2">
+                {[
+                  { label: "Total bookings revenue", value: `₹${stats.revenue.toLocaleString()}` },
+                  { label: "Platform fee (2%)", value: `₹${Math.round(stats.revenue * 0.02).toLocaleString()}`, color: "text-orange-600" },
+                  { label: "Your payout (estimated)", value: `₹${Math.round(stats.revenue * 0.98).toLocaleString()}`, color: "text-emerald-700", bold: true },
+                ].map(row => (
+                  <div key={row.label} className={`flex items-center justify-between text-sm ${row.bold ? "border-t border-border/50 pt-2 font-bold" : ""}`}>
+                    <span className="text-muted-foreground">{row.label}</span>
+                    <span className={row.color ?? "font-medium"}>{row.value}</span>
                   </div>
-                  {lab.paymentMethod === "upi" && lab.upiId && (
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">UPI ID</span>
-                      <span className="font-semibold">{lab.upiId}</span>
-                    </div>
-                  )}
-                  {lab.paymentMethod === "bank" && lab.bankAccountNumber && (
-                    <>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Account Holder</span>
-                        <span className="font-semibold">{lab.bankAccountHolder || "—"}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Account No.</span>
-                        <span className="font-semibold">{"*".repeat(Math.max(0, (lab.bankAccountNumber?.length ?? 0) - 4))}{lab.bankAccountNumber?.slice(-4)}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">IFSC</span>
-                        <span className="font-semibold">{lab.bankIfscCode || "—"}</span>
-                      </div>
-                    </>
-                  )}
-                </div>
+                ))}
               </div>
-            )}
+              <p className="text-xs text-muted-foreground mt-3">
+                * Payouts are processed every week to your registered account
+              </p>
+            </div>
           </div>
         )}
 
