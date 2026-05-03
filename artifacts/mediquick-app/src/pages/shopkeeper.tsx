@@ -820,6 +820,14 @@ export default function ShopkeeperPage() {
                     </div>
                   ))}
                 </div>
+                <div className="mt-4 bg-orange-50 border border-orange-200 rounded-2xl p-3 space-y-1.5">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-orange-800">
+                    <AlertCircle className="w-3.5 h-3.5 shrink-0" /> Cash Payment Policy
+                  </div>
+                  <p className="text-xs text-orange-700">
+                    Chahe customer <strong>online</strong> ya <strong>cash</strong> mein payment kare — MediQuick ka <strong>platform fee (₹1/100m) hamesha lagega</strong>. Agar delivery charge cash mein liya hai, toh yeh fee aapke <strong>agle online payout se automatically deduct</strong> ho jaayegi.
+                  </p>
+                </div>
                 <p className="text-xs text-muted-foreground mt-3">
                   * Payouts are processed every week to your registered account
                 </p>

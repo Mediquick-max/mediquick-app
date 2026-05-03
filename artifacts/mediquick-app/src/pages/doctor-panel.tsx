@@ -1252,6 +1252,14 @@ export default function DoctorPanelPage() {
                   </div>
                 ))}
               </div>
+              <div className="mt-4 bg-orange-50 border border-orange-200 rounded-2xl p-3 space-y-1.5">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-orange-800">
+                  <AlertCircle className="w-3.5 h-3.5 shrink-0" /> Cash Payment Policy
+                </div>
+                <p className="text-xs text-orange-700">
+                  Chahe patient <strong>online</strong> ya <strong>cash</strong> mein payment kare — MediQuick ka <strong>2% platform fee hamesha lagega</strong>. Agar payment cash mein li hai, toh yeh fee aapke <strong>agle online payout se automatically deduct</strong> ho jaayegi.
+                </p>
+              </div>
               <p className="text-xs text-muted-foreground mt-3">
                 * Payouts are processed every week to your registered account
               </p>
