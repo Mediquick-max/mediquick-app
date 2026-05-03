@@ -13,25 +13,20 @@
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
     <script>
-      // Pull-to-refresh aur overscroll disable karo — Chrome Android + WebView
+      // Sirf pull-to-refresh block karo — scroll allowed rahega
+      var _lastTouchY = 0;
+      document.addEventListener('touchstart', function(e) {
+        _lastTouchY = e.touches[0].clientY;
+      }, { passive: true });
       document.addEventListener('touchmove', function(e) {
-        var el = e.target;
-        // Kisi scrollable element ke andar hain to allow karo
-        while (el && el !== document.body) {
-          var style = window.getComputedStyle(el);
-          var overflowY = style.overflowY;
-          var isScrollable = (overflowY === 'auto' || overflowY === 'scroll');
-          if (isScrollable && el.scrollHeight > el.clientHeight) {
-            return; // element scrollable hai — browser handle kare
-          }
-          el = el.parentElement;
+        var touchY = e.touches[0].clientY;
+        var scrollTop = document.documentElement.scrollTop || document.body.scrollTop || 0;
+        // Sirf tab rok do jab: page bilkul top par ho AUR user neeche se upar swipe kar raha ho (pull-down)
+        if (scrollTop <= 0 && touchY > _lastTouchY) {
+          e.preventDefault();
         }
-        // Body level par — prevent browser overscroll/refresh
-        e.preventDefault();
+        _lastTouchY = touchY;
       }, { passive: false });
-
-      // Chrome Android "overscroll-refresh" extra block
-      window.addEventListener('scroll', function() {}, { passive: true });
     </script>
   </body>
 </html>
