@@ -106,13 +106,14 @@ router.get("/today", async (req, res) => {
 
 router.post("/doctor/join", async (req, res) => {
   const doctorId = parseDoctorId(req);
-  if (!doctorId) return res.status(401).json({ error: "Doctor login required" });
+  if (!doctorId) { res.status(401).json({ error: "Doctor login required" }); return; }
 
   if (!isRegistrationOpen()) {
     const h = getISTHour();
-    return res.status(400).json({
+    res.status(400).json({
       error: `Registration window is 7 AM – 9 AM IST only. Current IST time: ${h}:00. Please try tomorrow morning.`
     });
+    return;
   }
 
   const today = getSlotDate();
@@ -126,18 +127,18 @@ router.post("/doctor/join", async (req, res) => {
       ));
 
     if (existing.length > 0) {
-      return res.status(400).json({ error: "Aap aaj ke liye pehle se featured hain!" });
+      res.status(400).json({ error: "Aap aaj ke liye pehle se featured hain!" }); return;
     }
 
     const todayCount = await db.select({ c: count() }).from(dailyFeaturedTable)
       .where(and(eq(dailyFeaturedTable.type, "doctor"), eq(dailyFeaturedTable.featuredDate, today)));
 
     if ((todayCount[0]?.c ?? 0) >= 5) {
-      return res.status(400).json({ error: "Aaj ke 5 featured spots bhar gaye hain. Kal subah 7-9 AM mein phir try karein." });
+      res.status(400).json({ error: "Aaj ke 5 featured spots bhar gaye hain. Kal subah 7-9 AM mein phir try karein." }); return;
     }
 
     const [doc] = await db.select().from(doctorsTable).where(eq(doctorsTable.id, doctorId));
-    if (!doc) return res.status(404).json({ error: "Doctor not found" });
+    if (!doc) { res.status(404).json({ error: "Doctor not found" }); return; }
 
     await db.insert(dailyFeaturedTable).values({
       type: "doctor",
@@ -158,13 +159,14 @@ router.post("/doctor/join", async (req, res) => {
 
 router.post("/lab/join", async (req, res) => {
   const labId = parseLabId(req);
-  if (!labId) return res.status(401).json({ error: "Lab center login required" });
+  if (!labId) { res.status(401).json({ error: "Lab center login required" }); return; }
 
   if (!isRegistrationOpen()) {
     const h = getISTHour();
-    return res.status(400).json({
+    res.status(400).json({
       error: `Registration window is 7 AM – 9 AM IST only. Current IST time: ${h}:00. Please try tomorrow morning.`
     });
+    return;
   }
 
   const today = getSlotDate();
@@ -178,18 +180,18 @@ router.post("/lab/join", async (req, res) => {
       ));
 
     if (existing.length > 0) {
-      return res.status(400).json({ error: "Aapka lab center aaj ke liye pehle se featured hai!" });
+      res.status(400).json({ error: "Aapka lab center aaj ke liye pehle se featured hai!" }); return;
     }
 
     const todayCount = await db.select({ c: count() }).from(dailyFeaturedTable)
       .where(and(eq(dailyFeaturedTable.type, "lab"), eq(dailyFeaturedTable.featuredDate, today)));
 
     if ((todayCount[0]?.c ?? 0) >= 5) {
-      return res.status(400).json({ error: "Aaj ke 5 lab featured spots bhar gaye hain. Kal subah 7-9 AM mein phir try karein." });
+      res.status(400).json({ error: "Aaj ke 5 lab featured spots bhar gaye hain. Kal subah 7-9 AM mein phir try karein." }); return;
     }
 
     const [lab] = await db.select().from(labCentersTable).where(eq(labCentersTable.id, labId));
-    if (!lab) return res.status(404).json({ error: "Lab center not found" });
+    if (!lab) { res.status(404).json({ error: "Lab center not found" }); return; }
 
     await db.insert(dailyFeaturedTable).values({
       type: "lab",
@@ -210,7 +212,7 @@ router.post("/lab/join", async (req, res) => {
 
 router.get("/doctor/status", async (req, res) => {
   const doctorId = parseDoctorId(req);
-  if (!doctorId) return res.status(401).json({ error: "Login required" });
+  if (!doctorId) { res.status(401).json({ error: "Login required" }); return; }
   const today = getSlotDate();
   try {
     const rows = await db.select().from(dailyFeaturedTable)
@@ -229,7 +231,7 @@ router.get("/doctor/status", async (req, res) => {
 
 router.get("/lab/status", async (req, res) => {
   const labId = parseLabId(req);
-  if (!labId) return res.status(401).json({ error: "Login required" });
+  if (!labId) { res.status(401).json({ error: "Login required" }); return; }
   const today = getSlotDate();
   try {
     const rows = await db.select().from(dailyFeaturedTable)

@@ -19,7 +19,7 @@ function parseEntityId(req: any): number | null {
 
 router.get("/doctor", async (req, res) => {
   const doctorId = parseEntityId(req);
-  if (!doctorId) return res.status(401).json({ error: "Login required" });
+  if (!doctorId) { res.status(401).json({ error: "Login required" }); return; }
   try {
     const rows = await db.select().from(notificationsTable)
       .where(and(eq(notificationsTable.type, "doctor"), eq(notificationsTable.entityId, doctorId)))
@@ -32,7 +32,7 @@ router.get("/doctor", async (req, res) => {
 
 router.get("/lab", async (req, res) => {
   const labId = parseEntityId(req);
-  if (!labId) return res.status(401).json({ error: "Login required" });
+  if (!labId) { res.status(401).json({ error: "Login required" }); return; }
   try {
     const rows = await db.select().from(notificationsTable)
       .where(and(eq(notificationsTable.type, "lab"), eq(notificationsTable.entityId, labId)))
@@ -45,7 +45,7 @@ router.get("/lab", async (req, res) => {
 
 router.put("/doctor/read-all", async (req, res) => {
   const doctorId = parseEntityId(req);
-  if (!doctorId) return res.status(401).json({ error: "Login required" });
+  if (!doctorId) { res.status(401).json({ error: "Login required" }); return; }
   try {
     await db.update(notificationsTable)
       .set({ isRead: 1 })
@@ -56,7 +56,7 @@ router.put("/doctor/read-all", async (req, res) => {
 
 router.put("/lab/read-all", async (req, res) => {
   const labId = parseEntityId(req);
-  if (!labId) return res.status(401).json({ error: "Login required" });
+  if (!labId) { res.status(401).json({ error: "Login required" }); return; }
   try {
     await db.update(notificationsTable)
       .set({ isRead: 1 })

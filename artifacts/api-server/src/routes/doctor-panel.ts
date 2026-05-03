@@ -54,16 +54,16 @@ router.post("/register", async (req, res) => {
   } = req.body;
 
   if (!name || !email || !password || !specialization) {
-    return res.status(400).json({ error: "Name, email, password and specialization are required" });
+    res.status(400).json({ error: "Name, email, password and specialization are required" }); return;
   }
   if (password.length < 6) {
-    return res.status(400).json({ error: "Password must be at least 6 characters" });
+    res.status(400).json({ error: "Password must be at least 6 characters" }); return;
   }
 
   const existing = await db.select({ id: doctorsTable.id })
     .from(doctorsTable).where(eq(doctorsTable.email, email.toLowerCase())).limit(1);
   if (existing.length > 0) {
-    return res.status(409).json({ error: "An account with this email already exists" });
+    res.status(409).json({ error: "An account with this email already exists" }); return;
   }
 
   const slots = availableSlots?.length ? JSON.stringify(availableSlots) : JSON.stringify(DEFAULT_SLOTS);
@@ -100,13 +100,13 @@ router.post("/register", async (req, res) => {
 
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
-  if (!email || !password) return res.status(400).json({ error: "Email and password required" });
+  if (!email || !password) { res.status(400).json({ error: "Email and password required" }); return; }
 
   const [doctor] = await db.select().from(doctorsTable)
     .where(eq(doctorsTable.email, email.toLowerCase())).limit(1);
 
-  if (!doctor || !doctor.passwordHash) return res.status(401).json({ error: "Invalid credentials" });
-  if (doctor.passwordHash !== hashPw(password)) return res.status(401).json({ error: "Invalid credentials" });
+  if (!doctor || !doctor.passwordHash) { res.status(401).json({ error: "Invalid credentials" }); return; }
+  if (doctor.passwordHash !== hashPw(password)) { res.status(401).json({ error: "Invalid credentials" }); return; }
 
   const token = makeToken(doctor.id, doctor.email!);
   const { passwordHash: _ph, ...safe } = doctor;
@@ -115,11 +115,11 @@ router.post("/login", async (req, res) => {
 
 router.get("/profile", async (req, res) => {
   const doctorId = parseDoctorAuth(req);
-  if (!doctorId) return res.status(401).json({ error: "Unauthorized" });
+  if (!doctorId) { res.status(401).json({ error: "Unauthorized" }); return; }
 
   const [doctor] = await db.select().from(doctorsTable)
     .where(eq(doctorsTable.id, doctorId)).limit(1);
-  if (!doctor) return res.status(404).json({ error: "Doctor not found" });
+  if (!doctor) { res.status(404).json({ error: "Doctor not found" }); return; }
 
   const { passwordHash: _ph, ...safe } = doctor;
   res.json({ doctor: safe });
@@ -127,7 +127,7 @@ router.get("/profile", async (req, res) => {
 
 router.put("/profile", async (req, res) => {
   const doctorId = parseDoctorAuth(req);
-  if (!doctorId) return res.status(401).json({ error: "Unauthorized" });
+  if (!doctorId) { res.status(401).json({ error: "Unauthorized" }); return; }
 
   const allowed = [
     "name", "phone", "specialization", "qualifications", "experienceYears",
@@ -146,7 +146,7 @@ router.put("/profile", async (req, res) => {
     updateData.availableDays = req.body.availableDays.join(",");
   }
   if (req.body.newPassword) {
-    if (req.body.newPassword.length < 6) return res.status(400).json({ error: "Password too short" });
+    if (req.body.newPassword.length < 6) { res.status(400).json({ error: "Password too short" }); return; }
     updateData.passwordHash = hashPw(req.body.newPassword);
   }
 
@@ -159,7 +159,7 @@ router.put("/profile", async (req, res) => {
 
 router.get("/appointments", async (req, res) => {
   const doctorId = parseDoctorAuth(req);
-  if (!doctorId) return res.status(401).json({ error: "Unauthorized" });
+  if (!doctorId) { res.status(401).json({ error: "Unauthorized" }); return; }
 
   const appointments = await db.select().from(appointmentsTable)
     .where(eq(appointmentsTable.doctorId, doctorId))
@@ -170,12 +170,12 @@ router.get("/appointments", async (req, res) => {
 
 router.put("/appointments/:id/status", async (req, res) => {
   const doctorId = parseDoctorAuth(req);
-  if (!doctorId) return res.status(401).json({ error: "Unauthorized" });
+  if (!doctorId) { res.status(401).json({ error: "Unauthorized" }); return; }
 
   const apptId = Number(req.params.id);
   const { status } = req.body;
   const validStatuses = ["confirmed", "completed", "cancelled", "no_show"];
-  if (!validStatuses.includes(status)) return res.status(400).json({ error: "Invalid status" });
+  if (!validStatuses.includes(status)) { res.status(400).json({ error: "Invalid status" }); return; }
 
   const [updated] = await db.update(appointmentsTable)
     .set({ status }).where(eq(appointmentsTable.id, apptId)).returning();

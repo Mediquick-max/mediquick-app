@@ -23,7 +23,7 @@ import {
 const router = Router();
 
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "mediquick@admin2024";
-const ADMIN_TOKEN = "mq-admin-secret-token-2024";
+const ADMIN_TOKEN = process.env.ADMIN_TOKEN ?? "mq-admin-secret-token-2024";
 
 function requireAdmin(req: any, res: any, next: any) {
   const auth = req.headers.authorization ?? "";

@@ -53,7 +53,7 @@ export function CreateReminderDialog() {
       onError: (error) => {
         toast({
           title: "Failed to add reminder",
-          description: error.error || "An unexpected error occurred.",
+          description: (error.data as { error?: string })?.error || error.message || "An unexpected error occurred.",
           variant: "destructive"
         });
       }

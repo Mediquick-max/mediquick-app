@@ -314,7 +314,7 @@ router.get("/nearby", async (req, res) => {
         lng: prof?.lng,
         city: prof?.city ?? "",
       },
-      distanceMeters,
+      distanceMeters: distMeters,
       deliveryCharge: charges?.deliveryCharge ?? null,
       platformFee: charges?.platformFee ?? null,
     };

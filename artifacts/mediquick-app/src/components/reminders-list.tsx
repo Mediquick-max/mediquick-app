@@ -29,7 +29,7 @@ export function RemindersList() {
       onError: (err) => {
         toast({
           title: "Error updating reminder",
-          description: err.error || "Could not update status.",
+          description: (err.data as { error?: string })?.error || err.message || "Could not update status.",
           variant: "destructive"
         });
       }
@@ -50,7 +50,7 @@ export function RemindersList() {
       onError: (err) => {
         toast({
           title: "Error deleting reminder",
-          description: err.error || "Could not delete reminder.",
+          description: (err.data as { error?: string })?.error || err.message || "Could not delete reminder.",
           variant: "destructive"
         });
       }

@@ -69,7 +69,7 @@ export function CareServices() {
       onError: (error) =>
         toast({
           title: "Booking failed",
-          description: error.error || "Please check the details and try again.",
+          description: (error.data as { error?: string })?.error || error.message || "Please check the details and try again.",
           variant: "destructive",
         }),
     },
@@ -81,7 +81,7 @@ export function CareServices() {
       onError: (error) =>
         toast({
           title: "Booking failed",
-          description: error.error || "Please check the details and try again.",
+          description: (error.data as { error?: string })?.error || error.message || "Please check the details and try again.",
           variant: "destructive",
         }),
     },
@@ -93,7 +93,7 @@ export function CareServices() {
       onError: (error) =>
         toast({
           title: "Order failed",
-          description: error.error || "Please check the details and try again.",
+          description: (error.data as { error?: string })?.error || error.message || "Please check the details and try again.",
           variant: "destructive",
         }),
     },
