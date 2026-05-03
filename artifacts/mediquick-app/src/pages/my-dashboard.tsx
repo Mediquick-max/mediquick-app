@@ -169,7 +169,6 @@ export default function MyDashboardPage() {
           contact: data?.user?.phone ?? "",
         },
         method: { upi: true, card: true, netbanking: true, wallet: true, emi: false, paylater: false },
-        ...(autopay ? { recurring: 1 } : {}),
       };
       const rzp = new (window as any).Razorpay(options);
       rzp.open();

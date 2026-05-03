@@ -182,14 +182,12 @@ router.post("/membership/upgrade", async (req, res): Promise<void> => {
   try {
     const Razorpay = (await import("razorpay")).default;
     const rzp = new Razorpay({ key_id: razorpayKeyId, key_secret: razorpayKeySecret });
-    const orderPayload: any = {
+    const order = await rzp.orders.create({
       amount: selectedPlan.price * 100,
       currency: "INR",
       receipt: `membership_${userId}_${Date.now()}`,
       notes: { userId: String(userId), plan: selectedPlan.id, autopay: autopay ? "true" : "false" },
-    };
-    if (autopay) orderPayload.recurring = 1;
-    const order = await rzp.orders.create(orderPayload);
+    });
     res.json({ order, plan: selectedPlan, key: razorpayKeyId, autopay: !!autopay });
   } catch (err) {
     req.log.error({ err }, "Razorpay order creation failed");

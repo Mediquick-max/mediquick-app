@@ -477,14 +477,12 @@ router.post("/payment/order", async (req, res) => {
   try {
     const Razorpay = (await import("razorpay")).default;
     const rzp = new Razorpay({ key_id: keyId, key_secret: keySecret });
-    const orderPayload: any = {
+    const order = await rzp.orders.create({
       amount: price * 100,
       currency: "INR",
       receipt: `shop_${userId}_${plan}_${Date.now()}`,
       notes: { userId: String(userId), plan, autopay: autopay ? "true" : "false" },
-    };
-    if (autopay) orderPayload.recurring = 1;
-    const order = await rzp.orders.create(orderPayload);
+    });
     res.json({ orderId: order.id, amount: price * 100, currency: "INR", keyId, plan, autopay: !!autopay });
   } catch (err: any) {
     req.log?.error(err);

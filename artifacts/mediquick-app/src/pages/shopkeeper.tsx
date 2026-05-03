@@ -152,7 +152,6 @@ export default function ShopkeeperPage() {
         theme: { color: "#d95f2b" },
         prefill: { name: user?.name ?? "", email: user?.email ?? "" },
         method: { upi: true, card: true, netbanking: true, wallet: true, emi: false, paylater: false },
-        ...(autopay ? { recurring: 1 } : {}),
         handler: async function (response: any) {
           const verifyRes = await fetch(`${API}/api/shopkeeper/payment/verify`, {
             method: "POST", headers,
