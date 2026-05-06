@@ -2,6 +2,7 @@ import { Router } from "express";
 import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
 import { db, appUsersTable } from "@workspace/db";
+import googleAuthRouter from "./google-auth";
 
 const router = Router();
 
@@ -172,11 +173,14 @@ router.get("/me", async (req, res) => {
       plan: user.plan,
       phone: user.phone,
       city: user.city,
+      avatarUrl: user.avatarUrl ?? "",
     });
   } catch (err) {
     req.log.error({ err }, "Failed to fetch user");
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
+router.use(googleAuthRouter);
 
 export default router;

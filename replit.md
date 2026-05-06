@@ -90,6 +90,15 @@ The workspace includes **MediQuick**, a React web app for daily healthcare: medi
 - `conversations` and `messages` tables in `lib/db/src/schema/`
   - Store AI health chat exchanges for conversation history/auditing
 
+## Profile Photo, SSE Notifications & Google Login
+
+- **DB**: `avatar_url` column on `app_users` table (text, default "")
+- **Upload API**: `POST /api/upload/avatar` (multer, 5MB limit, JPEG/PNG/WebP) — saves to `artifacts/api-server/uploads/`; `GET /api/upload/avatars/:filename` — serve file
+- **SSE**: `GET /api/sse/stream?token=...` — EventSource stream. `sendSSE(userId, event, data)` and `broadcastSSE(event, data)` exported from `routes/sse.ts`
+- **Google Login**: Supabase Auth (`POST /api/auth/google-login`) — creates or finds user by email, returns MQ token. Supabase URL/Anon key injected via Vite `define` from `SUPABASE_URL` / `SUPABASE_ANON_KEY` env vars
+- **Frontend**: `/my-profile` page — avatar upload, account details, live SSE notification feed, push permission toggle. Avatar shown in header dropdown too.
+- Google button visible only when `supabase` client is initialized (env vars set)
+
 ## MediQuick Notes
 
 - Pharmacy locator uses curated pharmacy seed data plus optional browser geolocation for nearby ranking.

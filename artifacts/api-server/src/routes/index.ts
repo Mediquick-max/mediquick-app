@@ -14,6 +14,8 @@ import patientRouter from "./patient";
 import labCenterRouter from "./lab-center";
 import featuredRouter from "./featured";
 import notificationsRouter from "./notifications";
+import uploadRouter from "./upload";
+import sseRouter from "./sse";
 
 const router: IRouter = Router();
 
@@ -32,5 +34,7 @@ router.use("/patient", patientRouter);
 router.use("/lab-center", labCenterRouter);
 router.use("/featured", featuredRouter);
 router.use("/notifications", notificationsRouter);
+router.use("/upload", uploadRouter);
+router.use("/sse", sseRouter);
 
 export default router;

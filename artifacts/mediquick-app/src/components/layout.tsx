@@ -3,7 +3,7 @@ import { Link, useLocation } from "wouter";
 import {
   LogIn, UserPlus, LogOut, ChevronDown, Store, Stethoscope, Pill,
   Home, X, MapPin, LocateFixed, Loader2, FlaskConical, LayoutDashboard,
-  Crown,
+  Crown, UserCircle,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { MediQuickLogo } from "@/components/logo";
@@ -78,8 +78,12 @@ export function Layout({ children }: { children: ReactNode }) {
                 <div className="relative">
                   <button onClick={() => setMenuOpen(!menuOpen)}
                     className="flex items-center gap-2 bg-primary/10 hover:bg-primary/20 text-primary px-3 py-1.5 rounded-2xl transition-colors text-sm font-semibold">
-                    <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">
-                      {user.name.charAt(0).toUpperCase()}
+                    <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold overflow-hidden">
+                      {user.avatarUrl ? (
+                        <img src={user.avatarUrl} alt={user.name} className="w-full h-full object-cover" />
+                      ) : (
+                        user.name.charAt(0).toUpperCase()
+                      )}
                     </div>
                     <span className="hidden sm:block max-w-20 truncate">{user.name.split(" ")[0]}</span>
                     <ChevronDown className="w-3.5 h-3.5" />
@@ -105,6 +109,10 @@ export function Layout({ children }: { children: ReactNode }) {
                           </div>
                         </div>
                         <div className="px-2 space-y-0.5">
+                          <Link href="/my-profile" onClick={() => setMenuOpen(false)}
+                            className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl text-sm text-foreground hover:bg-secondary/60 transition-colors font-medium">
+                            <UserCircle className="w-4 h-4 text-purple-600" /> My Profile
+                          </Link>
                           <Link href="/my-dashboard" onClick={() => setMenuOpen(false)}
                             className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl text-sm text-foreground hover:bg-secondary/60 transition-colors font-medium">
                             <LayoutDashboard className="w-4 h-4 text-blue-600" /> My Dashboard

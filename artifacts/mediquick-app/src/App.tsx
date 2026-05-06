@@ -15,6 +15,7 @@ import LabTestsPage from "@/pages/lab-tests";
 import MyDashboardPage from "@/pages/my-dashboard";
 import PlansPage from "@/pages/plans";
 import LabCenterPage from "@/pages/lab-center";
+import MyProfilePage from "@/pages/my-profile";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +33,7 @@ function Router() {
       <Route path="/my-dashboard" component={MyDashboardPage} />
       <Route path="/plans" component={PlansPage} />
       <Route path="/lab-center" component={LabCenterPage} />
+      <Route path="/my-profile" component={MyProfilePage} />
       <Route component={NotFound} />
     </Switch>
   );

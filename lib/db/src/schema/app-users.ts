@@ -17,6 +17,7 @@ export const appUsersTable = pgTable("app_users", {
   bloodGroup: text("blood_group").notNull().default(""),
   allergies: text("allergies").notNull().default(""),
   membershipExpiresAt: timestamp("membership_expires_at", { withTimezone: true }),
+  avatarUrl: text("avatar_url").notNull().default(""),
 });
 
 export type AppUser = typeof appUsersTable.$inferSelect;
