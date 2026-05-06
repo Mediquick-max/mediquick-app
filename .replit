@@ -79,3 +79,4 @@ channel = "stable-25_05"
 [userenv.shared]
 SUPABASE_URL = "https://rfbsaxlmwkkyfwmjdhjg.supabase.co"
 SUPABASE_ANON_KEY = "sb_publishable_Ij4_6yBkfv9s-Jp-Y_33kA_tNK6PLLG"
+SUPABASE_DATABASE_URL = "postgresql://postgres:nafishadildar@db.rfbsaxlmwkkyfwmjdhjg.supabase.co:5432/postgres"
