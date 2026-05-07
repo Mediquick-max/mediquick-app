@@ -1,0 +1,1122 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: API specification
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: reminders
+    description: Medicine reminder operations
+  - name: pharmacies
+    description: Local medicine locator operations
+  - name: care
+    description: Healthcare service operations
+  - name: ai
+    description: AI medical assistant operations
+  - name: admin
+    description: Admin panel operations
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+  /reminders:
+    get:
+      operationId: listReminders
+      tags: [reminders]
+      summary: List medicine reminders
+      responses:
+        "200":
+          description: Reminder list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Reminder"
+    post:
+      operationId: createReminder
+      tags: [reminders]
+      summary: Create a medicine reminder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateReminderInput"
+      responses:
+        "201":
+          description: Created reminder
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Reminder"
+        "400":
+          description: Invalid reminder input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /reminders/today:
+    get:
+      operationId: listTodayReminders
+      tags: [reminders]
+      summary: List today's reminders
+      responses:
+        "200":
+          description: Today's reminders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Reminder"
+  /reminders/summary:
+    get:
+      operationId: getReminderSummary
+      tags: [reminders]
+      summary: Reminder dashboard summary
+      responses:
+        "200":
+          description: Reminder summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReminderSummary"
+  /reminders/{id}/taken:
+    patch:
+      operationId: markReminderTaken
+      tags: [reminders]
+      summary: Mark a reminder as taken or not taken
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MarkReminderTakenInput"
+      responses:
+        "200":
+          description: Updated reminder
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Reminder"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Reminder not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /reminders/{id}:
+    delete:
+      operationId: deleteReminder
+      tags: [reminders]
+      summary: Delete a medicine reminder
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Reminder deleted
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Reminder not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /pharmacies/search:
+    get:
+      operationId: searchPharmacies
+      tags: [pharmacies]
+      summary: Search nearby pharmacies by medicine
+      parameters:
+        - name: medicine
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: lat
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: lng
+          in: query
+          required: false
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Pharmacy search result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PharmacySearchResult"
+        "400":
+          description: Invalid search
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /care/options:
+    get:
+      operationId: getCareOptions
+      tags: [care]
+      summary: Get doctors, lab tests, and medicine catalog
+      responses:
+        "200":
+          description: Available healthcare options
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CareOptions"
+  /care/activity:
+    get:
+      operationId: getCareActivity
+      tags: [care]
+      summary: Get booked consultations, labs, and orders
+      responses:
+        "200":
+          description: User care activity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CareActivity"
+  /care/consultations:
+    post:
+      operationId: createConsultation
+      tags: [care]
+      summary: Book a doctor consultation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateConsultationInput"
+      responses:
+        "201":
+          description: Consultation booked
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CareRequest"
+        "400":
+          description: Invalid consultation input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /care/lab-bookings:
+    post:
+      operationId: createLabBooking
+      tags: [care]
+      summary: Book a lab test
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateLabBookingInput"
+      responses:
+        "201":
+          description: Lab booking created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CareRequest"
+        "400":
+          description: Invalid lab booking input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /care/medicine-orders:
+    post:
+      operationId: createMedicineOrder
+      tags: [care]
+      summary: Create a medicine delivery request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateMedicineOrderInput"
+      responses:
+        "201":
+          description: Medicine order created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CareRequest"
+        "400":
+          description: Invalid medicine order input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /ai/health-chat:
+    post:
+      operationId: askHealthAi
+      tags: [ai]
+      summary: Ask the AI medical assistant a general health question
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/HealthAiQuestionInput"
+      responses:
+        "200":
+          description: AI medical assistant answer
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthAiAnswer"
+        "400":
+          description: Invalid question
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /ai/symptom-check:
+    post:
+      operationId: checkSymptoms
+      tags: [ai]
+      summary: Check selected symptoms with basic AI guidance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SymptomCheckInput"
+      responses:
+        "200":
+          description: Symptom guidance
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthAiAnswer"
+        "400":
+          description: Invalid symptoms
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /admin/login:
+    post:
+      operationId: adminLogin
+      tags: [admin]
+      summary: Admin login with password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminLoginInput"
+      responses:
+        "200":
+          description: Login success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminLoginResult"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /admin/stats:
+    get:
+      operationId: getAdminStats
+      tags: [admin]
+      summary: Get dashboard stats
+      responses:
+        "200":
+          description: Dashboard stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminStats"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /admin/users:
+    get:
+      operationId: listAdminUsers
+      tags: [admin]
+      summary: List all app users
+      responses:
+        "200":
+          description: Users list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AdminUser"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /admin/users/{id}:
+    patch:
+      operationId: updateAdminUser
+      tags: [admin]
+      summary: Update a user's plan or status
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateAdminUserInput"
+      responses:
+        "200":
+          description: Updated user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminUser"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: deleteAdminUser
+      tags: [admin]
+      summary: Delete a user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: User deleted
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /admin/subscriptions:
+    get:
+      operationId: listAdminSubscriptions
+      tags: [admin]
+      summary: List all subscriptions
+      responses:
+        "200":
+          description: Subscriptions list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AdminSubscription"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /admin/payments:
+    get:
+      operationId: listAdminPayments
+      tags: [admin]
+      summary: List all payments
+      responses:
+        "200":
+          description: Payments list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AdminPayment"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /admin/api-config:
+    get:
+      operationId: listApiConfig
+      tags: [admin]
+      summary: List API provider configurations
+      responses:
+        "200":
+          description: API config list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ApiConfigItem"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /admin/api-config/{id}:
+    patch:
+      operationId: updateApiConfig
+      tags: [admin]
+      summary: Update an API provider configuration
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateApiConfigInput"
+      responses:
+        "200":
+          description: Updated config
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiConfigItem"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Config not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /admin/care-activity:
+    get:
+      operationId: getAdminCareActivity
+      tags: [admin]
+      summary: Get all care activity (consultations, labs, orders)
+      responses:
+        "200":
+          description: Care activity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CareActivity"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /ai/health-speech:
+    post:
+      operationId: speakHealthAiAnswer
+      tags: [ai]
+      summary: Convert AI medical assistant answer to spoken audio
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/HealthSpeechInput"
+      responses:
+        "200":
+          description: MP3 audio response
+          content:
+            audio/mpeg:
+              schema:
+                type: string
+                format: binary
+        "400":
+          description: Invalid text
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+    Reminder:
+      type: object
+      properties:
+        id:
+          type: integer
+        medicineName:
+          type: string
+        time:
+          type: string
+          pattern: "^([01]\\d|2[0-3]):[0-5]\\d$"
+        taken:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - medicineName
+        - time
+        - taken
+        - createdAt
+        - updatedAt
+    CreateReminderInput:
+      type: object
+      properties:
+        medicineName:
+          type: string
+          minLength: 1
+        time:
+          type: string
+          pattern: "^([01]\\d|2[0-3]):[0-5]\\d$"
+      required:
+        - medicineName
+        - time
+    MarkReminderTakenInput:
+      type: object
+      properties:
+        taken:
+          type: boolean
+      required:
+        - taken
+    ReminderSummary:
+      type: object
+      properties:
+        total:
+          type: integer
+        dueToday:
+          type: integer
+        takenToday:
+          type: integer
+        nextReminder:
+          anyOf:
+            - $ref: "#/components/schemas/Reminder"
+            - type: "null"
+      required:
+        - total
+        - dueToday
+        - takenToday
+        - nextReminder
+    Pharmacy:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        address:
+          type: string
+        phone:
+          type: string
+        lat:
+          type: number
+        lng:
+          type: number
+        distanceKm:
+          type: number
+        openNow:
+          type: boolean
+        medicines:
+          type: array
+          items:
+            type: string
+      required:
+        - id
+        - name
+        - address
+        - phone
+        - lat
+        - lng
+        - distanceKm
+        - openNow
+        - medicines
+    PharmacySearchResult:
+      type: object
+      properties:
+        medicine:
+          type: string
+        center:
+          type: object
+          properties:
+            lat:
+              type: number
+            lng:
+              type: number
+          required:
+            - lat
+            - lng
+        pharmacies:
+          type: array
+          items:
+            $ref: "#/components/schemas/Pharmacy"
+        mapUrl:
+          type: string
+      required:
+        - medicine
+        - center
+        - pharmacies
+        - mapUrl
+    Doctor:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        speciality:
+          type: string
+        experienceYears:
+          type: integer
+        rating:
+          type: number
+        fee:
+          type: integer
+        nextSlot:
+          type: string
+        mode:
+          type: string
+      required: [id, name, speciality, experienceYears, rating, fee, nextSlot, mode]
+    LabTest:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        includes:
+          type: string
+        price:
+          type: integer
+        reportTime:
+          type: string
+      required: [id, name, includes, price, reportTime]
+    MedicineItem:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        price:
+          type: integer
+        deliveryEta:
+          type: string
+        prescriptionRequired:
+          type: boolean
+      required: [id, name, price, deliveryEta, prescriptionRequired]
+    CareOptions:
+      type: object
+      properties:
+        doctors:
+          type: array
+          items:
+            $ref: "#/components/schemas/Doctor"
+        labTests:
+          type: array
+          items:
+            $ref: "#/components/schemas/LabTest"
+        medicines:
+          type: array
+          items:
+            $ref: "#/components/schemas/MedicineItem"
+      required: [doctors, labTests, medicines]
+    CareRequest:
+      type: object
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+          enum: [consultation, lab, medicine]
+        itemId:
+          type: string
+        title:
+          type: string
+        patientName:
+          type: string
+        phone:
+          type: string
+        notes:
+          type: string
+        address:
+          type: string
+        mode:
+          type: string
+        dateSlot:
+          type: string
+        status:
+          type: string
+        amount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, type, itemId, title, patientName, phone, notes, address, mode, dateSlot, status, amount, createdAt]
+    CareActivity:
+      type: object
+      properties:
+        consultations:
+          type: array
+          items:
+            $ref: "#/components/schemas/CareRequest"
+        labBookings:
+          type: array
+          items:
+            $ref: "#/components/schemas/CareRequest"
+        medicineOrders:
+          type: array
+          items:
+            $ref: "#/components/schemas/CareRequest"
+      required: [consultations, labBookings, medicineOrders]
+    CreateConsultationInput:
+      type: object
+      properties:
+        doctorId:
+          type: string
+          minLength: 1
+        patientName:
+          type: string
+          minLength: 1
+        phone:
+          type: string
+          minLength: 10
+        concern:
+          type: string
+          minLength: 1
+        mode:
+          type: string
+          enum: [video, clinic]
+        dateSlot:
+          type: string
+          minLength: 1
+      required: [doctorId, patientName, phone, concern, mode, dateSlot]
+    CreateLabBookingInput:
+      type: object
+      properties:
+        testId:
+          type: string
+          minLength: 1
+        patientName:
+          type: string
+          minLength: 1
+        phone:
+          type: string
+          minLength: 10
+        address:
+          type: string
+          minLength: 1
+        dateSlot:
+          type: string
+          minLength: 1
+      required: [testId, patientName, phone, address, dateSlot]
+    CreateMedicineOrderInput:
+      type: object
+      properties:
+        medicineId:
+          type: string
+          minLength: 1
+        patientName:
+          type: string
+          minLength: 1
+        phone:
+          type: string
+          minLength: 10
+        address:
+          type: string
+          minLength: 1
+        quantity:
+          type: integer
+          minimum: 1
+      required: [medicineId, patientName, phone, address, quantity]
+    HealthAiQuestionInput:
+      type: object
+      properties:
+        question:
+          type: string
+          minLength: 1
+      required: [question]
+    SymptomCheckInput:
+      type: object
+      properties:
+        symptoms:
+          type: array
+          minItems: 1
+          items:
+            type: string
+        notes:
+          type: string
+      required: [symptoms]
+    HealthAiAnswer:
+      type: object
+      properties:
+        answer:
+          type: string
+        emergency:
+          type: boolean
+        safetyNote:
+          type: string
+        recommendedActions:
+          type: array
+          items:
+            type: string
+      required: [answer, emergency, safetyNote, recommendedActions]
+    HealthSpeechInput:
+      type: object
+      properties:
+        text:
+          type: string
+          minLength: 1
+      required: [text]
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+    AdminLoginInput:
+      type: object
+      properties:
+        password:
+          type: string
+          minLength: 1
+      required: [password]
+    AdminLoginResult:
+      type: object
+      properties:
+        success:
+          type: boolean
+        token:
+          type: string
+      required: [success, token]
+    AdminStats:
+      type: object
+      properties:
+        totalUsers:
+          type: integer
+        activeUsers:
+          type: integer
+        premiumUsers:
+          type: integer
+        freeUsers:
+          type: integer
+        totalRevenue:
+          type: integer
+        monthlyRevenue:
+          type: integer
+        totalPayments:
+          type: integer
+        successfulPayments:
+          type: integer
+        activeSubscriptions:
+          type: integer
+        totalConsultations:
+          type: integer
+        totalLabBookings:
+          type: integer
+        totalMedicineOrders:
+          type: integer
+        newUsersThisMonth:
+          type: integer
+      required:
+        - totalUsers
+        - activeUsers
+        - premiumUsers
+        - freeUsers
+        - totalRevenue
+        - monthlyRevenue
+        - totalPayments
+        - successfulPayments
+        - activeSubscriptions
+        - totalConsultations
+        - totalLabBookings
+        - totalMedicineOrders
+        - newUsersThisMonth
+    AdminUser:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        plan:
+          type: string
+        status:
+          type: string
+        city:
+          type: string
+        deviceType:
+          type: string
+        joinedAt:
+          type: string
+          format: date-time
+      required: [id, name, email, phone, plan, status, city, deviceType, joinedAt]
+    UpdateAdminUserInput:
+      type: object
+      properties:
+        plan:
+          type: string
+        status:
+          type: string
+        name:
+          type: string
+        phone:
+          type: string
+        city:
+          type: string
+    AdminSubscription:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        plan:
+          type: string
+        status:
+          type: string
+        amount:
+          type: integer
+        billingCycle:
+          type: string
+        startedAt:
+          type: string
+          format: date-time
+        expiresAt:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: "null"
+      required: [id, userId, plan, status, amount, billingCycle, startedAt, expiresAt]
+    AdminPayment:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        userName:
+          type: string
+        description:
+          type: string
+        amount:
+          type: integer
+        currency:
+          type: string
+        status:
+          type: string
+        gateway:
+          type: string
+        transactionId:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, userId, userName, description, amount, currency, status, gateway, transactionId, createdAt]
+    ApiConfigItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        provider:
+          type: string
+        label:
+          type: string
+        keyValue:
+          type: string
+        isActive:
+          type: string
+        notes:
+          type: string
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, provider, label, keyValue, isActive, notes, updatedAt]
+    UpdateApiConfigInput:
+      type: object
+      properties:
+        keyValue:
+          type: string
+        isActive:
+          type: string
+        notes:
+          type: string
+        label:
+          type: string

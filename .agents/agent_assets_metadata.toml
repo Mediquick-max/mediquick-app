@@ -1,0 +1,14 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "Fe7qTZcZRfjxfytIWBF8M"
+uri = "file://artifacts/mediquick-app/ANDROID_BUILD_GUIDE.md"
+type = "text"
+title = "MediQuick Android APK Build Guide"
+
+[[outputs]]
+id = "Z04fNpOM4lOsy8Buc55D9"
+uri = "file://artifacts/mediquick-app/android-config/AndroidManifest-permissions.xml"
+type = "unspecified"
+title = "Android Permissions XML"
