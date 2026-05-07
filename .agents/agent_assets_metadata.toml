@@ -12,3 +12,9 @@ id = "Z04fNpOM4lOsy8Buc55D9"
 uri = "file://artifacts/mediquick-app/android-config/AndroidManifest-permissions.xml"
 type = "unspecified"
 title = "Android Permissions XML"
+
+[[outputs]]
+id = "I5Q8sHiT3CD8ByjNsoNh7"
+uri = "file://mediquick-app.zip"
+type = "unspecified"
+title = "MediQuick - Complete Source Code (ZIP)"
