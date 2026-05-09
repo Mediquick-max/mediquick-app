@@ -50,6 +50,9 @@ function emergencyResponse() {
 }
 
 async function askMedicalAi(prompt: string) {
+  if (!openai) {
+    return "AI assistant is not configured on this server. Please contact the administrator.";
+  }
   const completion = await openai.chat.completions.create({
     model: "gpt-5.2",
     max_completion_tokens: 8192,
