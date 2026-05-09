@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: mediquick-api
+    env: node
+    rootDir: artifacts/api-server
+    buildCommand: npm install -g pnpm@10.26.1 && pnpm install --no-frozen-lockfile && pnpm run build
+    startCommand: node dist/index.mjs
+    plan: free
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: BASE_PATH
+        value: /api
+      - key: PORT
+        value: 10000
+      - key: DATABASE_URL
+        sync: false
+      - key: SESSION_SECRET
+        sync: false
+      - key: ADMIN_TOKEN
+        sync: false
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false

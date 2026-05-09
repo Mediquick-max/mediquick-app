@@ -1,0 +1,22 @@
+{
+  "buildCommand": "cd ../.. && npm install -g pnpm@10.26.1 && pnpm install --no-frozen-lockfile && pnpm --filter @workspace/mediquick-app run build",
+  "outputDirectory": "dist/public",
+  "framework": "vite",
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://mediquick-api.onrender.com/api/:path*"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        }
+      ]
+    }
+  ]
+}
