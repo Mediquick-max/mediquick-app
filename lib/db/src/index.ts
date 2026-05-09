@@ -11,8 +11,12 @@ if (!dbUrl) {
   );
 }
 
+const isSupabase =
+  dbUrl.includes("supabase.com") || dbUrl.includes("supabase.co");
+
 export const pool = new Pool({
   connectionString: dbUrl,
+  ssl: isSupabase ? { rejectUnauthorized: false } : undefined,
 });
 export const db = drizzle(pool, { schema });
 
