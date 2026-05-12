@@ -16,7 +16,8 @@ const isSupabase =
 
 export const pool = new Pool({
   connectionString: dbUrl,
-  ssl: isSupabase ? { rejectUnauthorized: false } : undefined,
+  ssl: { rejectUnauthorized: false },
+  family: 4,
 });
 export const db = drizzle(pool, { schema });
 
