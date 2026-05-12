@@ -11,13 +11,11 @@ if (!dbUrl) {
   );
 }
 
-const isSupabase =
-  dbUrl.includes("supabase.com") || dbUrl.includes("supabase.co");
+(pg as unknown as { defaults: { family: number } }).defaults.family = 4;
 
 export const pool = new Pool({
   connectionString: dbUrl,
   ssl: { rejectUnauthorized: false },
-  family: 4,
 });
 export const db = drizzle(pool, { schema });
 
