@@ -16,6 +16,10 @@ import MyDashboardPage from "@/pages/my-dashboard";
 import PlansPage from "@/pages/plans";
 import LabCenterPage from "@/pages/lab-center";
 import MyProfilePage from "@/pages/my-profile";
+import PrivacyPolicyPage from "@/pages/privacy-policy";
+import TermsPage from "@/pages/terms";
+import RefundPolicyPage from "@/pages/refund-policy";
+import ContactPage from "@/pages/contact";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +38,10 @@ function Router() {
       <Route path="/plans" component={PlansPage} />
       <Route path="/lab-center" component={LabCenterPage} />
       <Route path="/my-profile" component={MyProfilePage} />
+      <Route path="/privacy-policy" component={PrivacyPolicyPage} />
+      <Route path="/terms" component={TermsPage} />
+      <Route path="/refund-policy" component={RefundPolicyPage} />
+      <Route path="/contact" component={ContactPage} />
       <Route component={NotFound} />
     </Switch>
   );

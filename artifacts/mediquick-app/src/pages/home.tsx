@@ -239,6 +239,16 @@ export default function Home() {
             </Link>
           </div>
         </section>
+
+        <footer className="mt-10 pb-8 text-center">
+          <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
+            <Link href="/contact" className="hover:text-orange-500 transition-colors">Contact Us</Link>
+            <Link href="/privacy-policy" className="hover:text-orange-500 transition-colors">Privacy Policy</Link>
+            <Link href="/terms" className="hover:text-orange-500 transition-colors">Terms & Conditions</Link>
+            <Link href="/refund-policy" className="hover:text-orange-500 transition-colors">Refund Policy</Link>
+          </div>
+          <p className="text-xs text-muted-foreground mt-3">© 2025 MediQuick. All rights reserved.</p>
+        </footer>
       </div>
     </Layout>
   );
