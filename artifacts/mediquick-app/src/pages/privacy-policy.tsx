@@ -32,7 +32,7 @@ export default function PrivacyPolicyPage() {
         </Section>
 
         <Section title="6. Your Rights">
-          <p>You have the right to access, correct, or delete your personal data. Contact us at <a href="mailto:support@mediquick.health" className="text-orange-500 underline">support@mediquick.health</a> to exercise these rights.</p>
+          <p>You have the right to access, correct, or delete your personal data. Contact us at <a href="mailto:mediquick.support@gmail.com" className="text-orange-500 underline">mediquick.support@gmail.com</a> to exercise these rights.</p>
         </Section>
 
         <Section title="7. Cookies">
@@ -41,7 +41,7 @@ export default function PrivacyPolicyPage() {
 
         <Section title="8. Contact Us">
           <p>For privacy-related queries, contact us at:<br />
-            Email: <a href="mailto:support@mediquick.health" className="text-orange-500 underline">support@mediquick.health</a><br />
+            Email: <a href="mailto:mediquick.support@gmail.com" className="text-orange-500 underline">mediquick.support@gmail.com</a><br />
             Website: <a href="https://mediquick-app-mediquick-app.vercel.app" className="text-orange-500 underline">mediquick-app-mediquick-app.vercel.app</a>
           </p>
         </Section>

@@ -9,8 +9,8 @@ export default function ContactPage() {
           <ContactCard
             icon="📧"
             title="Email Support"
-            value="support@mediquick.health"
-            href="mailto:support@mediquick.health"
+            value="mediquick.support@gmail.com"
+            href="mailto:mediquick.support@gmail.com"
           />
           <ContactCard
             icon="🌐"

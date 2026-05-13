@@ -38,11 +38,11 @@ export default function RefundPolicyPage() {
         </Section>
 
         <Section title="5. Refund Process">
-          <p>Refunds are credited to the original payment method (UPI, card, net banking) within 5-7 business days. To request a refund, email us at <a href="mailto:support@mediquick.health" className="text-orange-500 underline">support@mediquick.health</a> with your order ID.</p>
+          <p>Refunds are credited to the original payment method (UPI, card, net banking) within 5-7 business days. To request a refund, email us at <a href="mailto:mediquick.support@gmail.com" className="text-orange-500 underline">mediquick.support@gmail.com</a> with your order ID.</p>
         </Section>
 
         <Section title="6. Contact for Refunds">
-          <p>Email: <a href="mailto:support@mediquick.health" className="text-orange-500 underline">support@mediquick.health</a><br />
+          <p>Email: <a href="mailto:mediquick.support@gmail.com" className="text-orange-500 underline">mediquick.support@gmail.com</a><br />
           Response time: Within 24 hours on business days</p>
         </Section>
       </div>

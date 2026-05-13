@@ -50,7 +50,7 @@ export default function TermsPage() {
         </Section>
 
         <Section title="9. Contact">
-          <p>Email: <a href="mailto:support@mediquick.health" className="text-orange-500 underline">support@mediquick.health</a></p>
+          <p>Email: <a href="mailto:mediquick.support@gmail.com" className="text-orange-500 underline">mediquick.support@gmail.com</a></p>
         </Section>
       </div>
     </div>
